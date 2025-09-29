@@ -6,7 +6,7 @@
 - **Authors:** J. Zhang, D. Qin, C. Kong, F. Zhao, R. Li, J. Wang, Y. Wang  
 - **Source:** IEEE WCNC, 2023  
 - **Why:** Canonical IEEE paper on **beam hopping scheduling** in NR-based LEO NTN systems. Directly matches 3GPP NTN scheduling under satellite mobility.  
-- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2205.10721)
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2205.10721) [Study Notes](https://github.com/petrajoyd/intern_repo/edit/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md)
 
 ### 2. Satellites Beam Hopping Scheduling for Interference-Aware SAT-Terrestrial Systems
 - **Authors:** H. Deng, et al.  
