@@ -2,23 +2,23 @@
 
 ## IEEE Transactions & Conference Papers
 
-### 1. Multicast Multigroup Precoding and User Scheduling for Frame-Based Satellite Communications
-- **Authors:** D. Christopoulos, S. Chatzinotas, B. Ottersten  
-- **Source:** *IEEE Transactions on Wireless Communications*, 2015  
-- **Why:** Canonical IEEE Transactions paper on frame-based satellite scheduling + multicast group scheduling and precoding; highly relevant to DVB-S2X forward link frame scheduling problems.  
-- **Link:** [arXiv preprint](https://arxiv.org/abs/1406.7699))
+### 1. System-Level Evaluation of Beam Hopping in NR-Based LEO Satellite Communication System
+- **Authors:** J. Zhang, D. Qin, C. Kong, F. Zhao, R. Li, J. Wang, Y. Wang  
+- **Source:** IEEE WCNC, 2023  
+- **Why:** Canonical IEEE paper on **beam hopping scheduling** in NR-based LEO NTN systems. Directly matches 3GPP NTN scheduling under satellite mobility.  
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2205.10721)
 
-### 2. Terminal-Aware Multi-Connectivity Scheduler for Uplink Multi-Layer Non-Terrestrial Networks
-- **Authors:** M. Dazhi, et al.  
-- **Source:** *IEEE Globecom Workshops*, 2022  
-- **Why:** Explicit scheduler design for multi-orbit NTN and multi-connectivity — directly applicable to 3GPP NTN solutions (multi-connectivity and terminal-aware scheduling).  
-- **Link:** [University of Luxembourg ORBilu](https://orbilu.uni.lu/handle/10993/52241)  
+### 2. Satellites Beam Hopping Scheduling for Interference-Aware SAT-Terrestrial Systems
+- **Authors:** H. Deng, et al.  
+- **Source:** IEEE Journal on Selected Areas in Communications (JSAC), 2024  
+- **Why:** Explores **beam hopping scheduling** under interference constraints, citing DVB payload models; aligns with DVB-S2X flexible payload and scheduling concepts.  
+- **Link:** [Free arXiv PDF](https://ieeexplore.ieee.org/document/10713888)
 
-### 3. Enhanced Hybrid ARQ Scheduling for Non-Terrestrial IoT Networks
-- **Authors:** G. Prasad, et al.  
-- **Source:** *IEEE Open Journal of the Communications Society*, 2023  
-- **Why:** Tackles HARQ / long RTT problems in NTNs and proposes transport-block scheduling methods that improve throughput for CIoT over NTN — important for uplink reliability and scheduler design.  
-- **Link:** [arXiv preprint](https://arxiv.org/abs/2305.07114)
+### 3. Joint Beam Scheduling and Power Optimization for Beam Hopping LEO Satellite Systems
+- **Authors:** S. Zheng, et al.  
+- **Source:** IEEE WCNC/Globecom Workshop, 2023  
+- **Why:** Proposes **joint scheduling + power optimization** for LEO beam hopping. Relevant to DVB-S2X scheduling (forward link) under beam-hopping architectures.  
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2312.01292)
 
 
 ## Standards (Authoritative Sources)
