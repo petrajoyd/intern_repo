@@ -167,3 +167,109 @@ Below are some of the actual metrics & results they got:
 - Under realistic traffic (FTP traffic model), the “UE satisfaction” metric shows how often demanded throughput is met; the proposed scheme with distance limit gives a much higher satisfaction ratio vs baselines.  
 
 ---
+# Glossary of Terms 
+
+This file explains the hard technical terms in the paper. Each term has:
+- **Formal Definition** (as used in communications engineering).  
+- **Simpler Meaning** (explained in everyday terms).  
+
+---
+
+## 3GPP NTN
+- **Definition:** 3rd Generation Partnership Project (3GPP) standards for Non-Terrestrial Networks (NTN), i.e., cellular systems (like 5G New Radio) adapted to work via satellites.  
+- **Simple:** The rules and standards that make sure 5G works even if the signal comes from satellites instead of towers.
+
+## 5G NR (New Radio)
+- **Definition:** The global standard radio interface for 5G mobile networks.  
+- **Simple:** The "language" phones and networks use to talk in 5G.
+
+## LEO Satellite (Low Earth Orbit)
+- **Definition:** Satellites orbiting at 200–2000 km altitude; in this paper, ~600 km. They move fast relative to Earth’s surface.  
+- **Simple:** Small satellites flying close to Earth (compared to TV satellites), circling quickly above us.
+
+## GEO & MEO
+- **Definition:** GEO = Geostationary Earth Orbit (~36,000 km, fixed over one spot). MEO = Medium Earth Orbit (~2000–20,000 km).  
+- **Simple:** GEO are far away and look “fixed in the sky”; MEO are in-between; LEO are the closest.
+
+## Beam Hopping (BH)
+- **Definition:** A satellite dynamically turns beams on/off in time slots to serve different areas with limited power/resources.  
+- **Simple:** Like shining a flashlight on one village at a time, moving it quickly, instead of lighting the whole region at once.
+  
+## Spotbeam
+- **Definition:** A focused radio beam projected by a satellite antenna to cover a small region on Earth (e.g., 42 km diameter).  
+- **Simple:** Think of it like a spotlight from the satellite, lighting up one patch of ground.
+
+## Phased Array Antenna
+- **Definition:** An antenna made of many small elements, electronically steered to form and direct beams without moving parts.  
+- **Simple:** Like a school of fish moving in sync—together they form a pattern and can “look” in different directions instantly.
+
+## SINR (Signal-to-Interference-plus-Noise Ratio)
+- **Definition:** Measure of signal quality = useful signal power divided by interference + noise. Higher is better.  
+- **Simple:** How clear the radio signal is compared to background noise and other signals. Like hearing a friend’s voice in a noisy crowd.
+
+## Throughput
+- **Definition:** The rate of successful data delivery over a channel, usually in Mbps or Gbps.  
+- **Simple:** How much internet speed (data) you actually get.
+
+## Packet Lifetime
+- **Definition:** Time taken from when a data packet is created until it is successfully received.  
+- **Simple:** How long a message takes to travel from sender to receiver.
+
+## User Satisfaction (QoS metric)
+- **Definition:** Ratio of the throughput a user gets vs. what they requested.  
+- **Simple:** Did the user get the speed they wanted, or only part of it?
+
+## Full-Buffer Traffic Model
+- **Definition:** Assumes users always have data to send (infinite backlog). Used for stress testing capacity.  
+- **Simple:** Pretend everyone is downloading endlessly, like a stress test of maximum demand.
+
+## FTP Model 3 (3GPP traffic model)
+- **Definition:** A traffic model where packets arrive randomly (Poisson process), with realistic file sizes.  
+- **Simple:** Users sometimes download files, sometimes not, in a random pattern—closer to real-world use.
+
+
+## Walker Constellation
+- **Definition:** A way to arrange satellites in multiple orbital planes evenly spaced around Earth.  
+- **Simple:** Imagine evenly spacing fishing boats around a lake in circular paths so they cover all areas.
+
+
+## Regenerative Payload
+- **Definition:** Satellite processes baseband signals onboard instead of just relaying them.  
+- **Simple:** A “smart” satellite that doesn’t just mirror the signal but also cleans and manages it before sending it back.
+
+
+## CQI (Channel Quality Indicator)
+- **Definition:** A number reported by user devices to tell the network how good the radio channel is.  
+- **Simple:** Like telling your friend “I can hear you clearly” or “You’re breaking up”.
+
+
+## HARQ (Hybrid Automatic Repeat reQuest)
+- **Definition:** Error-control method combining retransmissions with error correction to improve reliability.  
+- **Simple:** Like asking “What?” if you didn’t hear clearly, and your friend repeats or corrects the message.
+
+
+## Adaptive Modulation and Coding (AMC)
+- **Definition:** Adjusting data transmission speed and error protection depending on channel quality.  
+- **Simple:** If the weather is clear, talk fast; if it’s noisy, slow down and repeat carefully.
+
+## Path Loss
+- **Definition:** Reduction of signal power as it travels through space and atmosphere.  
+- **Simple:** The farther the sound, the weaker it gets—same with radio signals.
+
+## Shadowed-Rician Fading (mentioned in related works)
+- **Definition:** A radio propagation model that includes line-of-sight signal plus multiple scattered signals, with random fading due to obstacles.  
+- **Simple:** Like sunlight through clouds: strong direct rays plus scattered light, sometimes dimmed.
+
+## Inter-beam Interference
+- **Definition:** When signals from two satellite beams overlap and interfere.  
+- **Simple:** Like two fishing boats using sonar in the same spot—the signals clash.
+
+## Round Robin Scheduling
+- **Definition:** Assigning resources cyclically, one after another, regardless of demand.  
+- **Simple:** Taking turns equally, like giving each student in class one chance to speak, even if some don’t need it.
+
+## Distance Limit Constraint (in BH scheme)
+- **Definition:** Rule that prevents two adjacent beams from being active at the same time to reduce interference.  
+- **Simple:** Like making sure two loudspeakers aren’t blasting right next to each other.
+
+---
