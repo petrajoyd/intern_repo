@@ -6,19 +6,19 @@
 - **Authors:** J. Zhang, D. Qin, C. Kong, F. Zhao, R. Li, J. Wang, Y. Wang  
 - **Source:** IEEE WCNC, 2023  
 - **Why:** Canonical IEEE paper on **beam hopping scheduling** in NR-based LEO NTN systems. Directly matches 3GPP NTN scheduling under satellite mobility.  
-- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2205.10721) [Study Notes](https://github.com/petrajoyd/intern_repo/edit/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md)
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2205.10721) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md)
 
 ### 2. Satellites Beam Hopping Scheduling for Interference-Aware SAT-Terrestrial Systems
 - **Authors:** H. Deng, et al.  
 - **Source:** IEEE Journal on Selected Areas in Communications (JSAC), 2024  
 - **Why:** Explores **beam hopping scheduling** under interference constraints, citing DVB payload models; aligns with DVB-S2X flexible payload and scheduling concepts.  
-- **Link:** [Free arXiv PDF](https://ieeexplore.ieee.org/document/10713888)
+- **Link:** [Free arXiv PDF](https://ieeexplore.ieee.org/document/10713888) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md)
 
 ### 3. Joint Beam Scheduling and Power Optimization for Beam Hopping LEO Satellite Systems
 - **Authors:** S. Zheng, et al.  
 - **Source:** IEEE WCNC/Globecom Workshop, 2023  
 - **Why:** Proposes **joint scheduling + power optimization** for LEO beam hopping. Relevant to DVB-S2X scheduling (forward link) under beam-hopping architectures.  
-- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2312.01292)
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2312.01292) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md)
 
 
 ## Standards (Authoritative Sources)
