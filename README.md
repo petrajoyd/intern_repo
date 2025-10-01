@@ -553,20 +553,20 @@
 
 **📝 Daily Logs:**  
 - `18:00–19:00`:
-  - Clone BMW Lab repo (default branch).
-  - Set up folder structure (README.md, milestones.md, ./docs/, ./algorithms/).
+  - Set up folder structure (README.md, milestones.md, ./docs/, ./algorithms/). [Folder Structure](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing)
+
 - `19:00–20:00`:
-  - Add paper list in paper_list.md (IEEE + surveys + standards).
-  - Write plain-English summary for each paper in ./docs/notes/.
+  - Add paper list in paper_list.md (IEEE + surveys + standards). [Paper List](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper_list.md)
+  - Write plain-English summary for each paper in ./docs/notes/. [Notes Folder](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing)
   - Commit & push changes.
 
 - `20:00–21:00`:
-  - Upload diagrams (Graphviz: flow of DAMA scheduler, HARQ-aware scheduler, routing in NTN).
-  - Add references (IEEE citation format).
+  - Upload paper Notes [Paper 1](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md), Note down [Problems](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#problem) , [Solution](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#high-level-concept-of-the-solution), [Results verificator](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#how-they-verify-their-results), [KPIs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#kpis--actual-numbers).
+  - Add references (IEEE citation format). [Paper List](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper_list.md)
   - Commit & push changes.
 
 - `21:00–22:00`:
-  - Link Trello checklist items to specific GitHub headers (e.g., [paper_list.md#Christopoulos-2015]).
+  - Link Trello checklist items to specific GitHub headers
   - Final check repo matches Kak Ian’s SOP (naming + doc structure).
 
 ---  
@@ -583,15 +583,18 @@
 
 **📝 Daily Logs:**  
 - `18:00–19:00`:
-  - Pull yesterday’s commits, check file consistency.
+  - Pull yesterday’s commits, check file consistency. 
 - `19:00–20:00`:
-  - Add study notes for Zhang 2023 WCNC (beam hopping).
-  - Add study notes for Deng 2024 JSAC (TDBH vs SDBH beam hopping).
+  - Add study notes for Deng 2024 JSAC (beam hopping) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#study-notes--satellites-beam-hopping-scheduling-for-interference-avoidance). Note down [Problems](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#problem) , [Solution](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#high-level-solution), [Results verificator](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#verification-method), [KPIs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#kpis-considered).
+  - Add study notes for  Zheng China Communications [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md). Note down [Problems](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#problems) , [Solution](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#high-level-concept-of-the-solution), [Results verificator](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#how-the-authors-verify-their-results), [KPIs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#kpis-considered).
+  - Put paper's summary:
+    - Chapter Summary [Paper 1](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#1-introduction) [Paper 2](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#1-introduction) [Paper 3](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#1-introduction)
+    - Glossaries: Filled with unknown terminology [Paper 1](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-a_notes.md#glossary-of-terms) [Paper 2](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-b_notes.md#glossary-of-terms) [Paper 3](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md#glossary-of-terms)
   - Commit & push changes.
 - `20:00–21:00`:
-  - Read Kitty’s note on the simulator
+  - Read Kitty’s note on the simulator [Kitty's Note](https://github.com/liang924/SNS3)
   - Learn the fundamentals and basics
-  - Create notes and structural folder for the simulator
+  - Create notes and structural folder for the simulator [Notes Folder](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes)
 - `21:00–22:00`:
   - Copy GitHub permalinks from GitHub README into Trello .
   - Final check: repo structure matches SOP (naming + headers + README.md).
