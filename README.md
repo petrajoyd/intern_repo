@@ -537,4 +537,64 @@
   - Link Trello checklist items to GitHub headers.
   - Final check: repo structure matches Kak Ian’s requirements.
 
----
+---  
+
+### 2025.09.29
+
+**🎯 Short-term Goal:**  
+1. Milestone: Collect and document scheduling and routing algorithms for 3GPP NTN and DVB-S2X/DVB-RCS2
+2. Set up 3 required files/folders inside repo:
+    - ./docs/paper_list.md → list of IEEE & equivalent papers with GitHub headers.
+    - ./docs/notes/ → plain-English summaries of each paper (scheduling vs routing).
+    - ./algorithms/ → placeholder scripts or diagrams (Graphviz / pseudo-code of schedulers).
+3. Upload paper metadata (title, authors, year, link to IEEE/DOI).
+4. Add short explanation for each algorithm (1–3 sentences in README style).
+5. Attach GitHub headers back into Trello checklist items.
+
+**📝 Daily Logs:**  
+- `18:00–19:00`:
+  - Clone BMW Lab repo (default branch).
+  - Set up folder structure (README.md, milestones.md, ./docs/, ./algorithms/).
+- `19:00–20:00`:
+  - Add paper list in paper_list.md (IEEE + surveys + standards).
+  - Write plain-English summary for each paper in ./docs/notes/.
+  - Commit & push changes.
+
+- `20:00–21:00`:
+  - Upload diagrams (Graphviz: flow of DAMA scheduler, HARQ-aware scheduler, routing in NTN).
+  - Add references (IEEE citation format).
+  - Commit & push changes.
+
+- `21:00–22:00`:
+  - Link Trello checklist items to specific GitHub headers (e.g., [paper_list.md#Christopoulos-2015]).
+  - Final check repo matches Kak Ian’s SOP (naming + doc structure).
+
+---  
+
+### 2025.10.01
+
+**🎯 Short-term Goal:**  
+1. Milestone 4: Study the algorithm or simulator of Joanna & 侯亮妤’s NTN work, and continue study notes on beam-hopping scheduling papers.
+2. Add new paper notes (Zhang 2023 WCNC, Deng 2024 JSAC) into ./docs/notes/.
+3. Update ./docs/paper_list.md with IEEE citation + links.
+4. Start NTN simulator replication: clone Joanna & 侯亮妤’s repos and run example scripts.
+5. Upload replication logs and errors (if any) into repo for tracking.
+6. Copy GitHub permalinks of paper_list.md + study notes into Trello checklist items.
+
+**📝 Daily Logs:**  
+- `18:00–19:00`:
+  - Pull yesterday’s commits, check file consistency.
+- `19:00–20:00`:
+  - Add study notes for Zhang 2023 WCNC (beam hopping).
+  - Add study notes for Deng 2024 JSAC (TDBH vs SDBH beam hopping).
+  - Commit & push changes.
+- `20:00–21:00`:
+  - Read Kitty’s note on the simulator
+  - Learn the fundamentals and basics
+  - Create notes and structural folder for the simulator
+- `21:00–22:00`:
+  - Copy GitHub permalinks from GitHub README into Trello .
+  - Final check: repo structure matches SOP (naming + headers + README.md).
+  - Confirm all links are correct
+
+---  
