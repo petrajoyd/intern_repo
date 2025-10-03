@@ -20,6 +20,11 @@
 - **Why:** Proposes **joint scheduling + power optimization** for LEO beam hopping. Relevant to DVB-S2X scheduling (forward link) under beam-hopping architectures.  
 - **Link:** [Free arXiv PDF](https://arxiv.org/abs/2312.01292) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-c_notes.md)
 
+### 4. DSROQ: Dynamic Scheduling and Routing for QoE Management in LEO Satellite Networks
+- **Authors:** D. Bhattacharjee, P. G. Madoery, A. Naik, H. Yanikomeroglu, G. K. Kurt, S. Martel, K. Ahmed  
+- **Source:** IEEE / arXiv preprint, 2025  
+- **Why:** Proposes a **joint scheduling, routing, and bandwidth allocation** algorithm for LEO mega-constellations (Starlink-type). Uses dynamic QoE optimization (latency + throughput + fairness). Highly relevant to 3GPP NTN routing/scheduling challenges.  
+- **Link:** [Free arXiv PDF](https://arxiv.org/abs/2508.21047)) [Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-d_notes.md)
 
 ## Standards (Authoritative Sources)
 
