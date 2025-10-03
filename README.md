@@ -601,3 +601,33 @@
   - Confirm all links are correct
 
 ---  
+
+### 2025.10.03
+
+**🎯 Short-term Goal:**  
+1. Milestone 4: Study the algorithm or simulator of Joanna & 侯亮妤’s NTN work, and continue study notes on beam-hopping scheduling papers.
+2. Add 1 new IEEE paper to paper_list.md with study notes (Problem, Solution, Verification, KPIs).
+3. Update repo with new .md notes and permalinks.
+4. Read Kitty’s ns-3 installation note.
+5. Build ns-3 on local machine and run at least one LTE/NR example.
+6. Document replication status (success/fail + logs).
+
+**📝 Daily Logs:**  
+- `18:00–19:00`:
+  - Search and select new IEEE paper (last 5 years, LEO NTN, scheduling/routing).
+  - Write 4-point study note draft in .md.
+  - Update paper_list.md.
+- `19:00–20:00`:
+  - Read Kitty’s note about ns-3 installation steps.
+  - Clone ns-3 repo.
+  - Configure and start build (./ns3 configure --enable-examples --enable-tests).
+- `20:00–21:00`:
+  - Run simple LTE/NR example (lte-epc-simple, cttc-nr-demo).
+  - If build fails → capture errors, document in replication log.
+  - If succeeds → confirm output log and screenshots.
+- `21:00–22:00`:
+  - Check for NTN module (satellite/3GPP NTN extension).
+  - Update Trello with GitHub permalinks for today’s paper + notes.
+  - Post replication status (PASS/FAIL/PARTIAL).
+
+---  
