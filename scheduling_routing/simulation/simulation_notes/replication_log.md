@@ -14,3 +14,5 @@
   ```bash
   ./test.py --no-build`
 - **Status:** PASS
+- **Output:** <img width="1090" height="532" alt="image" src="https://github.com/user-attachments/assets/e5cee3c6-dd47-4942-afeb-363696c03f8f" />
+currently stuck at **[37/435]** in the build/test suite.
