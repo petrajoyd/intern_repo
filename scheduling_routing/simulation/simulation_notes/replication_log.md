@@ -55,4 +55,4 @@ building contrib/satellite completed. Now we test it with
   ls -lh *.txt
 <img width="960" height="819" alt="image" src="https://github.com/user-attachments/assets/79a90120-94a6-42f2-80e6-860432648538" />
 <img width="1300" height="424" alt="image" src="https://github.com/user-attachments/assets/bdece198-eaa3-4f6a-8428-b411857ee0bd" />
-The full troubleshooting notes available on 
+The full troubleshooting notes available on [troubleshoot notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/troubleshooting.md#4-full-recovery-procedure)
