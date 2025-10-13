@@ -567,3 +567,213 @@ Example output file:
 - It provides hooks for **tracing**, **packet classification**, and **delay/jitter measurement**.  
 - Most “packet journey” logic — from sending a TCP segment to receiving it back — passes through here.
 
+---
+
+# PHY and MAC Layer Analysis
+
+## Objective
+
+This document summarizest how `Transmi()` and `Receive()` functions are handled in the **PHY** and **MAC** layers of the ns-3 satellite module, and how signals are propagated through the **channel** and logged in simulation outputs.
+
+---
+
+## File Overview
+
+| File               | Role                                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `satellite-mac.cc` | Implements medium access control (MAC) — responsible for framing, scheduling, and coordinating transmissions.              |
+| `satellite-phy.cc` | Implements the physical layer (PHY) — responsible for signal transmission, propagation through the channel, and reception. |
+
+---
+
+## Data Flow Overview
+
+The packet transmission path from sender to receiver can be summarized as:
+
+```
+App → IP → SatNetDevice → SatLlc → SatMac → SatPhy → SatChannel
+                                                  ↓
+                                            SatPhy (Receiver)
+                                                  ↓
+                                           SatMac → SatLlc → App
+```
+
+Each layer plays a distinct role:
+
+* **MAC**: Decides when and how to send (framing, timing, addressing)
+* **PHY**: Actually sends the packet into the channel (modulates, applies TX power)
+* **Channel**: Simulates delay, path loss, and interference between sender and receiver
+* **Receiver PHY**: Receives and decodes incoming packets
+* **Receiver MAC**: Validates and passes packets up to higher layers
+
+---
+
+## MAC Layer — `Transmit()` and `Receive()`
+
+### a. Transmit()
+
+* The **MAC layer** prepares packets for transmission.
+* It may attach control information (headers, frame type, etc.).
+* Once ready, it calls the PHY’s `Transmit()` function:
+
+  ```cpp
+  m_phy->Transmit(packet);
+  ```
+* This effectively tells the PHY: “It’s your turn to send this packet.”
+
+**Responsibilities:**
+
+* Schedules the packet (access control)
+* Handles retransmission or ARQ logic
+* Informs PHY of timing, power, and modulation parameters
+
+### b. Receive()
+
+* When the PHY layer completes a successful reception, it calls:
+
+  ```cpp
+  m_mac->Receive(packet);
+  ```
+* MAC then performs error checking, extracts headers, and determines if the packet should be delivered upward (LLC or higher layers).
+
+**Responsibilities:**
+
+* Check destination address
+* Filter invalid/corrupted frames
+* Pass valid packets to LLC or NetDevice
+
+---
+
+## PHY Layer — `Transmit()` and `Receive()`
+
+### a. Transmit()
+
+* Called by the MAC when the packet is ready to be physically sent.
+* The PHY triggers the **channel** to propagate the signal:
+
+  ```cpp
+  m_channel->Transmit(this, packet, txPowerDb);
+  ```
+* It also logs the transmission event using `m_packetTrace`.
+
+**Responsibilities:**
+
+* Apply modulation and coding scheme
+* Set transmission power and antenna parameters
+* Pass packet to `SatChannel`
+* Trace event: `SND PHY`
+
+### b. Receive()
+
+* Triggered when the **channel** delivers a packet to this PHY.
+* The PHY calculates SNR, checks errors, and if valid, forwards to MAC:
+
+  ```cpp
+  m_mac->Receive(packet);
+  ```
+
+**Responsibilities:**
+
+* Apply propagation delay and noise models
+* Handle packet decoding and error detection
+* Log the event: `RCV PHY`
+
+---
+
+## Channel Interaction — `SatChannel`
+
+* Acts as the bridge between sender and receiver PHYs.
+* When `m_channel->Transmit()` is called:
+
+  * The channel computes **propagation delay** and **path loss**.
+  * It then schedules an event to deliver the packet to the destination PHY after the delay.
+* The receiving PHY triggers its `Receive()` callback upon arrival.
+
+**Key Functions:**
+
+```cpp
+void SatChannel::Transmit(Ptr<SatPhy> sender, Ptr<Packet> packet, double txPowerDb)
+{
+    // Calculate delay and attenuation
+    // Deliver to receiver PHY after propagation delay
+    receiver->Receive(packet);
+}
+```
+
+---
+
+## Logging and Trace Output
+
+All significant events are recorded using **trace callbacks** like `m_packetTrace` and stored in `.log` files.
+
+Example: `contrib/satellite/data/sims/example-cbr/simple/PacketTrace.log`
+
+```
+0.0500152 SND GW PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.183623 RCV SAT PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+```
+
+These indicate a packet being **sent (SND)** from the **Gateway PHY** and later **received (RCV)** by the **Satellite PHY**.
+
+**Trace format summary:**
+
+| Field     | Description                             |
+| --------- | --------------------------------------- |
+| Time      | Simulation timestamp (s)                |
+| Event     | `SND`, `RCV`, `ENQ`, etc.               |
+| Node      | Node type (UT, SAT, GW)                 |
+| Log Level | ND, LLC, MAC, PHY, CH                   |
+| Direction | FWD (forward link) or RTN (return link) |
+
+---
+
+## Summary of Interactions
+
+| Layer    | Function                     | Called By    | Passes To    | Log Event |
+| -------- | ---------------------------- | ------------ | ------------ | --------- |
+| MAC      | Prepares frame, schedules TX | Higher layer | PHY          | `SND MAC` |
+| PHY      | Modulates, sends via channel | MAC          | Channel      | `SND PHY` |
+| Channel  | Applies delay, attenuation   | PHY          | Receiver PHY | —         |
+| PHY (RX) | Decodes, validates           | Channel      | MAC          | `RCV PHY` |
+| MAC (RX) | Forwards to LLC              | PHY          | NetDevice    | `RCV MAC` |
+
+---
+
+## Key Insights
+
+* **MAC controls timing; PHY executes the transmission.**
+* **Channel adds realism** (delay, noise, fading).
+* **Tracing ensures reproducibility** — every packet’s journey is logged.
+* **Each log line = one step in the signal lifecycle.**
+
+---
+
+# Trace Logging and Statistics
+The ns-3 tracing system is a powerful, callback-based mechanism for collecting data from simulations. Here's a breakdown of how it applies to the satellite module.
+
+## How Logs are Generated
+Logs like `PacketTrace.log` are not generated automatically. They are the result of connecting a trace sink to a trace source.
+- Trace Source: An event point within a simulation object. For example, the PHY layer object has a trace source named `PhyTxBegin` that fires whenever a packet transmission starts. Other sources include `PhyRxEnd`, `MacTx`, etc.
+- Trace Sink: A function or method that we write to handle the data from the trace source. In the `sat-cbr-example` [Jump To Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/examples_sims_run.md#31-inspecting-the-log-header-and-content), the sink is a function that formats the information (time, node ID, event type, packet details) into the string format you see in `PacketTrace.log` and writes it to a file.
+- Connection: The simulation script must explicitly connect a sink to a source. You can connect many sinks to one source or one sink to many sources.
+`SimInfo.log` is generated differently. It's typically a straightforward file I/O operation where the simulation script writes simulation parameters (e.g., number of nodes, simulation time) to a text file at the beginning of the run.
+
+## Functions Responsible for Writing Trace Data
+The actual writing is done by the trace sink. This isn't a single named function in the ns-3 core but rather a custom function defined within the context of the simulation.<br>
+Inside the sink function, standard C++ `std::ofstream` objects are used to write to the log file. For example, a simplified sink for a PHY event might look like this:
+  ```
+void PhyTxTrace(std::string context, Ptr<const Packet> packet)
+{
+  // m_packetTraceFile is an std::ofstream object opened earlier
+  m_packetTraceFile << Simulator::Now().GetSeconds() << " "
+                    << "SND " << context << " "
+                    // ... and so on, to format the line
+                    << std::endl;
+}
+  ```
+
+## Locating the Trace Connection Code
+The logic for connecting these sources and sinks is often found in helper classes or directly within the main simulation script. For the satellite module:
+- `contrib/satellite/helper/satellite-helper.cc`: This is a primary candidate. Helper classes are designed to simplify configuration. Look for methods like `EnablePcap` or `EnableAscii` which are standard ns-3 patterns for setting up tracing. Inside these methods, you will find calls to `TraceConnect` or `TraceConnectWithoutContext`.
+- `contrib/satellite/examples/*.cc`: The example script itself is the most direct place to find the setup. The `main` function of `sat-cbr-example.cc` will contain the code that creates file streams `(std::ofstream)` for the logs and then calls the helper methods or `TraceConnect` functions to link the simulation events to these files.
+- `contrib/satellite/model/satellite-log.cc`: This file is less likely to contain the `TraceConnect` calls but may define logging-specific components, custom formatters, or enums (like `SND`, `RCV`) that are used by the trace sinks to create the log file content.
