@@ -28,6 +28,15 @@
 - [x] 4.4 DVBs Logical and Physical Channels
 - [x] 4.5 Store All Visual Code in GitHub repository
 
+### 5. Learn about NS-3 Satellite Module:
+- [x] 5.1 Foundation Check: Understand directory structure and helper-channel interaction
+- [x] 5.2 Device & PHY-MAC Exploration: `SatNetDevice`, `SatPhy`, `SatMac`
+- [ ] 5.3 Tracing and Logging System: `satellite-log.cc`, `satellite-packet-trace.cc`, `PacketTrace.log`
+- [ ] 5.4 Channel & Propagation Mastery: `satellite-channel.cc`, `satellite-propagation-delay-model.cc`, `satellite-fading-models`
+- [ ] 5.5 Scenario & Example Customization: `examples/sat-tutorial-example.cc`, `sat-iot-example.cc`
+- [ ] 5.6 Integrating Everything: End-to-End system understanding
+- [ ] 5.7 Experiment & Report: Create my own minimal simulation
+
 ---
 
 ## 📆 Daily Logs
@@ -615,19 +624,76 @@
 **📝 Daily Logs:**  
 - `18:00–19:00`:
   - Search and select new IEEE paper (last 5 years, LEO NTN, scheduling/routing).
-  - Write 4-point study note draft in .md.
-  - Update paper_list.md.
+  - Write 4-point study note draft in .md. [Problem ](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-d_notes.md#1-problem) [Solution](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-d_notes.md#2-high-level-concept-of-the-solution) [Verification](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-d_notes.md#3-verification-method) [KPIs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper-d_notes.md#4-kpis-considered)
+  - Update paper_list.md. [Paper List](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/paper_list.md#4-dsroq-dynamic-scheduling-and-routing-for-qoe-management-in-leo-satellite-networks)
 - `19:00–20:00`:
-  - Read Kitty’s note about ns-3 installation steps.
+  - Read Kitty’s note about ns-3 installation steps. [Kitty's Note](https://github.com/liang924/SNS3/blob/main/Installation.md)
   - Clone ns-3 repo.
-  - Configure and start build (./ns3 configure --enable-examples --enable-tests).
+  - Configure and start build (./ns3 configure --enable-examples --enable-tests). [Replication Note](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/replication_log.md#task-build-ns-3-with-examples--tests)
 - `20:00–21:00`:
-  - Run simple LTE/NR example (lte-epc-simple, cttc-nr-demo).
+  - Run simple LTE/NR example (lte-epc-simple, cttc-nr-demo). [LTE Simple Test](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/replication_log.md#task-run-a-simple-ltenrsatellite-example)
   - If build fails → capture errors, document in replication log.
-  - If succeeds → confirm output log and screenshots.
+  - If succeeds → confirm output log and screenshots. [LTE Simple Test](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/replication_log.md#task-run-a-simple-ltenrsatellite-example)
 - `21:00–22:00`:
-  - Check for NTN module (satellite/3GPP NTN extension).
+  - Check for NTN module (satellite/3GPP NTN extension). [Satellite Module Error](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/replication_log.md#command-run-2) [Sat Module Fix](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/troubleshooting.md#4-full-recovery-procedure)
   - Update Trello with GitHub permalinks for today’s paper + notes.
-  - Post replication status (PASS/FAIL/PARTIAL).
+  - Post replication status (PASS/FAIL/PARTIAL). [Replication Success](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/replication_log.md)
+
+---  
+
+
+### 2025.10.07
+
+**🎯 Short-term Goal:**  
+1. Milestone 5: Learn about NS-3 Satellite Module
+2. Foundation Check: Understand directory structure and helper-channel interaction
+3. Identify the core files inside model/, helper/, and examples/.
+4. Trace the workflow of one example (sat-tutorial-example.cc).
+5. Document findings in module_documentation.md.
+
+**📝 Daily Logs:**  
+- `18:00–19:00`:
+  - Explore File Structure
+    - Open contrib/satellite/ → focus on model/, helper/, examples/, and data/. Identify major .cc / .h files and what they do [Model Docs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#%EF%B8%8F-satellite-model-directory-overview)
+- `19:00–20:00`:
+  - Understand Simulation Initialization
+    - Study sat-tutorial-example.cc → note how the simulation starts (e.g., scenario setup, node creation, channel config) [Sims-Init_docs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/sat_tutor_example.md#simulation-initialization-sat-tutorial-examplecc) [Sat-Tutor-Example](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/sat_tutor_example.md#satellite-tutorial-example-simulation-initialization-workflow)
+- `20:00–21:00`:
+  - Trace Helper and Model Connections
+    - Explore satellite-helper.cc and satellite-channel-model.cc to see how helpers connect PHY/MAC/Network layers. [Sat-Helper](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#2-the-role-of-helpers) [Sat-Channel](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#4-satchannelmodel--the-physical-connection)
+- `21:00–22:00`:
+  - Summarize
+    - Compile learned  things into module_documentation.md. Summarize: What does this module simulate? What can it output? [Module Documentation](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#%EF%B8%8F-contribsatellite-module-documentation)
+
+---  
+
+### 2025.10.09
+
+**🎯 Short-term Goal:**  
+1. Milestone 5: Learn about NS-3 Satellite Module
+2. Device & PHY-MAC Exploration
+3. Explore how data packets move from the application layer down to PHY.
+4. Understand the role of SatNetDevice, SatPhy, and SatMac.
+5. Review how trace logs are generated and connected to simulation events.
+6. Expand the module documentation with “Packet Transmission Path” and “Trace System” sections.
+
+**📝 Daily Logs:**  
+- `18:00–19:00`: Analyze SatNetDevice
+  - Study satellite-net-device.cc and satellite-net-device.h.
+  - Understand how network devices are installed and connected through helpers. [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#installation-process-via-helper)
+  - Note down data member roles (e.g., PHY pointer, MAC pointer, Channel pointer). [Data Member Roles Note](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#key-data-members)
+- `19:00–20:00`: Examine PHY and MAC Layers
+  - Open satellite-phy.cc and satellite-mac.cc.
+  - Observe how Transmit() and Receive() are handled. [MAC](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#mac-layer--transmit-and-receive) [PHY](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#phy-layer--transmit-and-receive)
+  - Understand how signals are propagated to the channel and logged. [Channel Interaction](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#channel-interaction--satchannel) [Logging and trace output](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#logging-and-trace-output)
+- `20:00–21:00`: Trace Logging and Stats
+  - Explore how logs like PacketTrace.log and SimInfo.log are generated. [How They Generated](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#how-logs-are-generated)
+  - Identify functions responsible for writing trace data. [Functions Responsible](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#functions-responsible-for-writing-trace-data)
+  - Locate trace connection code in satellite-helper.cc or satellite-log.cc. [trace connection](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#locating-the-trace-connection-code)
+- `21:00–22:00`:
+  - Update module_documentation.md with new sections:
+    - SatNetDevice [SatNetDevice Full Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#analyze-satnetdevice)
+    - PHY-MAC Layer Analysis [PHY-MAC Full Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#phy-and-mac-layer-analysis)
+    - Trace Logging And Statistics [Trace & Others Full Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/simulation_docs.md#trace-logging-and-statistics)
 
 ---  
