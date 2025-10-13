@@ -384,3 +384,186 @@ SimulationHelper::RunSimulation()
 * Together, they enable modular construction of realistic satellite communication systems.
 
 Next → Deep dive into `satellite-net-device.cc` and `satellite-phy.cc` to see how actual packet transmission occurs through the connected layers.
+
+--- 
+
+# Analyze SatNetDevice
+
+## Goal:
+Understand the structure and internal logic of `SatNetDevice`, which acts as the main network interface connecting PHY, MAC, and the ns-3 IP stack in the Satellite Module.
+
+---
+
+### Files
+```
+contrib/satellite/model/satellite-net-device.cc  
+contrib/satellite/model/satellite-net-device.h
+```
+
+---
+
+## Overview
+`SatNetDevice` is the **satellite-specific implementation** of ns-3’s `NetDevice` class.  
+It represents the “network card” that sits between the ns-3 node (UT, GW, or SAT) and the underlying MAC/PHY/channel layers.
+
+---
+
+## Core Responsibilities
+
+| Function | Description |
+|-----------|-------------|
+| `Send()` / `SendFrom()` | Handles outgoing packets, attaches statistics tags, and pushes data into the LLC queue. |
+| `Receive()` | Handles incoming packets, computes delay/jitter, and delivers them up to the IP layer. |
+| `SetPhy()` / `SetMac()` / `SetLlc()` | Connects physical, MAC, and logical link layers to the device. |
+| `SetNodeInfo()` | Links this device to its node metadata (ID, type, MAC address). |
+| `ToggleState()` | Enables or disables the MAC operation. |
+| `SetReceiveCallback()` | Registers callback for upper-layer delivery. |
+| `DoDispose()` | Cleans up attached components and releases pointers. |
+
+---
+
+## Key Data Members
+
+| Variable | Type | Role |
+|-----------|------|------|
+| `m_phy` | `Ptr<SatPhy>` | Connects to the physical layer (handles modulation, radio link). |
+| `m_mac` | `Ptr<SatMac>` | Medium Access Control (queues, retransmissions, scheduling). |
+| `m_llc` | `Ptr<SatLlc>` | Logical Link Control (frame assembly and buffer management). |
+| `m_node` | `Ptr<Node>` | The owning ns-3 node (UT, GW, or SAT). |
+| `m_classifier` | `Ptr<SatPacketClassifier>` | Determines which flow each packet belongs to. |
+| `m_receiveErrorModel` | `Ptr<ErrorModel>` | Models random losses or interference. |
+| `m_packetTrace`, `m_txTrace`, `m_rxTrace` | `TracedCallback` | Used for packet-level event logging. |
+
+---
+
+## Installation Process via Helper
+
+### **a. Entry Point**
+Device installation begins in `satellite-helper.cc` using methods such as:
+```cpp
+Ptr<SatNetDevice> dev = CreateObject<SatNetDevice>();
+node->AddDevice(dev);
+```
+The helper then configures the internal components (PHY, MAC, LLC) for the new device.
+
+### **b. Configuration Steps**
+The general flow is:
+```
+SatHelper::CreateSatScenario()
+    ├── Create Nodes (UT, GW, SAT, NCC)
+    ├── For each node type:
+    │     ├── Create SatNetDevice
+    │     ├── Set MAC, PHY, LLC
+    │     └── Attach Device to Node
+    ├── Connect Devices through SatChannel
+    └── Set Tracing (PacketTrace.log, etc.)
+```
+
+Each SatNetDevice is initialized with dedicated PHY/MAC layers and linked to a shared channel depending on the communication direction (forward/return).
+
+---
+
+## Data Flow
+
+### **Sending Flow**
+```cpp
+Send() → Add tags (address, timestamps)
+       → Trace: PACKET_SENT
+       → Classify flow (SatPacketClassifier)
+       → Enque() packet into SatLlc
+       → MAC → PHY → Channel
+```
+
+### **Receiving Flow**
+```cpp
+Receive() → Log PACKET_RECV
+          → Extract SatAddressTag, SatDevTimeTag
+          → Compute delay & jitter
+          → Trace results
+          → Deliver packet to IP layer via callback
+```
+
+---
+
+## Connection Flow Between Layers
+
+### **a. Internal Wiring**
+Each SatNetDevice encapsulates three main layers (PHY, MAC, LLC).  
+They are linked internally via `SetPhy()`, `SetMac()`, and `SetLlc()` methods during initialization.
+
+```
++----------------------+
+| SatNetDevice         |
+|----------------------|
+| + m_phy              |
+| + m_mac              |
+| + m_llc              |
++----------------------+
+      ↓          ↓
+ +----------+  +----------+
+ | SatPhy   |  | SatMac   |
+ +----------+  +----------+
+      ↓
+ +----------------------+
+ | SatChannelModel      |
+ +----------------------+
+```
+
+### **b. How Helpers Attach Components**
+```cpp
+Ptr<SatNetDevice> dev = CreateObject<SatNetDevice>();
+dev->SetPhy(phy);
+dev->SetMac(mac);
+dev->SetLlc(llc);
+node->AddDevice(dev);
+```
+Then the helper connects each PHY to a shared channel:
+```cpp
+phy->SetChannel(channel);
+```
+
+This chain allows packet flow like:
+```
+Application → IP → LLC → MAC → PHY → Channel → PHY (receiver) → MAC → LLC → IP → Application
+```
+
+---
+
+## Tracing and Statistics
+The helper also enables traces for debugging and analysis.  
+In `SatNetDevice`, these are defined as trace sources like `m_packetTrace`, `m_txTrace`, and `m_rxTrace`, which record key simulation events (SEND, RECV, DROP).
+
+Example output file:  
+`contrib/satellite/data/sims/example-cbr/simple/PacketTrace.log`
+
+---
+
+## Trace & Logging Hooks
+
+| Trace Name | Event Description | Output Location |
+|-------------|-------------------|-----------------|
+| `PacketTrace` | Every send/receive event | `PacketTrace.log` |
+| `RxDelay` | Delay of each packet | Derived from tags |
+| `RxJitter` | Variation in delay (jitter) | Derived from tags |
+| `Tx`, `Rx` | Transmit and receive events | Console or log sinks |
+
+---
+
+## Relationships with Other Components
+
+| Component | Interaction |
+|------------|--------------|
+| `SatHelper` | Creates and connects `SatNetDevice` objects to nodes. |
+| `SatPhy` | Attached via `SetPhy()`, handles actual transmission. |
+| `SatMac` | Attached via `SetMac()`, manages channel access and scheduling. |
+| `SatChannel` | Not stored directly; connected through PHY layer. |
+| `SatLlc` | Buffers and organizes packets before MAC. |
+
+---
+
+## Summary
+
+- `SatNetDevice` acts as the **bridge** between ns-3’s generic network stack and the satellite MAC/PHY subsystems.  
+- It provides hooks for **tracing**, **packet classification**, and **delay/jitter measurement**.  
+- Most “packet journey” logic — from sending a TCP segment to receiving it back — passes through here.
+
