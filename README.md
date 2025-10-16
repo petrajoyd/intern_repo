@@ -19,7 +19,7 @@
 - [x] 4.4 DVBs Logical and Physical Channels
 - [x] 4.5 Store All Visual Code in GitHub repository
 
-### 3. Learn about NS-3 Satellite Module:
+### 3. Learn about NS-3 Satellite Module [Go To: Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md):
 - [x] 5.1 Foundation Check: Understand directory structure and helper-channel interaction
 - [x] 5.2 Device & PHY-MAC Exploration: `SatNetDevice`, `SatPhy`, `SatMac`
 - [ ] 5.3 Tracing and Logging System: `satellite-log.cc`, `satellite-packet-trace.cc`, `PacketTrace.log`
