@@ -613,6 +613,334 @@ These indicate a packet being **sent (SND)** from the **Gateway PHY** and later 
 | MAC (RX) | Forwards to LLC              | PHY          | NetDevice    | `RCV MAC` |
 
 ## Tracing and Logging System
+### 1. NS-3 Satellite Trace System 
+In NS-3, the **trace system** allows you to **record simulation events** — such as packet transmissions, receptions, delays, or queue changes — for later analysis.  
+In the `satellite` module, this system helps log **satellite-specific events** like:
+- Packets entering or leaving a node (uplink/downlink)
+- Delays in satellite links
+- Throughput and error metrics
+
+The two main files handling this are:
+- `satellite-log.cc`: general-purpose logging support
+- `satellite-packet-trace.cc`: detailed packet tracing
+
+### `satellite-log.cc`
+#### Purpose
+Handles **generic logging setup** for the satellite module.  
+It sets up the trace sources that can be connected to output files or analysis tools.
+
+#### Key Concept: Trace Registration with `AddTraceSource`
+NS-3 uses the **TypeId** system to expose trace sources.  
+Inside `satellite-log.cc`, you’ll typically see something like:
+
+```cpp
+TypeId tid = TypeId("ns3::SatelliteLog")
+  .SetParent<Object>()
+  .AddTraceSource("PacketTrace",
+                  "Trace source for packet events",
+                  MakeTraceSourceAccessor(&SatelliteLog::m_packetTrace),
+                  "ns3::Packet::TracedCallback");
+```
+**Explanation:**
+- `AddTraceSource` registers a trace variable with the NS-3 tracing system.
+- `"PacketTrace"` is the **trace name** that can be connected to.
+- `m_packetTrace` is a **member variable** — usually a `TracedCallback` that stores functions to call when an event happens.
+- `"ns3::Packet::TracedCallback"` defines the **callback signature** (what parameters are passed).
+
+So, in summary:
+> `AddTraceSource` = "Hey NS-3, this class has a trace point named `PacketTrace` — call it whenever something happens."
+
+### `satellite-packet-trace.cc`
+#### Purpose
+Implements **actual tracing logic** — connecting simulation events (like sending/receiving packets) to file outputs.
+
+Inside this file, you’ll find:
+- Declarations of trace variables (like `m_packetTrace`)
+- Connections between simulation objects and output streams
+- Formatting functions for how data is written to `.log` or `.csv` files
+
+#### How the Trace Works
+Usually, the tracing flow looks like this:
+
+1. **Trace Source Declaration**
+   ```cpp
+   TracedCallback<Ptr<const Packet>, const Address &> m_packetTrace;
+   ```
+   → This declares a callback that will be fired whenever a packet event occurs.
+
+2. **Event Trigger**
+   When a packet is transmitted or received:
+   ```cpp
+   m_packetTrace(packet, address);
+   ```
+   → This "fires" the trace, triggering all connected listeners (like log writers).
+
+3. **Connecting to Output**
+   Somewhere in the setup phase (often in `DoInitialize()` or helper functions):
+   ```cpp
+   Config::ConnectWithoutContext("/NodeList/*/ApplicationList/*/$ns3::SatelliteApp/PacketTrace",
+                                 MakeCallback(&SatellitePacketTrace::PacketTraceSink, this));
+   ```
+
+   - This connects **all SatelliteApp packet events** to your callback function `PacketTraceSink`.
+
+4. **Writing to File**
+   In `PacketTraceSink`, you’ll see something like:
+   ```cpp
+   void SatellitePacketTrace::PacketTraceSink(Ptr<const Packet> packet, const Address &address)
+   {
+       std::ofstream out(m_outputFileName, std::ios::app);
+       out << Simulator::Now().GetSeconds() << "," << packet->GetSize() << "," << address << std::endl;
+   }
+   ```
+   → Each time a packet event happens, it writes a new line with:
+   - Timestamp  
+   - Packet size  
+   - Source/Destination info
+
+### `m_packetTrace` and Related Callbacks
+#### What It Is
+m_packetTrace` is a **TracedCallback**, a core NS-3 mechanism for event notification.
+
+#### How It Connects
+- **Declared** in the C++ class (e.g., `SatellitePacketTrace`)
+- **Registered** via `AddTraceSource`
+- **Connected** to an external **trace sink** (file writer, plotter, etc.)
+- **Activated** during simulation (when an event fires)
+
+#### The Flow in One Line:
+```
+Simulation Event → m_packetTrace() fires → Callback function runs → Output logged to file
+```
+
+### Typical Example (Simplified)
+Let’s put it together in a very simplified pseudocode style:
+
+```cpp
+// satellite-packet-trace.h
+class SatellitePacketTrace : public Object {
+private:
+  TracedCallback<Ptr<const Packet>> m_packetTrace;
+
+public:
+  static TypeId GetTypeId();
+  void NotifyPacket(Ptr<const Packet> packet);
+};
+
+// satellite-packet-trace.cc
+TypeId SatellitePacketTrace::GetTypeId() {
+  static TypeId tid = TypeId("ns3::SatellitePacketTrace")
+    .SetParent<Object>()
+    .AddTraceSource("PacketTrace", "Tracing packet events",
+                    MakeTraceSourceAccessor(&SatellitePacketTrace::m_packetTrace),
+                    "ns3::Packet::TracedCallback");
+  return tid;
+}
+
+void SatellitePacketTrace::NotifyPacket(Ptr<const Packet> packet) {
+  m_packetTrace(packet); // trigger the trace
+}
+```
+
+And then, another component (like a helper or logger) can **connect** to it:
+```cpp
+Config::Connect("/NodeList/1/ApplicationList/0/$ns3::SatellitePacketTrace/PacketTrace",
+                MakeCallback(&WriteToFile));
+```
+
+### Summary
+| Component | File | Function | Key Concept |
+|------------|------|-----------|--------------|
+| `AddTraceSource` | `satellite-log.cc` | Registers a trace variable | Makes it visible to NS-3 trace system |
+| `m_packetTrace` | Both | Holds callback chain | Fires when event occurs |
+| `PacketTraceSink()` | `satellite-packet-trace.cc` | Callback function | Writes to file |
+| `Config::Connect` | Main script/helper | Connects source to sink | Links trace to output |
+
+### 2. NS-3 Event Trigger Analysis
+This note explains how events such as `SND`, `RCV`, `ENQ`, and `DRP` are emitted in the NS-3 Satellite Contrib Module and how they link across network layers (NetDevice, MAC, PHY).
+
+### Tracking Packet Event Emission (SND, RCV, ENQ, DRP)
+In the NS-3 satellite module, these events represent specific moments in the packet’s life cycle:
+
+| Event | Meaning | Typical Source File | Typical Function |
+|--------|----------|--------------------|------------------|
+| **SND (Send)** | Triggered when a packet is passed for transmission (e.g., from upper layer to MAC or PHY). | `satellite-log.cc`, `satellite-net-device.cc` | `SatNetDevice::Send()` |
+| **RCV (Receive)** | Triggered when a packet is received by a device or layer. | `satellite-packet-trace.cc`, `satellite-net-device.cc` | `SatNetDevice::Receive()` |
+| **ENQ (Enqueue)** | Marks packet insertion into a transmission queue (often at MAC layer). | `satellite-mac.cc`, `satellite-queue.cc` | `Enqueue()` |
+| **DRP (Drop)** | Fired when a packet is dropped (due to queue overflow, link errors, etc.). | `satellite-mac.cc`, `satellite-phy.cc` | `Drop()` |
+
+Each of these events is traced using `AddTraceSource()` to allow logging and later analysis via the tracing system.
+
+### How `SatNetDevice::Send()` and `Receive()` Link MAC and PHY Layers
+The **SatNetDevice** acts as a bridge between higher layers (LLC / IP) and lower layers (MAC / PHY).
+
+#### a. `SatNetDevice::Send()`
+- Invoked when upper layers request transmission.
+- Performs checks (link status, queue availability).
+- Creates metadata (`Ptr<Packet>`, headers, tags).
+- Passes packet down to the **MAC layer** via `m_mac->Enqueue(packet)`.
+- Triggers `SND` and possibly `ENQ` traces.
+
+#### b. `SatNetDevice::Receive()`
+- Invoked when the PHY layer delivers a received frame.
+- Calls `m_mac->Receive()` to handle link-level framing and error detection.
+- MAC decodes and sends data upward to NetDevice, triggering `RCV` trace.
+- The packet is finally delivered to upper layers (LLC/Network stack).
+
+**Flow Summary:**
+```
+Application
+   ↓
+LLC / Network Layer
+   ↓
+SatNetDevice::Send() → MAC::Enqueue() → PHY::Transmit()
+                                    ↓
+                           Channel Propagation
+                                    ↓
+                          PHY::Receive() → MAC::Process()
+                                    ↓
+                          SatNetDevice::Receive() → Upper Layer
+```
+
+### Log Level Mapping (ND, LLC, MAC, PHY, CH)
+Each level corresponds to a layer in the satellite communication stack:
+
+| Log Level | Full Form | Represents | Typical Log Prefix | Description |
+|------------|------------|-------------|---------------------|--------------|
+| **ND** | NetDevice | Device-level actions (`Send()`, `Receive()`) | `[ND]` | Entry and exit points for transmission events. |
+| **LLC** | Logical Link Control | Manages interface between MAC and upper layers. | `[LLC]` | Responsible for frame control and addressing. |
+| **MAC** | Medium Access Control | Handles access scheduling, queueing, and retransmission. | `[MAC]` | Triggers ENQ and DRP events, manages traffic. |
+| **PHY** | Physical Layer | Transmits/receives bits over the channel. | `[PHY]` | Triggers SND and RCV when interacting with hardware. |
+| **CH** | Channel | Simulates physical propagation and signal loss. | `[CH]` | Models delay, interference, and attenuation. |
+
+**Event Mapping Example:**
+```
+[ND] SatNetDevice::Send() → [MAC] Enqueue() → [PHY] Transmit() → [CH] Propagation
+[CH] → [PHY] Receive() → [MAC] Process() → [ND] DeliverToUpperLayer()
+```
+
+### Summary
+- `SND`, `RCV`, `ENQ`, `DRP` represent lifecycle checkpoints of a packet.
+- `SatNetDevice` ties together MAC and PHY layers through well-defined callbacks.
+- Logging levels (ND, LLC, MAC, PHY, CH) help isolate debugging to specific layers.
+- Trace sources (`AddTraceSource`) allow these events to be recorded and analyzed.
+
+### 3. NS-3 Practical Test & Rerun
+This test helps you **observe how trace verbosity affects the simulation output**. You’ll modify trace settings, run a standard example (like `sat-cbr-example`), and compare the logs.
+
+### Modify Trace Verbosity (Disable PHY Logs)
+#### Where to Edit
+In the satellite module, verbosity is usually managed via `NS_LOG_COMPONENT_DEFINE` and `NS_LOG_INFO` statements within files like:
+- `satellite-phy.cc`
+- `satellite-mac.cc`
+- `satellite-net-device.cc`
+and/or via configuration parameters in the example script (`sat-cbr-example.cc`).
+
+#### Option 1 — Disable PHY Traces in Code
+Open:
+```
+ns-3.43/contrib/satellite/model/satellite-phy.cc
+```
+
+Comment out or reduce logging for PHY:
+```cpp
+// NS_LOG_COMPONENT_DEFINE("SatPhy");  // comment this line if you want to disable PHY completely
+```
+
+Or wrap trace callbacks under a condition:
+```cpp
+if (m_enablePhyTrace) {
+    m_phyTxTrace(packet);
+}
+```
+
+Then, in your example script (`sat-cbr-example.cc`), set:
+```cpp
+// Disable PHY trace
+Config::SetDefault("ns3::SatHelper::EnablePhyTrace", BooleanValue(false));
+```
+
+#### Option 2 — Disable PHY Traces Using NS_LOG Environment Variable
+Without touching the code, you can disable PHY logs by changing the environment variable before running:
+```bash
+export NS_LOG="*=level_info|prefix_func|prefix_time"
+export NS_LOG="SatNetDevice:info|SatMac:info"   # excludes PHY logs
+```
+*This method is cleaner for testing since you don’t have to recompile.*
+
+### Rerun the Example
+Now run one of these test cases:
+```bash
+./ns3 run "sat-cbr-example"
+```
+or  
+```bash
+./ns3 run "example-tutorial"
+```
+
+Check if you already have an output directory (e.g., `traces/`, `results/`, or the root folder where `PacketTrace.log` is saved).
+
+If `PacketTrace.log` doesn’t exist yet, it’s generated when `satellite-packet-trace.cc` is active — meaning trace hooks are working properly.
+
+### Compare Before & After Logs
+Now, open or diff your results:
+
+#### Before (Full Verbosity)
+Example of full log:
+```
+[ND] SND pkt=123 size=1024
+[MAC] ENQ pkt=123 queue=0
+[PHY] TX pkt=123 power=32dBm
+[CH] PROP pkt=123 delay=240ms
+[PHY] RCV pkt=123 snr=12.3
+[MAC] RCV pkt=123
+[ND] DELIVER pkt=123
+```
+
+#### After (PHY Disabled)
+You’ll notice entries like:
+```
+[ND] SND pkt=123 size=1024
+[MAC] ENQ pkt=123 queue=0
+[CH] PROP pkt=123 delay=240ms
+[MAC] RCV pkt=123
+[ND] DELIVER pkt=123
+```
+No `[PHY]` entries should appear — confirming the trace was suppressed.
+
+### Analyze Changes
+| Aspect | Before | After (PHY Disabled) | Interpretation |
+|--------|---------|---------------------|----------------|
+| Log file size | Larger | Smaller | Fewer lines = reduced verbosity |
+| PHY event entries | Present | Missing | Trace suppression successful |
+| Packet count | Same | Same | Core logic unaffected |
+| Timing | Same (minor variations possible) | Same | Only tracing changed, not simulation behavior |
+
+### Optional: Restore or Fine-Tune Verbosity
+After verification, re-enable the PHY trace to restore full logging:
+
+```bash
+Config::SetDefault("ns3::SatHelper::EnablePhyTrace", BooleanValue(true));
+```
+
+Or increase verbosity globally:
+```bash
+export NS_LOG="*=level_all|prefix_time|prefix_node"
+```
+
+### Summary
+| Step | Action | Purpose |
+|------|--------|----------|
+| 1 | Disable PHY trace (code or env variable) | Limit verbosity |
+| 2 | Rerun example | Generate fresh `PacketTrace.log` |
+| 3 | Compare before/after logs | Verify trace filtering |
+| 4 | Analyze file differences | Confirm only PHY logs removed |
+| 5 | Restore trace | Return to full debugging mode |
+
+
+
+
+
 
 ## Channel & Propagation Mastery
 
