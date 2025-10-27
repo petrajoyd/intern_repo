@@ -22,9 +22,9 @@
 ### 3. Learn about NS-3 Satellite Module [Go To: Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md):
 - [x] 5.1 Foundation Check: Understand directory structure and helper-channel interaction
 - [x] 5.2 Device & PHY-MAC Exploration: `SatNetDevice`, `SatPhy`, `SatMac`
-- [ ] 5.3 Tracing and Logging System: `satellite-log.cc`, `satellite-packet-trace.cc`, `PacketTrace.log`
-- [ ] 5.4 Channel & Propagation Mastery: `satellite-channel.cc`, `satellite-propagation-delay-model.cc`, `satellite-fading-models`
-- [ ] 5.5 Scenario & Example Customization: `examples/sat-tutorial-example.cc`, `sat-iot-example.cc`
+- [x] 5.3 Tracing and Logging System: `satellite-log.cc`, `satellite-packet-trace.cc`, `PacketTrace.log`
+- [x] 5.4 Channel & Propagation Mastery: `satellite-channel.cc`, `satellite-propagation-delay-model.cc`, `satellite-fading-models`
+- [x] 5.5 Scenario & Example Customization: `examples/sat-tutorial-example.cc`, `sat-iot-example.cc`
 - [ ] 5.6 Integrating Everything: End-to-End system understanding
 - [ ] 5.7 Experiment & Report: Create my own minimal simulation
 
