@@ -687,3 +687,86 @@
     - [Trace Logging And Statistics](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#tracing-and-statistics)
 
 ---  
+
+### 2025.10.27
+
+**🎯 Short-term Goal:**  
+1. Learn about NS-3 Satellite Module [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md)
+
+**📝 Daily Logs:**  
+- `18:00–19:00`: Study Satellite Channel Implementation [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#ns-3-satellite-channel)
+  - Open and review:
+    - `contrib/satellite/model/satellite-channel.cc` [Link](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-contribsatellitemodelsatellite-channelcc)
+    - `contrib/satellite/model/satellite-propagation-delay-model.cc`[Link](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-contribsatellitemodelsatellite-propagation-delay-modelcc)
+  - Identify how the channel receives a transmitted signal and delivers it to the destination PHY.  [delay notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#how-it-calculates-delay)
+- `19:00–20:00`: Analyze [Propagation Delay & Fading Models](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#ns-3-satellite-propagation-delay--fading-models)
+  - Focus on how the delay is computed from satellite geometry. [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-propagation-delay-computed-from-satellite-geometry)
+  - Explore files like:
+    -  `satellite-fading-model.cc` [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-fading-models-and-their-pluggable-architecture)
+    -  `satellite-propagation-delay-model.cc` [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#3-exploring-different-fading-models)
+  - Note how different fading models (Rayleigh, Loo, Markov) are plugged in. [Satellite Fading Models](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#common-satellite-fading-models)
+- `21:00–22:00`: Trace PHY-to-Channel Signal Flow [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#tracing-the-ns-3-phy-to-channel-signal-flow)
+  - Follow what happens when `SatPhy::Transmit()` is called. [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-the-call-to-satphytransmit)
+  - Observe how the packet is sent into the channel and received by another PHY. [Packet sent](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-the-packets-journey-through-the-channel)
+  - Open PacketTrace.log (e.g., example-cbr/simple) and confirm events like SND and RCV match channel activities.  [packettrace.log](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#confirming-events-with-packettracelog) [analyzing the log](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#analyzing-the-log)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
