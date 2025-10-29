@@ -710,11 +710,28 @@
   - Observe how the packet is sent into the channel and received by another PHY. [Packet sent](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-the-packets-journey-through-the-channel)
   - Open PacketTrace.log (e.g., example-cbr/simple) and confirm events like SND and RCV match channel activities.  [packettrace.log](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#confirming-events-with-packettracelog) [analyzing the log](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#analyzing-the-log)
 
+### 2025.10.29
 
+**🎯 Short-term Goal:**  
+1. Learn about NS-3 Satellite Module [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md)
 
-
-
-
+**📝 Daily Logs:**  
+- `18:00–19:00`: : **Explore Example Scenarios:** [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#ns-3-satellite-example-scenarios-a-walkthrough)
+  - Open examples/sat-tutorial-example.cc and sat-iot-example.cc.
+  - Identify the major blocks:
+    - [Node creation (CreateNodes)](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-node-creation-createnodes)
+    - Channel configuration (SatHelper::ConfigurePropagationChannel) [Channel & Device Configs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-channel--device-configuration)
+    - Application setup (CBR, OnOff, or IoT-style traffic). [App Setup](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#3-application-setup-generating-traffic)
+    - Note how parameters (e.g., data rate, delay, frequency) are set or loaded. [Setting And Loading Params](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#4-setting-and-loading-parameters)
+- `19:00–20:00`: **Run and Observe Outputs** [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#running-simulations-and-observing-outputs)
+  - Run both examples using ./ns3 run "...". [trying examples](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-trying-examples)
+  - Locate corresponding log files in /data/sims/example-*. [locating dir](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-locating-the-example-dir-files) [locate logs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#3-locate-log--trace-outputs)
+  - Compare PacketTrace.log results — look for event sequences (SND, RCV, etc.). [compare both logs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#4-compare-both-log-file)
+- `20:00–21:00`: **Modify Parameters** [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#trying-examples-and-modify-parameters)
+  - Change one key setting (e.g., number of UTs, traffic rate, or delay model). [change variables](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#3-modify-the-parameter)
+  - Rerun simulations to observe performance impact. [rerun](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#4-rerun-the-simulation)
+  - Record before-and-after differences in packet timing or throughput. [compare](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#5-compare-logs) [analyzing differences](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#6-analyze-the-differences)
+- `21:00–22:00`: **Summarize Findings** [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#scenario--example-customization)
 
 
 
