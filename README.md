@@ -28,6 +28,21 @@
 - [ ] 5.6 Integrating Everything: End-to-End system understanding
 - [ ] 5.7 Experiment & Report: Create my own minimal simulation
 
+### 4. Learn about NTN NR Basics Fundamentals
+- [ ] 4.1 3GPP NTN NR
+  - [ ] 4.1.1 System Architecture Diagram
+  - [ ] 4.1.2 Protocol Stacks
+  - [ ] 4.1.3 Message Sequence Charts (MSCs)
+  - [ ] 4.1.4 NTN O&M Parameters 
+- [ ] 4.2 DVB-S2X & DVB-RCS2
+  - [ ] 4.2.1 System Architecture Diagram
+  - [ ] 4.2.2 Protocol Stacks
+  - [ ] 4.2.3 Message Sequence Charts (MSCs)
+  - [ ] 4.2.4 O&M Parameters
+- [ ] 4.3 LEO RRM
+  - [ ] 4.3.1 Resource Management Algorithms
+  - [ ] 4.3.2 QoS Aware Routing Algoritms
+  - [ ] 4.3.3 Beam Hopping Algoritm
 ---
 
 ## 📆 Daily Logs
