@@ -1704,34 +1704,34 @@ Understand and trace how a single packet travels through the entire NS-3 Satelli
 ## The Packet Flow Path (End-to-End)
 Let's trace a single packet from a Source Ground Terminal (GT-A), up to the Satellite, and down to a Destination Ground Terminal (GT-B). </br>
 Here is the step-by-step flow:
-1. Creation (at GT-A)
+### 1. Creation (at GT-A)
   - The `Application` (e.g., `OnOffHelper`) creates a packet
   - This packet is pushed down the network stack (UDP->IP) to the `SatNetDevice`)
-2. Uplink Transmission (From GT-A)
+### 2. Uplink Transmission (From GT-A)
   - The packet is placed in the `SatMac` queue oof GT-A
   - When its scheduled time arrives, the `SatPhy` (Physical Layer) transmits the packet as a signal
-3. Uplink Propagation (Space)
+### 3. Uplink Propagation (Space)
   - The signal travels through the `SatelliteChannel`
   - The `SatellitePropagationDelayModel` calculates the time it takes to reach the satellite based on their real-time positions.
   - Fading and path loss models are applied, which might cause the packet to be corrupted.
-4. Reception (At Satellite)
+### 4. Reception (At Satellite)
   - The satellite's `SatPhy` "hears" the signal
   - If the signal is strong enough (not lost to fading), the `SatMac` receives the packet
   - The satellite (acting as a "bent-pipe" or regenerative repeater) identifies the destination (GT-B) and queues the packet for downlink
-5. Downlink Transmission (from Satellite)
+### 5. Downlink Transmission (from Satellite)
   - The satellite's `SatMac` queues the packet for the downllink beam
   - The `SatPhy` transmits the packet down towards GT-B
-6. Downlink Propagation (Space)
+### 6. Downlink Propagation (Space)
   - The signal again travels through the `SatelliteChannel`
   - The `SatellitePropagationDelayModel` calculates the propagation delay for the downlink path
-7. Final Reception (at GT-B)
+### 7. Final Reception (at GT-B)
   - GT-B'S `SatPhy` receives the signal
   - Its `SatMac processes the packet
   - The packet is sent up the network stack (IP ->UDP) to the `Application` (e.g., `PacketSink`)
-8. Consumption (at GT-B)
+### 8. Consumption (at GT-B)
   - The `PacketSink` application "consumes" the packet and records its arrival time, size, etc., for calculating statistics.
 
-This is a visual graph for explaining how the E2E satellite simulation:
+#### This is a visual graph for explaining how the E2E satellite simulation:
 <img width="427" height="1105" alt="E2E_Packet_Flow_Square" src="https://github.com/user-attachments/assets/e3f667b5-19ff-4857-bba2-851497652020" />
 
 ### Where Logs are Triggered in the Flow
