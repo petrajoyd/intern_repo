@@ -25,7 +25,7 @@
 - [x] 5.3 Tracing and Logging System: `satellite-log.cc`, `satellite-packet-trace.cc`, `PacketTrace.log`
 - [x] 5.4 Channel & Propagation Mastery: `satellite-channel.cc`, `satellite-propagation-delay-model.cc`, `satellite-fading-models`
 - [x] 5.5 Scenario & Example Customization: `examples/sat-tutorial-example.cc`, `sat-iot-example.cc`
-- [ ] 5.6 Integrating Everything: End-to-End system understanding
+- [x] 5.6 Integrating Everything: End-to-End system understanding
 - [ ] 5.7 Experiment & Report: Create my own minimal simulation
 
 ### 4. Learn about NTN NR Basics Fundamentals
