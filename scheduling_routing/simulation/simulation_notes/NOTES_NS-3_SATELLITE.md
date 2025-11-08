@@ -1698,55 +1698,298 @@ The increase in UT count caused the scheduler to interleave packets from both UT
 - Each UT now competes for link access → more realistic IoT traffic model.
 - No PHY-level congestion yet → system still within normal limits.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Integrating Everything: End-to-End system understanding
+Understand and trace how a single packet travels through the entire NS-3 Satellite stack from the sender application to the receiver, across PHY, MAC, and Channel, and finally to the trace logs.
+
+## The Packet Flow Path (End-to-End)
+Let's trace a single packet from a Source Ground Terminal (GT-A), up to the Satellite, and down to a Destination Ground Terminal (GT-B). </br>
+Here is the step-by-step flow:
+1. Creation (at GT-A)
+  - The `Application` (e.g., `OnOffHelper`) creates a packet
+  - This packet is pushed down the network stack (UDP->IP) to the `SatNetDevice`)
+2. Uplink Transmission (From GT-A)
+  - The packet is placed in the `SatMac` queue oof GT-A
+  - When its scheduled time arrives, the `SatPhy` (Physical Layer) transmits the packet as a signal
+3. Uplink Propagation (Space)
+  - The signal travels through the `SatelliteChannel`
+  - The `SatellitePropagationDelayModel` calculates the time it takes to reach the satellite based on their real-time positions.
+  - Fading and path loss models are applied, which might cause the packet to be corrupted.
+4. Reception (At Satellite)
+  - The satellite's `SatPhy` "hears" the signal
+  - If the signal is strong enough (not lost to fading), the `SatMac` receives the packet
+  - The satellite (acting as a "bent-pipe" or regenerative repeater) identifies the destination (GT-B) and queues the packet for downlink
+5. Downlink Transmission (from Satellite)
+  - The satellite's `SatMac` queues the packet for the downllink beam
+  - The `SatPhy` transmits the packet down towards GT-B
+6. Downlink Propagation (Space)
+  - The signal again travels through the `SatelliteChannel`
+  - The `SatellitePropagationDelayModel` calculates the propagation delay for the downlink path
+7. Final Reception (at GT-B)
+  - GT-B'S `SatPhy` receives the signal
+  - Its `SatMac processes the packet
+  - The packet is sent up the network stack (IP ->UDP) to the `Application` (e.g., `PacketSink`)
+8. Consumption (at GT-B)
+  - The `PacketSink` application "consumes" the packet and records its arrival time, size, etc., for calculating statistics.
+
+This is a visual graph for explaining how the E2E satellite simulation:
+<img width="427" height="1105" alt="E2E_Packet_Flow_Square" src="https://github.com/user-attachments/assets/e3f667b5-19ff-4857-bba2-851497652020" />
+
+### Where Logs are Triggered in the Flow
+The log files capture specific events as they happen during this flow.
+| Stage in Flow | Event | Log File Triggered | Log Entry |
+| ------------- | ----- | ------------------ | --------- |
+| 1. Creation (GT-A) | Application sends packet to the stack.| `PacketTrace.log` | `+` (enqueue) at `Node /Application/` |
+|2. Uplink Tx (GT-A) | Packet leaves the MAC queue for tx.| `PacketTrace.log` | `-` (dequeue) at `Node /Device/`|
+|4. Reception (Sat) | Satellite's MAC successfully receives packet.| `PacketTrace.log` |`r` (receive) at `Node /Device/` |
+|7. Final Rx (GT-B) | GT-B's MAC successfully receives packet.| `PacketTrace.log` |`r` (receive) at `Node /Device/` |
+|8. Consumption (GT-B) | `PacketSink` receives the packet.| (Internal to `PacketSink`) |"The sink's internal counters (total bytes, total packets) are updated." |
+|End of Simulation | `Simulator::Run()` finishes. | `SimInfo.log` |The `PacketSink` is asked for its final stats and writes them to this file. |
+
+- `PacketTrace.log` is a real-time event log. It's triggered during the simulation at every single hop (SND, RCV). You use it to trace the path and timing of individual packets.
+- `SimInfo.log` is a final summary report. It's written after the simulation ends. It contains the final aggregated statistics (like "Total Packets Received," "Average Throughput") that are collected by applications like `PacketSink`.
+
+## Run and Observe Full Simulation
+This is a workflow for how i observe the simulation.
+### 1. Execute simulation
+using this lines of code, and used one of the examples (i used `sat-tutorial-example`)
+```
+geemajor@joy:~/workspace/bake/source/ns-3.43$ ./ns3 run sat-tutorial-example
+```
+the output: This is the console log output, often showing the status of the simulation, like "Simulation started..." or "PacketSink Results...".
+```
+--- Tutorial-example ---
+  Scenario used: Simple
+
+At time 2s cbr application sent 512 bytes to 10.1.0.2 port 9 total Tx 512 bytes
+At time +2.28815s packet sink received 512 bytes from 90.2.0.2 port 49153 total Rx 512 bytes
+At time 8s cbr application sent 512 bytes to 90.2.0.2 port 9 total Tx 512 bytes
+At time +8.30803s packet sink received 512 bytes from 10.1.0.2 port 49153 total Rx 512 bytes
+At time 9s cbr application sent 512 bytes to 90.2.0.2 port 9 total Tx 1024 bytes
+At time +9.30403s packet sink received 512 bytes from 10.1.0.2 port 49153 total Rx 1024 bytes
+```
+
+### 2. Open Resulting Files
+Once the simulation is finished, list the files in the output directory to confirm they were created. with `geemajor@joy:~/workspace/bake/source/ns-3.43$ find . -type f -mtime -1`, the output will be a list of all files modified in the last 1 day, we should see anything your simulation created. </br> Output:
+```
+geemajor@joy:~/workspace/bake/source/ns-3.43$ find . -type f -mtime -1
+./contrib/satellite/data/sims/example-tutorial/Simple/CreationTraceUt.log
+./contrib/satellite/data/sims/example-tutorial/Simple/CreationTraceScenario.log
+./contrib/satellite/data/sims/example-tutorial/Simple/PacketTrace.log
+./contrib/satellite/data/sims/default/SimInfo.log
+./contrib/satellite/data/sims/default/SimDiff.log
+```
+open the files using `less [file directory]` or `nano [file directory]`. Lets open the `PacketTrace.lg` and `SimInfo.log`
+```
+geemajor@joy:~/workspace/bake/source/ns-3.43$ less contrib/satellite/data/sims/example-tutorial/Simple/PacketTrace.log
+geemajor@joy:~/workspace/bake/source/ns-3.43$ less contrib/satellite/data/sims/default/SimInfo.log
+geemajor@joy:~/workspace/bake/source/ns-3.43$ less contrib/satellite/data/sims/default/SimDiff.log
+```
+
+### 3. Locate SND -> RCV Pairs
+We will look inside the `PacketTrace.log` file.
+
+#### Step 1: Find a "SND" Event
+Let's find the very first packet that was sent. To call it, you'll use these lines of code
+```
+awk '$2=="SND"' contrib/satellite/data/sims/example-tutorial/Simple/PacketTrace.log
+```
+The output will be
+```
+0.05 SND GW 2 00:00:00:00:00:04 ND FWD 0
+0.0500152 SND GW 2 00:00:00:00:00:04 LLC FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.0500152 SND GW 2 00:00:00:00:00:04 MAC FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.0500152 SND GW 2 00:00:00:00:00:04 PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.1 SND GW 2 00:00:00:00:00:04 ND FWD 1
+0.1 SND GW 2 00:00:00:00:00:04 LLC FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.100008 SND GW 2 00:00:00:00:00:04 MAC FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.100008 SND GW 2 00:00:00:00:00:04 PHY FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.15 SND GW 2 00:00:00:00:00:04 ND FWD 2
+0.15 SND GW 2 00:00:00:00:00:04 LLC FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.15 SND GW 2 00:00:00:00:00:04 MAC FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.15 SND GW 2 00:00:00:00:00:04 PHY FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.183623 SND SAT 0 00:00:00:00:00:01 PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+...
+```
+Breakdown:
+| Column | Value             | Meaning                              |
+| ------ | ----------------- | ------------------------------------ |
+| 1      | 0.05              | Time (seconds) when event occurred   |
+| 2      | SND               | Event type (`SND` = packet sent)     |
+| 3      | GW                | Node type (`GW` = gateway)           |
+| 4      | 2                 | Node ID                              |
+| 5      | 00:00:00:00:00:04 | MAC address of the node sending      |
+| 6      | ND                | Log level (e.g., ND = network layer) |
+| 7      | FWD               | Link direction (FWD = forward)       |
+| 8      | 0                 | Packet ID (used to match SND → RCV)  |
+
+
+#### Step 2: Find a "RCV" Event
+Let's find the very first packet that was received. To call it, you'll use these lines of code
+```
+awk '$2=="RCV"' contrib/satellite/data/sims/example-tutorial/Simple/PacketTrace.log
+```
+The output will be
+```
+0.183623 RCV SAT 0 00:00:00:00:00:01 PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.233616 RCV SAT 0 00:00:00:00:00:01 PHY FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.283608 RCV SAT 0 00:00:00:00:00:01 PHY FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.320153 RCV UT 6 00:00:00:00:00:05 PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.320153 RCV UT 6 00:00:00:00:00:05 MAC FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.333632 RCV SAT 0 00:00:00:00:00:01 PHY FWD 3 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.370146 RCV UT 6 00:00:00:00:00:05 PHY FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.370146 RCV UT 6 00:00:00:00:00:05 MAC FWD 1 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.383625 RCV SAT 0 00:00:00:00:00:01 PHY FWD 4 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.420138 RCV UT 6 00:00:00:00:00:05 PHY FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.420138 RCV UT 6 00:00:00:00:00:05 MAC FWD 2 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.433617 RCV SAT 0 00:00:00:00:00:01 PHY FWD 5 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.470162 RCV UT 6 00:00:00:00:00:05 PHY FWD 3 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.470162 RCV UT 6 00:00:00:00:00:05 MAC FWD 3 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.48361 RCV SAT 0 00:00:00:00:00:01 PHY FWD 6 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+0.520155 RCV UT 6 00:00:00:00:00:05 PHY FWD 4 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff
+...
+```
+lets focus on line 4 of the output, and break it down. The line = `0.320153 RCV UT 6 00:00:00:00:00:05 PHY FWD 0 00:00:00:00:00:04 ff:ff:ff:ff:ff:ff`
+| Column | Value             | Meaning                                                   |
+| ------ | ----------------- | --------------------------------------------------------- |
+| 1      | 0.320153          | Time in seconds when the packet was received              |
+| 2      | RCV               | Event type (`RCV` = received)                             |
+| 3      | UT                | Node type (`UT` = user terminal, `SAT` = satellite, etc.) |
+| 4      | 6                 | Node ID of the receiver                                   |
+| 5      | 00:00:00:00:00:05 | MAC address of the receiver                               |
+| 6      | PHY               | Log level / layer (ND, LLC, MAC, PHY…)                    |
+| 7      | FWD               | Link direction (FWD = forward, RTN = return)              |
+| 8      | 0                 | Packet ID (used to match SND → RCV)                       |
+| 9      | 00:00:00:00:00:04 | Source MAC address (who sent the packet)                  |
+| 10     | ff:ff:ff:ff:ff:ff | Destination MAC (broadcast or unicast)                    |
+
+#### Step 3: Try to follow a single packet
+Lets create a code that filters onlt PHY layer events, stores SND and RCV events by packet ID, pairs SND-> RCV and calculates one-way delay. This is the code
+```
+awk '
+$6=="PHY" {
+    if($2=="SND") snd[$8]=$1" "$3$4
+    else if($2=="RCV") rcv[$8]=$1" "$3$4
+}
+END {
+    printf "%-8s %-12s %-12s %-12s %-12s %-10s\n", "PktID", "SND_Time", "SND_Node", "RCV_Time", "RCV_Node", "Delay(s)"
+    for (pkt in snd) {
+        if(pkt in rcv){
+            split(snd[pkt], s, " ")
+            split(rcv[pkt], r, " ")
+            delay = r[1]-s[1]
+            printf "%-8s %-12s %-12s %-12s %-12s %-10s\n", pkt, s[1], s[2], r[1], r[2], delay
+        }
+    }
+}' contrib/satellite/data/sims/example-tutorial/Simple/PacketTrace.log
+```
+The output will be:
+```
+PktID    SND_Time     SND_Node     RCV_Time     RCV_Node     Delay(s)
+0        0.183623     SAT0         0.320153     UT6          0.13653
+1        0.233616     SAT0         0.370146     UT6          0.13653
+2        0.283608     SAT0         0.420138     UT6          0.13653
+3        0.333632     SAT0         0.470162     UT6          0.13653
+4        0.383625     SAT0         0.520155     UT6          0.13653
+5        0.433617     SAT0         0.570147     UT6          0.13653
+6        0.48361      SAT0         0.62014      UT6          0.13653
+7        0.533633     SAT0         0.670164     UT6          0.136531
+8        0.583626     SAT0         0.720156     UT6          0.13653
+9        0.633619     SAT0         0.770149     UT6          0.13653
+10       0.683611     SAT0         0.820141     UT6          0.13653
+11       0.733635     SAT0         0.870165     UT6          0.13653
+12       0.783627     SAT0         0.920158     UT6          0.136531
+13       0.83362      SAT0         0.97015      UT6          0.13653
+14       0.883613     SAT0         1.02014      UT6          0.136527
+15       0.933636     SAT0         1.07017      UT6          0.136534
+16       0.983629     SAT0         1.12016      UT6          0.136531
+17       1.03362      SAT0         1.17015      UT6          0.13653
+18       1.08361      SAT0         1.22014      UT6          0.13653
+19       1.13364      SAT0         1.27017      UT6          0.13653
+20       1.18363      SAT0         1.32016      UT6          0.13653
+21       1.26639      SAT0         1.40067      GW2          0.13428
+23       1.23362      SAT0         1.37015      UT6          0.13653
+24       1.28362      SAT0         1.42015      UT6          0.13653
+...
+```
+##### Lets break it down 
+| Column       | Value    | Meaning                                                               |
+| ------------ | -------- | --------------------------------------------------------------------- |
+| **PktID**    | 0        | Packet ID = 0, unique identifier for this packet                      |
+| **SND_Time** | 0.183623 | Time when the packet was **sent** (in seconds) from the sending node) |
+| **SND_Node** | SAT0     | Node that **sent** the packet — SAT = satellite, 0 = node ID          |
+| **RCV_Time** | 0.320153 | Time when the packet was **received** at the destination              |
+| **RCV_Node** | UT6      | Node that **received** the packet — UT = user terminal, 6 = node ID   |
+| **Delay(s)** | 0.13653  | One-way **propagation + processing delay** (RCV_Time − SND_Time)      |
+
+##### What can we infer from the results
+1. Delay consistency: Most delays are ~0.1365 s. This means the network path is stable and propagation + queuing delays are consistent.
+2. Packet flow:
+  - Packet 0: SAT0 → UT6
+  - Packet 1: SAT0 → UT6
+  - …so it looks like SAT is forwarding packets from GW to UT.
+3. Sequential packets: PktID increases sequentially, showing the order in which packets were sent.
+4. Intermediate hops: In this simplified log, the intermediate hops (GW → SAT) aren’t explicitly shown as separate rows in the E2E output because we only paired the first SND → first RCV. But the raw PacketTrace.log still contains PHY events for all hops.
+
+##### Example interpretation of 3 packets
+| PktID | From → To  | SND_Time | RCV_Time | Delay     |
+| ----- | ---------- | -------- | -------- | --------- |
+| 0     | SAT0 → UT6 | 0.183623 | 0.320153 | 0.13653 s |
+| 1     | SAT0 → UT6 | 0.233616 | 0.370146 | 0.13653 s |
+| 2     | SAT0 → UT6 | 0.283608 | 0.420138 | 0.13653 s |
+- Packets are sent every ~0.05 s
+- Delay is consistent across packets
+- Shows a stable E2E transmission from SAT to UT
+
+## Code-Level Tracing
+These three files work together in a clear hierarchy: the NetDevice is the "front door" for the IP layer, the MAC is the "manager" with the queue, and the PHY is the "radio" that talks to the channel.
+
+### 1. `satellite-net-device.cc` (The Front Door)
+This file is the interface between the L3 (IP) layer and the L2 (MAC) layer.
+- `Send()` Method:
+  - What it does: This public method is called by the ns-3 IP layer when it has a packet to send.
+  - Where is the log? This is the first place a packet is logged. Inside the Send() function, you will find a line that looks like this:
+```
+// This logs the packet as it arrives from L3, *before* it's queued.
+m_macTxTrace (packet);
+```
+- What happens next? After logging, the `Send()` method doesn't transmit the packet directly. Instead, it hands the packet over to the `SatMac` to be queued for transmission. You'll see a call like:
+```
+m_mac->Enqueue (packet, dest);
+```
+
+### 2. `satellite-mac.cc` (The Traffic Manager)
+This file contains the logic for when to send a packet. This is where the main queue lives.
+- m_packetTrace: You won't find m_packetTrace here. That TracedCallback is typically in the NetDevice or Phy. Instead, you'll find a PacketQueue object, which has its own built-in trace sources.
+- Queueing (Enqueue()):
+  - What it does: This method is called by the SatNetDevice (as we saw above). It takes the packet and puts it into an internal buffer, usually a ns3::PacketQueue object.
+  - Where is the log? The PacketQueue itself fires a trace. You don't see the line in satellite-mac.cc, but when it calls m_queue->Enqueue(packet), the queue object automatically fires its "Enqueue" trace source, which a logger can connect to.
+- Dequeuing (Dequeue() or a scheduler function):
+  - What it does: When the MAC's scheduling logic (e.g., in a DVB-S2X scheduler) decides it's time to transmit, it pulls the next packet out of the queue.
+  - Where is the log? This is the counterpart to queueing. When the code calls m_queue->Dequeue(), the queue object automatically fires its "Dequeue" trace source.
+  - What happens next? After dequeuing a packet, the MAC tells the PHY to send it:
+    ```
+    m_phy->Send (packet); // or m_phy->StartTx(packet)
+    ```
+
+
+### 3. `satellite-phy.cc` (The Radio)
+This file models the physical radio. It's responsible for the actual transmission and reception events that you see in the log.
+- `Send()` or `StartTx()` Method:
+  - What it does: This is called by the `SatMac` when a packet is ready for transmission.
+  - Where is the log? This is where the `PacketTrace.log` events are officially created.
+    - Just before starting the transmission, it fires the SND trace:
+    ```
+    // This is the SND (enqueue) or RCV (dequeue) in the log.
+    m_packetTrace (packet);
+    ```
+    - It then calculates the transmission duration and schedules an "end of transmission" event
+- `Receive()` or `StartRx()` Method:
+  -  What it does: This method is called by the `SatelliteChannel` when a signal arrives at this node.
+  -  Where is the log? The PHY checks if the packet's power is above the receiving threshold and not corrupted. If the packet is received successfully, it fires the RCV trace:
+```
+// This is the "r" (receive) in the log.
+m_packetTrace (packet);
+```
+  -  What happens next? The PHY passes the successfully received packet up to the `SatMac`, which in turn passes it up to the `SatNetDevice` to be sent to the IP layer.
 
 # Experiment & Report: Create my own minimal simulation
