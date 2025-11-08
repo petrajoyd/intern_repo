@@ -733,8 +733,29 @@
   - Record before-and-after differences in packet timing or throughput. [compare](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#5-compare-logs) [analyzing differences](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#6-analyze-the-differences)
 - `21:00–22:00`: **Summarize Findings** [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#scenario--example-customization)
 
+### 2025.11.08
 
+**🎯 Short-term Goal:**  
+1. Learn about NS-3 Satellite Module [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md)
+2. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
 
+**📝 Daily Logs:**  
+- `09:00–15:00`: Publishing Prof Bambang’s Book
+- `18:00–19:00`: [Trace the Packet Journey (Theory Mapping)](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#the-packet-flow-path-end-to-end)
+  - Sketch the flow path [flow sketch](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#this-is-a-visual-graph-for-explaining-how-the-e2e-satellite-simulation)
+  - Identify where logs (PacketTrace.log, SimInfo.log) are triggered in the flow. [notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#where-logs-are-triggered-in-the-flow)
+- `19:00–20:00`: [Run and Observe Full Simulation](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#run-and-observe-full-simulation)
+  - Execute a full example like: sat-tutorial-example [execute sims ex](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-execute-simulation)
+  - Watch console logs and open resulting files in data/sims/example-tutorial/. [open files](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-open-resulting-files)
+  - Locate matching “SND” → “RCV” pairs to confirm packet completion. And breakdown results [find SND](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#step-1-find-a-snd-event) [find RCV](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#step-2-find-a-rcv-event) [follow single packet](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#step-3-try-to-follow-a-single-packet) [a packet breakdown](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#lets-break-it-down)
+- `20:00–21:00`: [Code-Level Tracing](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#code-level-tracing)
+  - Open [satellite-net-device.cc](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#1-satellite-net-devicecc-the-front-door), [satellite-phy.cc](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#3-satellite-phycc-the-radio), and [satellite-mac.cc.](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#2-satellite-maccc-the-traffic-manager)
+  - Search for m_packetTrace, Send(), and Receive() calls.
+  - Note exactly where packets get logged, queued, and dequeued.
+- `21:00–22:00`: Summarize Findings [full today's notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#integrating-everything-end-to-end-system-understanding)
+- `22:00–23:00`: Task from Prof Ray
+  - Share ns-3 (satellite) notes as NTN’s simulator
+  -  Learn “NTN 3GPP NTN NR” Fundamentals 
 
 
 
