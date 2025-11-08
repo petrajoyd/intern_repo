@@ -754,8 +754,8 @@
   - Note exactly where packets get logged, queued, and dequeued.
 - `21:00–22:00`: Summarize Findings [full today's notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#integrating-everything-end-to-end-system-understanding)
 - `22:00–23:00`: Task from Prof Ray
-  - Share ns-3 (satellite) notes as NTN’s simulator
-  -  Learn “NTN 3GPP NTN NR” Fundamentals 
+  - Share ns-3 (satellite) notes as NTN’s simulator [Putting notes on reference](https://hackmd.io/FE9LWUw1SoGNnEsC201K-w?both#NTN-Simulator)
+  -  Learn “NTN 3GPP NTN NR” Fundamentals [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
 
 
 
