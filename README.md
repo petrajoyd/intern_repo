@@ -26,7 +26,7 @@
 - [x] 5.4 Channel & Propagation Mastery: `satellite-channel.cc`, `satellite-propagation-delay-model.cc`, `satellite-fading-models`
 - [x] 5.5 Scenario & Example Customization: `examples/sat-tutorial-example.cc`, `sat-iot-example.cc`
 - [x] 5.6 Integrating Everything: End-to-End system understanding
-- [ ] 5.7 Experiment & Report: Create my own minimal simulation
+- [x] 5.7 Experiment & Report: Create my own minimal simulation
 
 ### 4. Learn about NTN NR Basics Fundamentals
 - [ ] 4.1 3GPP NTN NR
@@ -796,17 +796,17 @@
     - [MAC & scheduling](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#MAC-amp-Scheduling)
     - [Role of QoS](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Role-of-QoS-Quality-of-Service)
 - `14:00–15:00`: Write Summary at GitHub and HackMD [GitHub](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md) [HackMD](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#3GPP-NTN)
-- `15:00–16:00`: Setup the Simulation Script
+- `15:00–16:00`: Setup the Simulation Script [script](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#experiment--report-create-my-own-minimal-simulation)
   - Start from a simple example (like sat-cbr-example.cc).
   - Copy it into your own folder, e.g. my-simulations/minimal-sat.cc.
   - Reduce nodes to: 1 GW, 1 SAT, 1 UT.
   - Use SatHelper to configure nodes, PHY, MAC, and channel.
-- `17:00–18:00`: Run & Observe Output
-  - Locate log files (in /data/sims/ or similar).
-  - Use grep, head, and tail to see send/receive activity.
-  - Confirm data is flowing end-to-end (GW → SAT → UT)
-- `19:00–20:00`: Analyze & Visualize Results
-  - Summarize what happen in logs:
+- `17:00–18:00`: Run & Observe Output [run and observe](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#observe-output)
+  - [Locate log files.](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#locate-log-files)
+  - [Use grep, head, and tail to see send/receive activity.](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#use-grep-head-and-tail-to-see-sendreceive-activity)
+  - [Confirm data is flowing end-to-end (GW → SAT → UT)](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#confirm-data-is-flowing-end-to-end-gw--sat--ut)
+- `19:00–20:00`: [Analyze & Visualize Results](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#analyze--visualize-results)
+  - [Summarize what happen in logs](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/NOTES_NS-3_SATELLITE.md#summarize-what-happen-in-logs)
     - When the packet was sent
     - Where it was received
     - Delay and jitter behavior
