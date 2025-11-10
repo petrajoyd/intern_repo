@@ -2307,10 +2307,11 @@ Jitter = difference between consecutive packet delays (we can compute this using
 
 #### A simple diagram of the data path
 Here’s the logical data path derived from the logs:
+````
 +-------------+          +-----------------+          +---------------+
 |  Gateway    |  (Tx) →  |   Satellite     |  (Fwd) → |  User Terminal|
 | (GW Node 2) |----------| (SAT Node 0)    |----------| (UT Node 6)   |
 +-------------+          +-----------------+          +---------------+
      PHY(FWD)                 PHY(FWD)                     PHY(FWD)
-
+````
 
