@@ -772,8 +772,45 @@
   - Share ns-3 (satellite) notes as NTN’s simulator [Putting notes on reference](https://hackmd.io/FE9LWUw1SoGNnEsC201K-w?both#NTN-Simulator)
   -  Learn “NTN 3GPP NTN NR” Fundamentals [Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
 
+### 2025.11.10
 
+**🎯 Short-term Goal:**  
+1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
+2. Learn about NS-3 Satellite Module [Full Study Notes](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?view#3GPP-NTN)
 
+**📝 Daily Logs:**  
+- `11:00–12:30`: Study 3GPP NTN (Non-Terrestrial Network) [study notes](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#3GPP-NTN)
+  - Focuses on:
+    -  [System architecture](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#3GPP-NTN-Architecture-Overview)
+    -  [Transparent vs Regenerative mode](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#3GPP-NTN-Architecture-Overview)
+    -  [NR protocol stack](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#NR-Protocol-Stack-Overview)
+    -  [Integration with terrestrial 5G core](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Integration-Between-Satellite-and-Terrestrial-5G-Core)
+    -  [Delay compensation](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Delay-Compensation)
+    -  [Logical & physical channels](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Logical-and-Physical-Channel), [logical](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Logical-Transport-And-Physical-Layer-Flow), [transport](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Transport-Channels), [physical](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Physical-Channels)
+- `12:30–14:00`: Study DVB-S2X / DVB-RCS2 [study notes](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#DVB-S2X-amp-DVB-RCS2)
+  - Focuses on:
+    - [System architecture](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#System-Architecture-amp-Topologies) ([tranparent architecture](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Transparent-Architecture), [regenerative architecture](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Regenerative-Architecture))
+    - [Uplink (RCS2) and downlink (S2X) segmentation](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Uplink-amp-Downlink-Segmentation-Encapsulation)
+    - [Protocol stack](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Protocol-Stack)
+    - [Frame structures](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Frame-Structures)
+    - [MAC & scheduling](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#MAC-amp-Scheduling)
+    - [Role of QoS](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#Role-of-QoS-Quality-of-Service)
+- `14:00–15:00`: Write Summary at GitHub and HackMD [GitHub](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md) [HackMD](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?both#3GPP-NTN)
+- `15:00–16:00`: Setup the Simulation Script
+  - Start from a simple example (like sat-cbr-example.cc).
+  - Copy it into your own folder, e.g. my-simulations/minimal-sat.cc.
+  - Reduce nodes to: 1 GW, 1 SAT, 1 UT.
+  - Use SatHelper to configure nodes, PHY, MAC, and channel.
+- `17:00–18:00`: Run & Observe Output
+  - Locate log files (in /data/sims/ or similar).
+  - Use grep, head, and tail to see send/receive activity.
+  - Confirm data is flowing end-to-end (GW → SAT → UT)
+- `19:00–20:00`: Analyze & Visualize Results
+  - Summarize what happen in logs:
+    - When the packet was sent
+    - Where it was received
+    - Delay and jitter behavior
+    - Draw a simple diagram of the data path
 
 
 
