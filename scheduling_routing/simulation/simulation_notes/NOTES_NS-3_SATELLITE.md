@@ -2303,6 +2303,7 @@ Approximate timing:
 | GW → SAT            | 10.95   | 10.9836 | **0.0336 s (33.6 ms)**  | Uplink transmission delay                                                                        |
 | SAT → UT            | 10.9836 | 10.9701 | **~0.0135 s (13.5 ms)** | Downlink transmission delay (approx., timestamps not strictly sequential due to event buffering) |
 | **Total E2E Delay** |         |         | **≈ 47 ms**             | Within typical LEO GEO simulation latency (40–60 ms)                                             |
+
 Jitter = difference between consecutive packet delays (we can compute this using Python later if you want to quantify stability).
 
 #### A simple diagram of the data path
