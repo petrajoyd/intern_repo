@@ -868,35 +868,37 @@
 
 **📝 Daily Logs:**  
 - `10:00–11:30`: Making and putting references to [references.bib](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/references/references.bib)
-- `11:30–13:00`: Routing and Scheduling Interaction under Delay & Mobility
+- `11:30–13:00`: [Routing and Scheduling Interaction under Delay & Mobility](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Routing-and-Scheduling-Interaction-under-Delay-amp-Mobility)
 - Routing with dynamic topology:
-  - 3GPP NTN: delay-compensated routing (path stability metric)
-  - DVB-RCS2: transparent vs regenerative routing (centralized vs distributed)
-- Scheduling under long RTT:
-  - Predictive scheduling using delay budget
-  - Slot allocation ahead of feedback
-  - QoS challenge: maintaining stability when handover occurs
-- `13:30–15:00`: Advanced Scheduling Algorithms & Tradeoffs
-  - Delay-Aware Proportional Fair (DA-PF)
-  - QoS-driven Reinforcement Learning Scheduling
-  - Hierarchical Scheduling (Gateway + RCST)
-- `15:00–17:00`: Journals Paper Review
+  - [3GPP NTN](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#3GPP-NTN-Delay-Compensated-Routing-Path-Stability-Metric): delay-compensated routing (path stability metric)
+  - [DVB-RCS2](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#DVB-RCS2-Transparent-vs-Regenerative-Routing): transparent vs regenerative routing (centralized vs distributed)
+- [Scheduling under long RTT](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Scheduling-Under-Long-RTT):
+  - [Predictive scheduling using delay budget](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Predictive-Scheduling-Using-Delay-Budget)
+  - [Slot allocation ahead of feedback](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Slot-Allocation-Ahead-of-Feedback)
+  - [QoS challenge: maintaining stability when handover occurs](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Challenge-Maintaining-Stability-During-Handover)
+- `13:30–15:00`: [Advanced Scheduling Algorithms & Tradeoffs](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Advanced-Scheduling-Algorithms-amp-Trade-Offs)
+  - [Delay-Aware Proportional Fair (DA-PF)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#1-Delay-Aware-Proportional-Fair-DA-PF)
+  - [QoS-driven Reinforcement Learning Scheduling](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Driven-Reinforcement-Learning-Scheduling)
+  - [Hierarchical Scheduling (Gateway + RCST)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Hierarchical-Scheduling-Gateway--RCST)
+- `15:00–17:00`: Journals Paper Review [Journal 1](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#skim-paperjournal-part-4) [Journal 2](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#skim-paperjournal-part-5)
   - Journal 1 = [NB-IoT via LEO satellites: An efficient resource….](https://arxiv.org/pdf/2107.01067)
   - Focus on  finding
-    - Motivation x Problem Statement
-    - System/Network Model
-    - Scheduling & Routing Mechanisms
-    - QoS Metrics Used
-    - Performance Gains
-    - Limitations
+    - [Motivation x Problem Statement](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#motivation-x-problem-statement)
+    - [System/Network Model](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#system--network-model)
+    - [Scheduling & Routing Mechanisms](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#scheduling--routing-mechanisms)
+    - [QoS Metrics Used](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#qos-metrics-used)
+    - [Performance Gains](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#performance-gains-fig-8-9-15)
+    - [How The Author Verifies The Ideas](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#how-the-author-verifies-the-ideas)
+    - [Limitations](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_NVLS%3AAERASFUDT_NTN.md#limitations)
   - Journal 2 = [Overall Design of Satellite Networks for Internet Services with QoS Support](https://www.mdpi.com/2079-9292/8/6/683)
   - Focus on  finding
-    - Motivation x Problem Statement
-    - System/Network Model
-    - Scheduling & Routing Mechanisms
-    - QoS Metrics Used
-    - Performance Gains
-    - Limitations
+    - [Motivation x Problem Statement](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#motivation-x-problem-statement)
+    - [System/Network Model](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#systemnetwork-model)
+    - [Scheduling & Routing Mechanisms](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#scheduling--routing-mechanisms)
+    - [QoS Metrics Used](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#qos-metrics-used)
+    - [Performance Gains](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#performance-gains)
+    - [How The Author Verifies The Ideas](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#how-the-author-verifies-the-ideas)
+    - [Limitations](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#limitation)
 - `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
 
