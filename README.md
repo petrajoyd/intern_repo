@@ -867,7 +867,7 @@
 1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
 
 **📝 Daily Logs:**  
-- `10:00–11:30`: Making and putting references to references.bib
+- `10:00–11:30`: Making and putting references to [references.bib](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/references/references.bib)
 - `11:30–13:00`: Routing and Scheduling Interaction under Delay & Mobility
 - Routing with dynamic topology:
   - 3GPP NTN: delay-compensated routing (path stability metric)
