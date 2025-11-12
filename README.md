@@ -30,18 +30,18 @@
 
 ### 4. Learn about NTN NR Basics Fundamentals
 - [ ] 4.1 3GPP NTN NR
-  - [ ] 4.1.1 System Architecture Diagram
-  - [ ] 4.1.2 Protocol Stacks
+  - [x] 4.1.1 System Architecture Diagram
+  - [x] 4.1.2 Protocol Stacks
   - [ ] 4.1.3 Message Sequence Charts (MSCs)
   - [ ] 4.1.4 NTN O&M Parameters 
 - [ ] 4.2 DVB-S2X & DVB-RCS2
-  - [ ] 4.2.1 System Architecture Diagram
-  - [ ] 4.2.2 Protocol Stacks
+  - [x] 4.2.1 System Architecture Diagram
+  - [x] 4.2.2 Protocol Stacks
   - [ ] 4.2.3 Message Sequence Charts (MSCs)
   - [ ] 4.2.4 O&M Parameters
 - [ ] 4.3 LEO RRM
-  - [ ] 4.3.1 Resource Management Algorithms
-  - [ ] 4.3.2 QoS Aware Routing Algoritms
+  - [x] 4.3.1 Resource Management Algorithms
+  - [x] 4.3.2 QoS Aware Routing Algoritms
   - [ ] 4.3.3 Beam Hopping Algoritm
 ---
 
@@ -812,8 +812,92 @@
     - Delay and jitter behavior
     - Draw a simple diagram of the data path
 
+### 2025.11.11
 
+**🎯 Short-term Goal:**  
+1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
+2. [DONE] Learn about NS-3 Satellite Module [Full Study Notes](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw?view#3GPP-NTN)
 
+**📝 Daily Logs:**  
+- `10:00–11:30`: **Understands QoS Concepts & Models** [QoS Notes](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Quality-Of-Service)
+- [QoS parameters](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Parameters-The-Metrics)
+- [QoS layers](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Layers-Where-It-Happened):
+  - [Application layer (service class, e.g. video, voice, data)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Application-Layer)
+  - [Network layer (IP-level DiffServ, IntServ)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Network-QoS-The-Policy-Layer)
+  - MAC/PHY layer (resource allocation, priority queues) [notes](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Link-QoS-The-Action-Layer)
+- [QoS control models](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Control-Models-The-Strategies):
+  - Best-effort, Integrated Services (IntServ), Differentiated Services (DiffServ), SLA-based.
+- `11:30–13:00`: Study [Scheduling & Routing](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Scheduling-And-Routing-Mechanisms)
+- Scheduling types:
+  - [Fixed vs. dynamic](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Fixed-vs-Dynamic)
+  - [Priority Queue](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#1-Priority-Queue-PQ), [Weighted Fair Queuing (WFQ)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#3-Weighted-Fair-Queuing-WFQ), [Round Robin](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#2-Round-Robin-RR)
+  - [Admission control & resource reservation](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#4-Admission-Control-amp-Resource-Reservation)
+- [Routing types](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Routing-Types):
+  - Static, adaptive, load-aware, QoS-aware routing
+  - [Trade-offs](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#The-Trade-offs)
+- `13:30–15:00`: [3GPP NTN QoS Architecture Implementation](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#3GPP-QoS-Framework)
+- QoS in 3GPP:
+  - [5QI values](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#5QI-5G-QoS-Identifier)
+  - [GBR vs. Non-GBR flows](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#GBR-vs-Non-GBR-Flows)
+  - [End-to-end QoS through 5G Core](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#End-to-End-QoS)
+- [Scheduling](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#3GPP-Scheduling):
+  - [gNB scheduler, HARQ, RLC/PDCP buffering](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#gNB-Scheduler)
+  - [NTN adaptations](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#NTN-Adaptations-The-Big-Change)
+- [Routing](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#3GPP-Routing):
+  - UPF routes based on policy, with NTN extensions
+  - Onboard processing (regenerative gNB)
+- `15:00–16:00`: [DVB-S2X / RCS2 QoS Architecture](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#DVB-QoS-Framework)
+- QoS in DVB:
+  - SLA and service profiles
+  - QoS enforcement via NMC/NCC
+- [Scheduling](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#DVBs-Scheduling):
+  - DAMA, RBDC, VBDC mechanisms
+  - Centralized vs. distributed scheduling
+- [Routing](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#DVBs-Routing):
+  - Hub-centric routing (transparent)
+  - OBP-based onboard routing (regenerative)
+- [QoS control tools](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-Control-Tools):
+  - ACM/MODCOD for adaptive link QoS
+- `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
+  - [Summarize Comparison](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Comparison-3GPP-NTN-Vs-DVBs-QoS)
+
+### 2025.11.12
+
+**🎯 Short-term Goal:**  
+1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
+
+**📝 Daily Logs:**  
+- `10:00–11:30`: Making and putting references to references.bib
+- `11:30–13:00`: Routing and Scheduling Interaction under Delay & Mobility
+- Routing with dynamic topology:
+  - 3GPP NTN: delay-compensated routing (path stability metric)
+  - DVB-RCS2: transparent vs regenerative routing (centralized vs distributed)
+- Scheduling under long RTT:
+  - Predictive scheduling using delay budget
+  - Slot allocation ahead of feedback
+  - QoS challenge: maintaining stability when handover occurs
+- `13:30–15:00`: Advanced Scheduling Algorithms & Tradeoffs
+  - Delay-Aware Proportional Fair (DA-PF)
+  - QoS-driven Reinforcement Learning Scheduling
+  - Hierarchical Scheduling (Gateway + RCST)
+- `15:00–17:00`: Journals Paper Review
+  - Journal 1 = [NB-IoT via LEO satellites: An efficient resource….](https://arxiv.org/pdf/2107.01067)
+  - Focus on  finding
+    - Motivation x Problem Statement
+    - System/Network Model
+    - Scheduling & Routing Mechanisms
+    - QoS Metrics Used
+    - Performance Gains
+    - Limitations
+  - Journal 2 = [Overall Design of Satellite Networks for Internet Services with QoS Support](https://www.mdpi.com/2079-9292/8/6/683)
+  - Focus on  finding
+    - Motivation x Problem Statement
+    - System/Network Model
+    - Scheduling & Routing Mechanisms
+    - QoS Metrics Used
+    - Performance Gains
+    - Limitations
+- `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
 
 
