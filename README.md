@@ -901,7 +901,32 @@
     - [Limitations](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#limitation)
 - `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
+### 2025.11.12
 
+**🎯 Short-term Goal:**  
+1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
+
+**📝 Daily Logs:**  
+- `10:00–12:30`: Making PPT For undergraduates students [Slide Draft](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/slide_draft/initial-draft_forUGstud.md)
+- `13:00–14:00`: [MPLS Basics (with NTN Context)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#MPLS-Multiprotocol-Label-Switching)
+  - [Core idea of MPLS](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Core-Idea-of-MPLS):
+  - [Key elements](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Key-Elements)
+  - [In NTN](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#MPLS-in-NTN-Non-Terrestrial-Networks):
+    - LERs
+    - LSRs
+  - [QoS mapping](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#QoS-and-Traffic-Engineering-in-NTN):
+    - EXP bits (in MPLS header) encode QoS class (e.g., high priority for low-latency traffic).
+    - Traffic engineering (TE) extensions in MPLS allow load-balancing across beams or paths.
+- `14:00–15:00`: MPLS Traffic Engineering (TE) and QoS
+  - [How MPLS enables QoS-aware routing via pre-established LSPs.](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#How-MPLS-Enables-QoS-aware-Routing)
+  - [Constraint-Based Routing (CBR)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Constraint-Based-Routing-CBR)
+  - [RSVP-TE or Segment Routing (SR-MPLS)](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#The-Protocols-RSVP-TE-vs-Segment-Routing-SR-MPLS)
+  - [Application in NTN](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Application-in-NTN)
+- `14:00–15:00`: [Beam Management in LEO Systems](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Case-Study-Beam-Management-amp-MPLS-Integration)
+  - [Types of beam management](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Types-of-Beam-Management)
+  - [Why it matters for QoS](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Why-Beam-Management-Matters-for-QoS)
+  - [Integration with MPLS](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Integration-with-MPLS)
+- `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
 
 
