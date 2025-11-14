@@ -901,7 +901,7 @@
     - [Limitations](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/journals/SJ_ODOSNFISWQS_NTN.md#limitation)
 - `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
-### 2025.11.12
+### 2025.11.13
 
 **🎯 Short-term Goal:**  
 1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
@@ -928,7 +928,35 @@
   - [Integration with MPLS](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Integration-with-MPLS)
 - `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
+### 2025.11.12
 
+**🎯 Short-term Goal:**  
+1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
+2. Make DVBs PPT For Teaching Undergraduates Student. Slide Draft
+3. Helping Ken Understands OAI NTN [Notes](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=)
+
+**📝 Daily Logs:**  
+- `10:00–11:30`: Learn ab RAN Overview [RAN Overview](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#RAN-Radio-Access-Network)
+  - What RAN does in general
+  - [What RAN does in 3GPP NTN](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#What-RAN-Does-in-3GPP-NTN)
+- `12:30–13:30`: [OAI-NTN System Architecture](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#OAI-NTN-Architecture)
+  - OAI = OpenAirInterface → open-source 5G stack implementing 3GPP standards.
+  - For NTN, OAI adds the rfsimulator (rfsim) module → emulates satellite propagation [rfsim](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#2-The-rfsimulator-rfsim-Module)
+- `14:00–15:00`:  Deep Dive into rfsim & LEO Channel Models 
+  - Read & summarize rfsimulator docs (OAI official GitHub). [docs summary](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#OAI-rfsim-for-3GPP-NTN-%E2%80%94-Technical-Documentation)
+  - Learn how RF simulation works between PHYs.
+  - Focus: rfsimulator/run_rfsimulator.sh, rfsimulator/rfsimulator.cpp, and how link models are called.
+- `14:00–15:00`: SAT_LEO_TRANS vs SAT_LEO_REGEN [rfsim leo](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#3-LEO-Channel-Models-SAT_LEO_TRANS--SAT_LEO_REGEN)
+  - Study both models:
+    - Transparent (SAT_LEO_TRANS) → acts as RF relay (bent-pipe) [trans_leo](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#71-SAT_LEO_TRANS-Transparent-LEO)
+    - Regenerative (SAT_LEO_REGEN) → satellite holds gNB payload [regen_leo](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#72-SAT_LEO_REGEN-Regenerative-Payload)
+  - Focus on delay, Doppler, and timing synchronization mechanisms. [notes](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#9-Verifying-NTN-Channel-Behavior)
+- `16:00–17:00`:  Integrate & Diagram
+  - Combine the previous notes into one master architecture:
+  - rfsim in the loop (UE ↔ rfsim ↔ satellite ↔ gNB) [diagram](https://hackmd.io/pDXTfVmlT-ulH2s3s38Uxg?view=#21-rfsim-in-the-OAI-Architecture)
+  - LEO channel parameters (delay, Doppler)
+  - Label OAI modules (L1/L2/L3)
+- `16:00–17:00`:  Summarize, and set milestones x goals for tommorow.
 
 
 
