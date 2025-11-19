@@ -928,7 +928,7 @@
   - [Integration with MPLS](https://hackmd.io/Ml8Y-_JkQ06ZWIwsyclaJA#Integration-with-MPLS)
 - `16:00–17:00`: Summarize, and set milestones x goals for tommorow.
 
-### 2025.11.12
+### 2025.11.14
 
 **🎯 Short-term Goal:**  
 1. Learn NTN 3GPP NTN NR Background Knowledge to teach undergraduates. [Full Study Notes](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/NTN/NTN_Back-Knowledge_NOTES.md)
@@ -958,9 +958,70 @@
   - Label OAI modules (L1/L2/L3)
 - `16:00–17:00`:  Summarize, and set milestones x goals for tommorow.
 
+### 2025.11.17
 
+**🎯 Short-term Goal:**  
+1. Installing SNS-3 and run some test folder notes [folder notes](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes)
+2.Professor Ray’s Feedback
+  - NR OVERVIEW + NTN PROTOCOL STACK (Transparent & Regenerative) [Protocol Stack](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#NR-Protocol-Stack-Overview)
+  - LEO Characteristics + NTN Challenges
+  - How 3GPP Handles NTN (LEO) Problems
+  - Fix existing notes
+  - Study sharetechnote
+3. Learn NTN 3GPP NTN NR Background Knowledge Full Study Notes
+4. [DONE] Helping Ken Understands OAI NTN
 
+**📝 Daily Logs:**  
+- `10:00–12:00`: SNS-3 Installation
+  - Install SNS-3 based on [Joanna’s notes](https://sixth-handball-b2f.notion.site/SNS3-installation-237cecc6b77180dd9bcde8ddc631767e)
+  - Run few examples to check if its working as intended [CBR sims example](https://github.com/petrajoyd/intern_repo/blob/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes/examples_sims_run.md)
+- `13:00–14:30`: [NR Protocol Stack Overview](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#NR-Protocol-Stack-Overview)
+  - [User plane](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#1-User-Plane-U-Plane) (PDCP → RLC → MAC → PHY)
+  - [Control plane](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#2-Control-Plane-C-Plane) (RRC, NAS)
+  - NTN modifications in each layer 
+- `14:30–16:00`: [NTN Topologies + Protocol Stack Placement](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#NTN-Topologies--Protocol-Stack-Placement)
+  -  [Transparent Mode](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#1-Transparent-Mode-Bent-Pipe)
+    -  Full stack at gNB
+    -  Satellite = bent pipe
+    -  End-to-end delay path
+  -  [Regenerative Mode](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#2-Regenerative-Mode-Onboard-Processing)
+    -  Partial gNB onboard
+    -  Remaining stack on ground
+    -  Delay path changes
+- `16:00–17:00`: Note Integration (with correlation map) and  cleanup [correlation map](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#Correlation-Map-Concept-Flow)
+- `17:00–18:00`: Summarize, and set milestones x goals for tommorow.
 
+### 2025.11.19
+
+**🎯 Short-term Goal:**  
+1. Installing SNS-3 and run some test folder notes [folder notes](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/scheduling_routing/simulation/simulation_notes)
+2.Professor Ray’s Feedback
+  - NR OVERVIEW + NTN PROTOCOL STACK (Transparent & Regenerative) [Protocol Stack](https://hackmd.io/D7pXmmKXQf-7enZbBZy8cw#NR-Protocol-Stack-Overview)
+  - LEO Characteristics + NTN Challenges
+  - How 3GPP Handles NTN (LEO) Problems
+  - Fix existing notes
+  - Study sharetechnote
+3. Make SNS3 (Scheduling & Routing) Notes
+4. [DONE] Helping Ken Understands OAI NTN
+
+**📝 Daily Logs:**  
+- `10:00–11:00`: Study and make directory notes structure for SNS3 (Especially for routing and scheduling model files)
+- `11:00–12:30`: Make New Notes For LEO Characteristics + NTN Challenges
+  - LEO Orbital Mechanics (with real numbers)
+  - Propagation Delay (UE → Satellite → Gateway)
+  - Doppler Shift and Doppler Rate
+  - Handover Frequency & Mobility Challenges
+  - Full NTN (LEO) Challenge Summary 
+- `13:30–15:00`: Add “How 3GPP Fixes All NTN Problems” Part
+  -  Doppler Compensation (Main NTN Fix)
+  -  Timing Advance (TA) Extensions & GNSS-Based TA
+  -  HARQ Adaptations
+  -  Beam Management for Moving Satellites
+  -  Uplink Scheduling Adaptations
+  -  NTN-Friendly Random Access Procedure
+  -  NTN Topologies with NR Protocol Stack
+- `15:00–17:00`: (Logistic Job) Repairing and Updating BMW’s Google site
+- `17:00–18:00`:  Summarize, and set milestones x goals for tommorow.
 
 
 
