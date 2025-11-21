@@ -1001,25 +1001,25 @@
   - How 3GPP Handles NTN (LEO) Problems
   - Fix existing notes
   - Study sharetechnote
-3. Make SNS3 (Scheduling & Routing) Notes
+3. Make SNS3 (Scheduling & Routing) Notes [Directory](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/NTN/SNS3/scheduling-routing)
 4. [DONE] Helping Ken Understands OAI NTN
 
 **📝 Daily Logs:**  
-- `10:00–11:00`: Study and make directory notes structure for SNS3 (Especially for routing and scheduling model files)
-- `11:00–12:30`: Make New Notes For LEO Characteristics + NTN Challenges
-  - LEO Orbital Mechanics (with real numbers)
-  - Propagation Delay (UE → Satellite → Gateway)
-  - Doppler Shift and Doppler Rate
-  - Handover Frequency & Mobility Challenges
-  - Full NTN (LEO) Challenge Summary 
-- `13:30–15:00`: Add “How 3GPP Fixes All NTN Problems” Part
-  -  Doppler Compensation (Main NTN Fix)
-  -  Timing Advance (TA) Extensions & GNSS-Based TA
-  -  HARQ Adaptations
-  -  Beam Management for Moving Satellites
-  -  Uplink Scheduling Adaptations
-  -  NTN-Friendly Random Access Procedure
-  -  NTN Topologies with NR Protocol Stack
+- `10:00–11:00`: Study and make directory notes structure for SNS3 (Especially for routing and scheduling model files) [notes directory](https://github.com/petrajoyd/intern_repo/tree/2026-Spring-MS-Petrajoy_Davidson/NTN/SNS3/scheduling-routing)
+- `11:00–12:30`: [Make New Notes For LEO Characteristics + NTN Challenges](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#LEO-Characteristics--NTN-Challenges)
+  - [LEO Orbital Mechanics (with real numbers)](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#LEO-Characteristics-orbital-mechanics-%E2%80%94-with-numbers-amp-formulas)
+  - [Propagation Delay (UE → Satellite → Gateway)](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#Propagation-delay-UE-%E2%86%92-Satellite-%E2%86%92-Gateway--gNB)
+  - [Doppler Shift and Doppler Rate](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#Doppler-shift-amp-Doppler-rate)
+  - [Handover Frequency & Mobility Challenges](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#Handover-frequency-amp-mobility-challenges)
+  - [Full NTN (LEO) Challenge Summary](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#Full-NTN-LEO-challenge-summary)
+- `13:30–15:00`: Add “[How 3GPP Fixes All NTN Problems](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#How-3GPP-fixes-NTN-problems-LEO-Focus)” Part
+  -  [Doppler Compensation](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#1-Doppler-compensation-main-NTN-fix)
+  -  [Timing Advance (TA) Extensions & GNSS-Based TA](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#2-Timing-Advance-TA-extensions-amp-GNSS-Global-Navigation-Satellite-System-based-TA)
+  -  [HARQ Adaptations](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#3-HARQ-adaptations)
+  -  [Beam Management for Moving Satellites](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#4-Beam-management-for-moving-satellites)
+  -  [Uplink Scheduling Adaptations](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#5-Uplink-scheduling-adaptations)
+  -  [NTN-Friendly Random Access Procedure](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#6-NTN-friendly-Random-Access-Procedure-RACH)
+  -  [NTN Topologies with NR Protocol Stack](https://hackmd.io/_d9RhaQUTi6MEXbGRwzhow#7-NTN-topologies-with-NR-protocol-stack)
 - `15:00–17:00`: (Logistic Job) Repairing and Updating BMW’s Google site
 - `17:00–18:00`:  Summarize, and set milestones x goals for tommorow.
 
