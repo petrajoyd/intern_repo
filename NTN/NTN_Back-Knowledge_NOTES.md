@@ -161,10 +161,9 @@ The whole RACH "handshake" (Msg1-4) would take seconds.
 ##### NTN Solution
 The process is adapted for pre-compensation. When the UE sends its first message (Msg1 on the PRACH), it must already be pre-compensated for delay and Doppler. The gNB configures a much larger "guard time" on the PRACH to allow for small estimation errors from UEs spread across the beam.
 
-## Message Sequence Charts (MSCs)
-## NTN O&M Parameters
+# LEO
 
-# DVB-S2X and DVB-RCS2
+
 # DVB-S2X & DVB-RCS2
 The **Digital Video Broadcasting – Satellite (DVB)** family defines standards for broadband satellite communication.  
 
@@ -320,10 +319,7 @@ The RCST requests a certain rate (e.g., "I need 2 Mbps"). The NCC will try to gr
 The most common, "best-effort" request. Used for bursty data (e.g., web browsing).
 #### How it works: 
 The RCST simply reports, "I have 1500 bytes in my buffer." The NCC gives it a slot when it can, after all CRA and RBDC requests are fulfilled.
-## Message Sequence Charts (MSCs)
-## O&M Parameters
 
-# LEO RRM
-## Resource Management Algorithms
-## QoS-Aware Routing Algorithms
-## Beam Hopping Algorithm
+
+
+

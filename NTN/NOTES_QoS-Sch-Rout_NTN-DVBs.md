@@ -59,8 +59,10 @@ This ensures that different traffic flows get their "fair share" of network reso
 
 ## QoS Layers: Where It Happened
 QoS isn't one single thing; it's a set of actions and policies applied at different layers of the network stack.
-<img width="435" height="486" alt="image" src="https://github.com/user-attachments/assets/07414718-7d74-4701-b78c-3d28f4154eba" />
 
+<p align="center">
+  <img src="NTN/qos_layer.png" alt="alt text">
+</p>
 
 ### Application Layer: 
 This is where the requirements are born. The application itself (e.g., Netflix, Zoom, your online game) knows what kind of service it needs. A Zoom call knows it needs low delay and low jitter. A background email sync knows it's not time-sensitive. This "service class" (video, voice, data) is the "why" that informs all the QoS actions at the layers below.
@@ -128,6 +130,9 @@ These are the "rules" the dynamic scheduler follows:
 *  Analogy: The cop's rulebook says, "Let 5 cars from the High queue go, then 3 cars from the Medium queue, then 1 car from the Low queue. Repeat."
 *  QoS Impact: This is the best of both worlds. It guarantees the high-priority traffic gets the most bandwidth (throughput) and better latency, while still ensuring the low-priority traffic eventually gets to go (no starvation). It balances throughput, latency, and fairness.
 
+![image](https://hackmd.io/_uploads/ByqjWtxebg.png)
+
+
 ### 4. Admission Control & Resource Reservation
 * What it is: This is the "bouncer" at the club door, or the cop at the on-ramp to the highway.
 * How it works: Before a new call or video stream is even allowed onto the network, "Admission Control" checks: "Do we have enough resources (bandwidth, scheduling capacity) for this new flow?"
@@ -144,9 +149,13 @@ Routing is about picking the best path through the network. In a satellite netwo
 
 ### The Trade-offs
 This is the most important concept. You can't have perfect everything.
+![image](https://hackmd.io/_uploads/r1IVzYggZx.png)
+
 - Latency vs. Throughput: You often have to choose.
     - A path with the absolute lowest latency (a winding shortcut) might be very narrow and thus have low throughput (can't fit many cars).
     - A path with the highest throughput (an 8-lane superhighway) might have more traffic and stops, giving it higher latency.
+![image](https://hackmd.io/_uploads/SJiHGYeeWg.png)
+
 
 - Latency vs. Fairness:
     - Strict Priority Queuing gives perfect low latency to the "ambulance" but is terribly unfair to the "gravel truck" (which starves).
@@ -311,7 +320,354 @@ Your peak speed (throughput) drops, but your connection stays alive and your pac
     - DVB-RCS2 is gateway-centric. The "smarts" all live in the NCC at the main ground station. The entire system is built around this hub.
 
 
+---
+---
+# Routing and Scheduling Interaction under Delay & Mobility
+In LEO / GEO satellite networks (especially DVB-RCS2 and 3GPP NTN systems), routing and scheduling are deeply interdependent because:
+- Mobility changes link availability.
+- Long RTT (Round Trip Time) affects feedback and control loops.
+- Dynamic topology causes routing tables to age faster, requiring adaptive algorithms.
 
+## 1. Routing with dynamic topology
+### 3GPP NTN: Delay-Compensated Routing (Path Stability Metric)
+In 3GPP NTN (especially for LEO), user terminals or gateways may connect through satellites that move rapidly (~7.5 km/s). Routes between nodes can change every few seconds [3gpp2025ts38300].
 
+#### Key Ideas:
+- Routing needs to account for path stability, not just shortest delay: metrics may include link lifetime (visibility window), Doppler/variation, and queueing delays. For example, virtual topology based routing uses predictability of satellite orbits [s22124552]. 
+- Routing protocols (e.g., modified OLSR or AODV) incorporate future visibility windows of satellites (when a satellite will be in view of a ground terminal).
 
+#### Effect on scheduling
+Stable routes allow more consistent slot reservation or HARQ timing, improving throughput under large RTT.</br>Example formula (simplified):
 
+$$\text{Path Stability} = f(\text{Link Lifetime},
+\text{Delay Variance}, \text{Doppler})$$
+
+The higher the stability, the more likely that route is chosen even if delay is slightly longer.
+
+### DVB-RCS2: Transparent vs Regenerative Routing
+#### Transparent payload:
+- The satellite only forwards signals (no on-board routing).
+- Centralized routing — done on the ground (Network Control Center / NCC).
+- All routing decisions depend on gateway visibility and ground network state.
+- Downside: high signaling latency (especially for GEO).
+
+#### Regenerative payload:
+- The satellite includes an on-board processor (OBP) capable of demodulating and rerouting packets.
+- Enables distributed routing, e.g., inter-satellite links (ISL) or local switching.
+- Can use dynamic link-state routing onboard (similar to OSPF extensions).
+- Advantage: reduces RTT for routing decisions and supports faster handovers.
+
+#### Interaction:
+- Transparent mode: scheduler waits for NCC instructions → slower reaction to topology change.
+- Regenerative mode: scheduling adapts locally → better QoS and throughput under fast mobility.
+
+## Scheduling Under Long RTT
+### Predictive Scheduling Using Delay Budget
+
+#### Problem:
+RTT between terminal and NCC (in GEO) can be ~500 ms; feedback-based scheduling (like TCP) is too slow.
+
+#### Solution:
+- Use predictive scheduling — allocate future slots based on estimated delay budgets and traffic models.
+- The scheduler forecasts traffic arrivals for the next 𝑛 frames, and pre-allocates capacity to match expected QoS needs.
+
+#### Delay Budget Breakdown Example:
+$$\text{Delay Budget} = D_{\text{propagation}} + D_{\text{queue}} + D_{\text{processing}}$$
+
+Predictive schedulers use this to pre-assign slots before ACKs arrive.
+
+### Slot Allocation Ahead of Feedback
+#### Traditional method:
+Scheduler waits for user feedback → slow.\
+
+#### Under long RTT:
+- System allocates slots ahead of receiving feedback.
+- This requires:
+    - Statistical modeling of user demand
+    - Historical queue length estimation
+    - Confidence-based allocation (e.g., allocate 90% of predicted need)
+
+#### DVB-RCS2 Context:
+- RBDC (Rate-Based Dynamic Capacity) and VBDC (Volume-Based Dynamic Capacity) already include predictive components.
+- NCC uses demand reports + traffic prediction to pre-allocate capacity.
+
+#### Impact:
+Enables stable throughput even when acknowledgment cycles are delayed.
+
+## QoS Challenge: Maintaining Stability During Handover
+Mobility (especially in LEO constellations) causes frequent satellite handovers every few minutes.
+
+#### Challenges:
+- Ongoing sessions (TCP, UDP, VoIP) may lose reserved slots.
+- Scheduler and router must synchronize:
+    - Route switching (to new satellite)
+    - Slot reassignment (on new link)
+- QoS degradation: jitter, delay spikes, packet loss.
+
+#### Solutions:
+
+- Make-before-break handover: pre-establish route & slot on next satellite before disconnection.
+- QoS-preserving routing: handover prioritizes high-QoS sessions.
+- Context transfer protocols: (3GPP uses ATSSS; DVB can use resource map migration).
+
+## Combined View
+| Scenario             | Routing Effect               | Scheduling Adaptation                    | Result                     |
+| -------------------- | ---------------------------- | ---------------------------------------- | -------------------------- |
+| Rapid mobility (LEO) | Frequent path changes        | Predictive slot allocation, quick resync | Reduced session drop       |
+| Long RTT (GEO)       | Stable but high delay        | Predictive / pre-allocated scheduling    | Maintains throughput       |
+| Hybrid (ISL-enabled) | Distributed routing possible | Onboard scheduling possible              | Lower delay and better QoS |
+| Handover events      | New route established        | Slot migration / reallocation            | Smooth QoS transition      |
+
+# Advanced Scheduling Algorithms & Trade-Offs
+## 1. Delay-Aware Proportional Fair (DA-PF)
+The classical Proportional Fair Scheduling (PF) algorithm aims to balance throughput and fairness, by scheduling users based on current rate relative to average past rate. </br>In networks with delay or latency constraints, a delay-aware variant (DA-PF) incorporates delay (or queueing delay, head-of-line (HoL) delay) into the scheduling metric.
+
+#### Example:
+In OFDMA systems with delay-QoS constraints, PF is analytically studied for throughput‐delay trade-off.
+- If you favour delay (serving packets sooner), you may sacrifice throughput-fairness.
+- If you favour traditional throughput/fairness, you may incur larger packet delays or miss latency deadlines.
+
+#### For satellite/NTN scenarios:
+The long RTT and variation in link quality mean one may adjust PF metric:
+$$\text{Scheduling Metric} \propto \frac{R_i(t)}{\overline{R_i(t)}} \times f(D_i(t))$$
+where ${R_i(t)}$= instantaneous achievable rate, 
+${R_i(t)}$ = past average, and $f(D_i(t))$= a delay-penalty term (e.g., higher weight if queue delay is large).
+- Implementation trade-offs: complexity (tracking delays/queues + fairness histories), responsiveness to changing channel/link conditions (especially in NTN), and impact of long feedback loops.
+
+## QoS-Driven Reinforcement Learning Scheduling
+- Use of Reinforcement Learning (RL) for scheduling means treating the scheduler as an agent interacting with network state, taking scheduling actions (which user/slot/resource to allocate) and receiving reward based on QoS metrics (delay, throughput, packet-loss, fairness).
+- Especially useful when system dynamics are complex: variable channels, mobility, long delays, unpredictable traffic.
+- Example in satellite IoT uplink: deep RL for channel & power allocation with QoS constraints.
+- Example in wireless cellular: RL scheduler for satisfying QoS in mobile networks.
+- Key trade-offs:
+    - Training overhead & convergence time vs. performance gains.
+    - Real-time applicability: NRA (non-stationary) networks = need for online adaptation.
+    - Interpretability: RL policy may be a “black box”, harder to guarantee strict QoS bounds.
+    - Exploration vs exploitation: while learning, QoS may degrade.
+- For NTN/satellite context: Might incorporate states such as queue lengths, link delays, satellite visibility, handover status; actions include slot assignment, power/modulation, priority classes. Reward could weight delay deadlines and throughput.
+- Implementation tips: Pre-train offline if possible; use transfer-learning when switching beams/handover; limit state/action space for tractability.
+
+## Hierarchical Scheduling (Gateway + RCST)
+- In the architecture of a satellite interactive system such as DVB‑RCS2, there are multiple layers of scheduling control: at the gateway/hub/NCC and at the terminal (RCST) side.
+- “Hierarchical scheduling” means splitting scheduling tasks: e.g., macro-scheduler at the gateway decides large scale resource blocks, while micro-scheduler at each RCST or beam handles local queueing, link adaptation, slot bursts.
+- Benefits: scalability (one hub doesn’t micromanage all), better local adaptation (RCST can adapt to local link conditions), allows faster reaction to local changes (e.g., terminal queue changes) while hub ensures network-wide fairness/QoS.
+- In DVB-RCS2 standard the architecture: a Gateway RCST (GW-RCST) plus RCSTs; top-level resource control via NCC/hub, local resource allocation via RCSTs. 
+DVB
+- Trade-offs:
+    - Coordination overhead: need signalling between gateway & terminals.
+    - Complexity: need algorithms at two levels, ensuring consistency (no conflicting allocations).
+    - Delay in uplink scheduling: hub may allocate resources, then RCST assigns to local flows — longer scheduling delay.
+    - In satellite context with long RTT: local scheduling helps reduce control delay but may degrade global fairness if not well‐coordinated.
+- For NTN/DVB context: you could model hierarchical scheduling as: Gateway schedules per‐beam/terminal quotas ahead of time (given long RTT), RCSTs schedule per-flow within quota, possibly adapting to local queue/backhaul link and mobility/handover events.
+
+# MPLS (Multiprotocol Label Switching)
+At its simplest, MPLS (Multiprotocol Label Switching) is a high-performance networking technique for routing traffic.
+Think of it as creating a high-speed "highway" or "tunnel" for your data through a complex network.
+Instead of every router stopping your data (packet) to read its full destination IP address and check a giant map (the routing table), MPLS gives the packet a simple "label" at the very beginning of its journey.
+From then on, every router in the middle just glances at that simple label (like a highway sign) to know exactly where to send it next. This is much faster than doing a full address lookup at every single hop.
+It's often called a "Layer 2.5" protocol because it operates between Layer 2 (the Data Link Layer, like Ethernet) and Layer 3 (the Network Layer, like IP).
+
+## Core Idea of MPLS
+The core idea of MPLS (Multiprotocol Label Switching) is to stop making complex routing decisions at every hop and instead use a simple "label" to forward packets.
+### Think of it this way:
+#### Traditional IP Routing: 
+Every router has to look at the packet's final destination IP address, search its entire, massive routing table (like a giant address book), and figure out the next hop. This is done at every single router.
+#### MPLS: 
+The first router in the network (the "edge") does that complex lookup once. It then "labels" the packet. From that point on, all the core routers (the "middle") just look at the simple label (e.g., "Label 25") and forward it based on a much simpler label table (e.g., "If you see Label 25, send it out of interface 3").
+
+This creates a pre-determined, high-speed "tunnel" through the network called a Label Switched Path (LSP).
+
+## Key Elements
+There are two main types of MPLS-aware routers:
+
+### LER (Label Edge Router): 
+This is the "entry" and "exit" router for an MPLS network.
+
+#### Ingress LER (Entry): 
+Its job is to PUSH a label. It receives a standard IP packet, analyzes its destination (and QoS requirements), and attaches the first MPLS label to start its journey on an LSP.
+
+#### Egress LER (Exit): 
+Its job is to POP a label. It's the last router in the LSP. It removes the MPLS label and forwards the original IP packet to its final destination.
+
+### LSR (Label Switching Router): 
+This is a "core" router inside the MPLS network.
+Its job is to SWAP labels. It receives a packet, looks only at the incoming label, checks its table (called the LFIB), and swaps the incoming label for an outgoing label, then forwards it to the next hop in the LSP. It never even looks at the packet's IP address.
+
+## MPLS in NTN (Non-Terrestrial Networks)
+
+This is where it gets interesting. In a modern satellite network (especially a LEO/MEO constellation), the components map directly to MPLS roles.
+
+### LERs (The "Edge"):
+- Ground Stations / Gateways: These are the perfect ingress/egress LERs. They connect the terrestrial internet to the space segment. They classify all the ground traffic (web, video, voice) and PUSH MPLS labels onto the packets before beaming them up to a satellite.
+- User Terminals (UTs): A sophisticated UT (like on a plane, ship, or military vehicle) could also act as an LER, applying its own labels to prioritize its own traffic.
+
+### LSRs (The "Core"):
+- Satellites (with ISLs): In a constellation with Inter-Satellite Links (ISLs), the satellites themselves become the LSRs.
+- A satellite receives a packet from another satellite (or a ground station), reads the label, and immediately knows which ISL to forward it to. It just does a fast label SWAP and sends it on.
+- This is much faster and more efficient than having each satellite in orbit perform a full IP route lookup for every single packet.
+
+## QoS and Traffic Engineering in NTN
+
+### QoS Mapping (EXP Bits)
+The MPLS header has a 3-bit Experimental (EXP) field (now often called the Traffic Class field).
+
+- A packet arrives at the ground station (the Ingress LER).
+- The LER inspects the packet's IP header, specifically its DiffServ (DSCP) value (which you know from your QoS studies).
+- The LER maps this DSCP value to one of the 8 possible EXP values (since 3 bits = $2^3 = 8$ classes).
+    - Example:
+        - DSCP EF (Expedited Forwarding, for VoIP) $\rightarrow$ maps to EXP 5 (High Priority)
+        - DSCP AF21 (Assured Forwarding, for streaming) $\rightarrow$ maps to EXP 3 (Medium Priority)
+        - DSCP 0 (Best Effort) $\rightarrow$ maps to EXP 0 (Low Priority)
+- Now, as the packet flies through the satellite constellation (the LSRs), each satellite can use that EXP bit to prioritize traffic. If a link is congested, the satellite's processor will send the EXP 5 packets before the EXP 0 packets, protecting the latency-sensitive voice call.
+
+## How MPLS Enables QoS-aware Routing
+Think of a standard IP network (using OSPF or IS-IS) like a GPS set to "shortest distance." It will always send you on the shortest path, even if that path is a two-lane road that's completely gridlocked.
+MPLS Traffic Engineering (TE) is like a modern GPS (like Waze or Google Maps) that knows about:
+- Live traffic (congestion)
+- Road conditions (a link is down)
+- Your preferences ("avoid tolls," or in our case, "I need a path with low latency")
+
+MPLS enables this by using pre-established Label Switched Paths (LSPs). Instead of just "hop-by-hop" routing, an LER can choose to send traffic down a specific, pre-built "tunnel" (an LSP) that was explicitly designed to meet certain QoS requirements.
+
+For example, you can build two LSPs to the same destination:
+- LSP 1 (The "Short" Path): This is the shortest path, but it's congested. You send all your low-priority (best-effort) web traffic here.
+- LSP 2 (The "QoS" Path): This path is 20ms longer, but it's uncongested and has reserved bandwidth. You send all your high-priority VoIP and video conferencing traffic down this tunnel.
+
+This is something you simply cannot do with standard IP routing.
+
+## Constraint-Based Routing (CBR)
+This is the "brain" that calculates those smart, QoS-aware paths. Standard routing uses the Shortest Path First (SPF) algorithm. It has only one "constraint": Find the path with the lowest cost (metric).
+Constraint-Based Routing (CBR) uses a modified algorithm, usually called CSPF (Constrained Shortest Path First). CSPF is far more powerful. Before it even starts to calculate the shortest path, it first "prunes" the network map, removing any links that don't meet your specified constraints.
+- Common Constraints:
+    - Bandwidth: "Find a path that has at least 100 Mbps of available bandwidth."
+    - Latency/Delay: "Find a path where the total end-to-end delay is less than 50 ms."
+    - Affinity (Color): "Only use links that are marked 'secure'" or "Avoid all links marked 'shared'."
+
+So, CSPF first throws away all links that fail your rules, then it runs the shortest-path algorithm on what's left. This is how you find the "shortest path that meets the QoS requirements."
+
+## The Protocols: RSVP-TE vs. Segment Routing (SR-MPLS)
+This is how you build the LSPs that CSPF calculates. This is a classic "old way vs. new way" comparison.
+
+### 1. RSVP-TE (Resource Reservation Protocol - TE)
+The "Classic" Way.
+
+#### How it works: 
+It's "stateful." The head-end router (LER) sends a "PATH" message along the desired path. Each router (LSR) on that path checks if it has the resources (e.g., the 100 Mbps bandwidth you requested). If it does, it "reserves" it and holds that reservation. This message travels to the end, and a "RESV" (Reservation) message is sent back, locking in the path.
+
+#### Analogy: 
+It's like calling every single hotel on your road trip in advance to reserve a room and get a confirmation number.
+
+#### Problem: 
+Every router in the core network has to maintain the "state" (the reservation) for every single LSP passing through it. In a large network with thousands of LSPs, this creates massive overhead and scaling problems.
+
+### 2. SR-MPLS (Segment Routing - MPLS)
+The "Modern" Way.
+
+#### How it works: 
+It's "stateless." It uses source routing. The head-end router (LER) decides the entire path from the beginning. It then "steers" the packet by putting a "stack" (a list) of labels on it.
+
+#### Analogy: 
+It's like Google Maps giving you a complete list of turn-by-turn directions at the start of your trip. You (the packet) just read the top instruction, and when you complete it, you move to the next one.
+
+#### Mechanism: 
+The LER pushes a stack of labels, like [Label 100, Label 200, Label 300].
+- The first LSR sees Label 100 (which means "Go to Router X"). It forwards the packet to Router X and pops that label off.
+- Router X now sees Label 200 (which means "Go to Router Y"). It forwards to Router Y and pops that label.
+- Router Y sees Label 300... and so on.
+
+#### Advantage: 
+The core routers (LSRs) don't need to store any "state." They just read the top label and forward. All the intelligence is at the "edge" (the LER). This is vastly more scalable and simple for the core network.
+
+## Application in NTN
+This is where all these concepts come together perfectly.
+
+### Dynamic Paths: 
+In a LEO constellation, the topology is constantly changing. Satellites are moving at 17,000 mph. Inter-satellite links (ISLs) are continuously forming and breaking. Standard routing can't keep up.
+
+#### Solution: 
+You need TE. A central controller (on the ground) can run CSPF every second to calculate the new, optimal, constraint-based paths (e.g., "avoid this high-latency link," "use this new fast link").
+
+### Scalability: 
+A LEO constellation might have thousands of satellites (LSRs) and millions of LSPs (user connections).
+
+#### Solution: 
+SR-MPLS is the clear winner. You cannot have your resource-constrained satellites maintaining state for millions of RSVP-TE reservations. It's far more efficient to have smart ground stations (LERs) calculate the path (the label stack) and have the satellites (LSRs) just do the simple, stateless label forwarding.
+
+### QoS & Load Balancing: 
+You will have some beams/links that are heavily congested (over a city) and others that are empty (over an ocean).
+#### Solution: 
+CBR and SR-MPLS let you steer traffic intelligently. You can create an LSP for a high-priority government customer that routes them around the congested "city" beam, sending them over the "ocean" path to guarantee their bandwidth and low latency. This is the definition of Traffic Engineering.
+
+In short, MPLS-TE (specifically using Segment Routing) is the key technology that allows you to manage an NTN as a single, intelligent, QoS-aware network instead of just a collection of dumb, "shortest-path" satellites.
+
+# Case Study: Beam Management & MPLS Integration
+
+## What is Beam Management?
+In a LEO constellation, you have thousands of satellites moving at ~27,000 km/h. They are only in view of a user on the ground for a few minutes.
+Beam Management is the total set of processes used to:
+- Point a satellite's focused radio beam (a "spot beam") at a specific user or area on the ground.
+- Maintain that connection as the satellite and/or user moves.
+- Allocate the satellite's power and frequency resources efficiently across all its beams.
+- Manage the "handover" when the user has to switch to a new beam or a new satellite.
+
+## Types of Beam Management
+
+You can group these into three main functions:
+
+### a) Beam Steering (Tracking)
+This is the local, physical act of pointing the beam. A modern satellite uses a Phased Array Antenna, which is a flat panel with thousands of tiny antennas. By electronically changing the signal's phase to each antenna, it can "steer" the beam in a specific direction without any moving parts.
+
+#### Purpose: 
+To lock onto a User Terminal (UT) on the ground and track it, compensating for the satellite's own rapid movement.
+
+### b) Beam Hopping (Resource Allocation)
+A satellite can't light up its entire footprint with full power all at once. Beam Hopping is a technique where the satellite dynamically allocates its resources. It has a set of ground "cells" it can cover, and it "hops" its spot beams between them based on demand.
+
+#### Purpose: 
+Efficiency. It spends more time, power, and bandwidth on cells with high traffic (like a city) and less time on cells with low traffic (like the ocean).
+
+###  c) Beam Handover (Mobility Management)
+This is the most critical and complex part for LEOs. Because the satellites are moving so fast, a user must be handed off from one beam to another.
+
+#### Intra-Satellite Handover: 
+You are connected to Beam 1 on Satellite A. As the satellite moves, you leave the coverage of Beam 1 and are handed off to Beam 2 (still on Satellite A).
+
+#### Inter-Satellite Handover:
+You are connected to Satellite A, which is about to set over the horizon. Before it disappears, the network must hand you off to Satellite B, which is just rising. This is the big one.
+
+## Why Beam Management Matters for QoS
+This is where everything can go wrong. Beam management is the single biggest threat to QoS in a LEO network.
+- Handover = High Jitter & Packet Loss: A slow or badly managed handover is a "break-before-make" event.
+1.The link to Satellite A is dropped.
+2. Packets for you are lost (black-holed).
+3. A new link to Satellite B is established.
+4. Traffic resumes. This "break" (even if just milliseconds) is a massive burst of packet loss and jitter. For a VoIP call or video conference, this is catastrophic.
+- Beam Hopping = Throughput & Congestion: If the beam hopping algorithm is poor, it's a huge QoS problem.
+    - Imagine your "high priority" VoIP traffic (which you've marked with QoS) is destined for a busy city cell. If the beam hopper only gives that cell 1ms of service time every 100ms, your packets will get stuck in a massive queue on the satellite, get delayed, and be dropped. This is congestion-induced packet loss.
+- Beam Steering = Link Quality: If the beam steering is imprecise, the beam isn't perfectly centered on the user.
+    - This lowers the signal-to-noise ratio (SNR).
+    - A low SNR means a high bit error rate.
+    - The system has to use stronger (and less     efficient) error correction, which lowers the available data rate (throughput). Or, packets just get corrupted and lost.
+
+## Integration with MPLS
+This is the brilliant part. They use the "smarts" of MPLS Traffic Engineering (TE) to solve the "physical" problems of beam management.
+The system's central "brain" (like an SDN controller) knows the satellite orbits (which are 100% predictable) and the network state (from MPLS).
+Here is the "make-before-break" handover scenario:
+### 1. THE EVENT: 
+A User Terminal (UT) is connected to a ground station (an LER) via an LSP that goes through Satellite A (an LSR). The network controller knows that in 60 seconds, Satellite A will be out of range and the UT must be handed over to Satellite B.
+
+### THE PREPARATION (MPLS-TE):
+- The ground station's LER proactively uses a protocol like SR-MPLS (Segment Routing) or RSVP-TE to calculate and establish a brand new LSP for that user.
+- This "New LSP" is explicitly routed from the ground station to Satellite B and then to the user.
+- This new path is built and reserved while the user is still actively using the old path.
+
+### THE EXECUTION (QoS-Aware):
+- The LER at the ground station is now "holding" two LSPs for the same user:
+    - LSP-Old: [... $\rightarrow$ Satellite A $\rightarrow$ User] (Active)
+    - LSP-New: [... $\rightarrow$ Satellite B $\rightarrow$ User] (Standby)
+- When the handover moment arrives (T-0), the LER performs a seamless switch. It simply stops pushing the user's packets onto LSP-Old and starts pushing them onto LSP-New.
+- The (QoS-aware) LER can prioritize this. It first moves the user's high-priority traffic (marked with EXP bit 5 for VoIP) to the new LSP, ensuring zero loss for the critical call. It can then move the best-effort web traffic (EXP 0) a moment later.
+
+This "make-before-break" network switch, orchestrated by MPLS-TE, is what turns a physically disruptive event (losing a satellite) into a seamless, unnoticeable transition for the user, perfectly preserving QoS.
+
+The same logic applies to QoS-aware beam hopping, where the MPLS EXP bit information (classifying traffic as high/low priority) is fed to the beam hopping scheduler, telling it to "hop" to the high-priority cells more often.
