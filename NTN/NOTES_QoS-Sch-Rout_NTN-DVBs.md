@@ -60,9 +60,7 @@ This ensures that different traffic flows get their "fair share" of network reso
 ## QoS Layers: Where It Happened
 QoS isn't one single thing; it's a set of actions and policies applied at different layers of the network stack.
 
-<p align="center">
-  <img src="NTN/qos_layer.png" alt="alt text">
-</p>
+![alt text](image.png)
 
 ### Application Layer: 
 This is where the requirements are born. The application itself (e.g., Netflix, Zoom, your online game) knows what kind of service it needs. A Zoom call knows it needs low delay and low jitter. A background email sync knows it's not time-sensitive. This "service class" (video, voice, data) is the "why" that informs all the QoS actions at the layers below.
