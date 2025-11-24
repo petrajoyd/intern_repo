@@ -14,7 +14,7 @@ This jam causes all the problems:
 - **Packet Loss**: The on-ramp gets so backed up that the router (the "traffic cop") has to stop cars from getting on. It just drops them ("Sorry, we're full").
 
 ### The "Best-Effort" Model (No QoS)
-Now, imagine this highway has no rules. This is the "Best-Effort" model—the default state of the internet.
+Now, imagine this highway has no rules. This is the "Best-Effort" model, the default state of the internet.
 On this "no-rules" highway, you have:
 - An ambulance with a patient (a voice call packet)
 - A gravel truck (a file download packet)
@@ -39,6 +39,7 @@ That's it. That's the entire concept of QoS from the ground up.
 
 ## QoS Parameters: The Metrics
 These are the key metrics used to measure the "quality" of your network's performance. When we talk about designing for QoS, we're really talking about how to control these specific values for different types of traffic.
+
 ### 1. Delay (or Latency): 
 The time it takes for a packet to travel from its source to its destination. High delay is bad for real-time applications like voice calls (you get that annoying lag) or online gaming.
 
@@ -59,6 +60,7 @@ This ensures that different traffic flows get their "fair share" of network reso
 
 ## QoS Layers: Where It Happened
 QoS isn't one single thing; it's a set of actions and policies applied at different layers of the network stack.
+
 
 <p align="center">
     <img src="notes-png/qos-layer.png" alt="QoS Layers">
