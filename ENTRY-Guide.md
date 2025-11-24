@@ -2,7 +2,7 @@
 
 ## Paperworks
 
-### VISA
+### VISA (750.000 IDR)
 1. Fill up [form](https://visawebapp.boca.gov.tw/BOCA_EVISA/)
 2. Paspor Asli + FC.
 3. Pas Foto background putih ukuran 4 x 6 (The last 3 months)
