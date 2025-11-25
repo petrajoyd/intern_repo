@@ -63,7 +63,9 @@ QoS isn't one single thing; it's a set of actions and policies applied at differ
 
 
 <p align="center">
-    <img src="notes-png/qos-layer.png" alt="QoS Layers">
+    <img src="notes-png/qos-layer.png" alt="QoS Layers" />
+    <br />
+    <em>Figure 1. QoS Layers</em>
 </p>
 
 ### Application Layer: 
@@ -132,8 +134,10 @@ These are the "rules" the dynamic scheduler follows:
 *  Analogy: The cop's rulebook says, "Let 5 cars from the High queue go, then 3 cars from the Medium queue, then 1 car from the Low queue. Repeat."
 *  QoS Impact: This is the best of both worlds. It guarantees the high-priority traffic gets the most bandwidth (throughput) and better latency, while still ensuring the low-priority traffic eventually gets to go (no starvation). It balances throughput, latency, and fairness.
 
-<p align = "center">
-    <img src="notes-png/wfq.png" alt="Weighted Fair Queuing"
+<p align="center">
+    <img src="notes-png/wfq.png" alt="Weighted Fair Queuing" />
+    <br />
+    <em>Figure 2. Weighted Fair Queuing (WFQ)</em>
 </p>
 
 ### 4. Admission Control & Resource Reservation
@@ -158,7 +162,9 @@ This is the most important concept. You can't have perfect everything.
     - A path with the highest throughput (an 8-lane superhighway) might have more traffic and stops, giving it higher latency.
 
 <p align="center">
-    <img src="notes-png/latent-vs-throughput.png" alt="Latency vs. Throughput"
+    <img src="notes-png/latent-vs-throughput.png" alt="Latency vs. Throughput" />
+    <br />
+    <em>Figure 3. Latency vs Throughput (trade-offs)</em>
 </p>
 
 - Latency vs. Fairness:
