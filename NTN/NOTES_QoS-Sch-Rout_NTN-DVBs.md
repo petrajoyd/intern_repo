@@ -132,8 +132,9 @@ These are the "rules" the dynamic scheduler follows:
 *  Analogy: The cop's rulebook says, "Let 5 cars from the High queue go, then 3 cars from the Medium queue, then 1 car from the Low queue. Repeat."
 *  QoS Impact: This is the best of both worlds. It guarantees the high-priority traffic gets the most bandwidth (throughput) and better latency, while still ensuring the low-priority traffic eventually gets to go (no starvation). It balances throughput, latency, and fairness.
 
-![image](https://hackmd.io/_uploads/ByqjWtxebg.png)
-
+<p align = "center">
+    <img src="notes-png/wfq.png" alt="Weighted Fair Queuing"
+</p>
 
 ### 4. Admission Control & Resource Reservation
 * What it is: This is the "bouncer" at the club door, or the cop at the on-ramp to the highway.
@@ -151,13 +152,14 @@ Routing is about picking the best path through the network. In a satellite netwo
 
 ### The Trade-offs
 This is the most important concept. You can't have perfect everything.
-![image](https://hackmd.io/_uploads/r1IVzYggZx.png)
 
 - Latency vs. Throughput: You often have to choose.
     - A path with the absolute lowest latency (a winding shortcut) might be very narrow and thus have low throughput (can't fit many cars).
     - A path with the highest throughput (an 8-lane superhighway) might have more traffic and stops, giving it higher latency.
-![image](https://hackmd.io/_uploads/SJiHGYeeWg.png)
 
+<p align="center">
+    <img src="notes-png/latent-vs-throughput.png" alt="Latency vs. Throughput"
+</p>
 
 - Latency vs. Fairness:
     - Strict Priority Queuing gives perfect low latency to the "ambulance" but is terribly unfair to the "gravel truck" (which starves).

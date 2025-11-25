@@ -6,7 +6,14 @@ The primary reference documents are **3GPP TR 38.821** (study on NR to support N
 
 
 ## 3GPP NTN Architecture Overview
-The basic NTN architecture follows the 5G system model but includes a **space segment** (satellite) between the **User Equipment (UE)** and the **Ground Gateway (gNB / NG-RAN)**. ![overview](https://hackmd.io/_uploads/SkEEjJkeZl.png)
+The basic NTN architecture follows the 5G system model but includes a **space segment** (satellite) between the **User Equipment (UE)** and the **Ground Gateway (gNB / NG-RAN)**. 
+
+<figure style="text-align:center;">
+  <img src="notes-png/3gpp-ntn_overview.png" alt="3GPP NTN Architecture Overview" />
+  <figcaption><strong>Figure 1.</strong> 3GPP NTN Architecture</figcaption>
+</figure>
+
+
 - Label Service Link (UE ↔ Satellite)
 - Label Feeder Link (Satellite ↔ Gateway)
 - Show two modes:
@@ -15,52 +22,149 @@ The basic NTN architecture follows the 5G system model but includes a **space se
 
 ## NR Protocol Stack Overview
 In 3GPP NTN, the radio interface follows the **New Radio (NR)** protocol stack used in terrestrial 5G but with critical adaptations in the lower layers (MAC and PHY) to handle satellite-specific challenges.
-![image](https://hackmd.io/_uploads/BJ_CA1ylWx.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/NR-protocol-stack_overview.png" alt="NR Protocol Stack Overview">
+  <figcaption><strong>Figure 2.</strong> User Plane Protocol Stack</figcaption>
+</figure>
 
 Here is a quick breakdown of what each layer does, from top to bottom, which explains why the stack is in that order:
 
-### SDAP (Service Data Adaptation Protocol)
-#### Job: 
+### 1. User Plane (U-Plane) 
+This plane handles the transmission of user data packets between the User Equipment (UE) and the gNB (gNodeB).
+#### SDAP (Service Data Adaptation Protocol)
+##### Job: 
 This is the top layer, new in 5G. Its one and only job is to map Quality of Service (QoS) flows to a specific "radio bearer."
 
-#### Analogy: 
+##### Analogy: 
 It's like a mail sorter at a company. It sees a letter marked "Urgent/CEO" (like a voice call) and puts it in the "Express" mailbag, while a letter marked "Newsletter" (like a background update) goes in the "Bulk Mail" bag.
 
-### PDCP (Packet Data Convergence Protocol)
+#### PDCP (Packet Data Convergence Protocol)
 
-#### Job: 
+##### Job: 
 This layer gets the data from SDAP and does two main things: 
 1) Compresses the IP headers to save space.
 2) Ciphers (encrypts) the data for security.
 
-#### Analogy: 
+##### Functions: 
+Header compression (ROHC), ciphering (security), integrity protection (control plane), sequential delivery, and handling data transfer during handover.
+
+##### Analogy: 
 This is the security and packing department. It "vacuum-seals" the mail to make it smaller (compression) and puts it in a "tamper-proof, locked bag" (encryption).
 
-### RLC (Radio Link Control)
+##### NTN Modifications:
+Needs adaptation for longer delays and potentially higher error rates. The sequence numbering and reordering functions may need adjustment to be more robust against the high Round-Trip Time (RTT).
 
-#### Job: 
+#### RLC (Radio Link Control)
+
+##### Job: 
 This layer's job is to ensure reliability and handle large packets. It splits large packets into smaller, uniform pieces (segmentation) and, if needed, uses ARQ (Automatic Repeat Request) to re-transmit any pieces that get lost.
 
-#### Analogy: 
+##### Modes: 
+Transparent Mode (TM), Unacknowledged Mode (UM), and Acknowledged Mode (AM). AM provides ARQ (Automatic Repeat reQuest) for reliable data transfer.
+
+##### Analogy: 
 This is the shipping department. It takes a big item (like a bicycle) and "disassembles it" (segmentation) to fit into several small boxes, labeling them "Box 1 of 3," "Box 2 of 3," etc., so they can be reassembled on the other end.
 
-### MAC (Medium Access Control)
+##### NTN Modifications: 
+The timer settings for the ARQ mechanism (especially in AM) are significantly affected by the long propagation delay. The retransmission window and timers must be drastically increased to avoid unnecessary retransmissions before a delayed ACK/NACK is received.
 
-#### Job: 
+#### MAC (Medium Access Control)
+
+##### Job: 
 This is the traffic cop. It's responsible for scheduling which user gets to transmit when. It takes the small pieces from the RLC layer (from multiple users) and multiplexes them together into one large transport block to be sent out.
 
-#### Analogy: 
+##### Functions: 
+Scheduling, logical channel prioritization, error correction via HARQ (Hybrid ARQ), and mapping logical channels to transport channels.
+
+##### Analogy: 
 This is the loading dock manager. It looks at all the small boxes for different customers and decides "These 50 boxes fit on the truck that's leaving right now. The next 20 boxes will wait for the next truck."
 
-### PHY (Physical Layer)
+##### NTN Modifications:
+- HARQ: Similar to RLC, the HARQ timing must be modified to account for the long propagation delay. The HARQ process typically relies on rapid feedback; in NTN, the feedback loop is much slower, requiring larger buffers and longer timing parameters.
+- Scheduling: Needs to accommodate the satellite's orbital velocity (Doppler shift) and the large coverage area. Scheduling algorithms must predict channel conditions over longer time scales.
 
-#### Job: 
+#### PHY (Physical Layer)
+
+##### Job: 
 This is the physical hardware. It takes the final block of bits from the MAC layer and converts it into a radio signal to be transmitted over the air.
 
-#### Analogy: 
+##### Functions: 
+Coding, modulation, multi-antenna processing, and frequency/time synchronization
+
+##### Analogy: 
 This is the truck and the driver. It's the actual physical transport that moves the goods from one place to another.
 
-## Integration Between Satellite and Terrestrial 5G Core
+##### NTN Modifications:
+
+- Timing Advance (TA): The large and rapidly changing distance to the satellite requires a more dynamic and accurate TA mechanism to ensure uplink transmissions arrive synchronized at the satellite/gNB.
+- Doppler Compensation: The high speed of LEO satellites causes significant Doppler shifts, which the PHY layer must accurately estimate and compensate for to maintain coherent communication.
+
+### 2. Control Plane (C-Plane)
+This plane handles the signaling between the UE and the network for connection management, security, and mobility.
+
+<figure style="text-align:center;">
+  <img src="notes-png/c-plane_prot-stack.png" alt="C-Plane Protocol Stack Overview">
+  <figcaption><strong>Figure 3.</strong> C-Plane Protocol Stack</figcaption>
+</figure>
+
+This diagram illustrates the 5G NR (New Radio) Control Plane Protocol Stack for the Uu (Air) Interface and its connection to the Core Network.
+It shows the layers responsible for signaling and control between the User Equipment (UE), the gNB (Base Station), and the Access and Mobility Management Function (AMF) in the 5G Core Network.
+
+#### RRC (Radio Resource Control):
+
+##### Functions: 
+Connection setup/release, broadcast of system information, radio bearer configuration, measurement reporting, and mobility procedures (handover).
+
+##### NTN Modifications: 
+RRC procedures must be adapted for satellite-specific mobility scenarios, especially handovers between satellite beams or satellites (Inter-Satellite Links). System Information Blocks (SIBs) may carry satellite-specific parameters.
+
+#### NAS (Non-Access Stratum):
+
+##### Functions: 
+Mobility Management (tracking area updates), Session Management (PDU session setup), and security control between the UE and the Core Network (AMF/SMF).
+
+##### NTN Modifications: 
+Largely unaffected by the physical layer, as NAS operates end-to-end between the UE and the Core Network. However, long delays in the signaling path may impact the perceived performance of connection setup procedures.
+
+## NTN Topologies + Protocol Stack Placement
+The placement of the gNB protocol stack determines the operational mode of the satellite link and is the basis for the two primary NTN topologies.
+
+### 1. Transparent Mode (Bent-Pipe)
+In this mode, the satellite acts merely as a relay or "bent pipe," amplifying and forwarding signals without any processing of the NR protocol stack layers. The full gNB stack resides on the ground.
+
+| Feature            | Description                                                                                                   |
+|--------------------|---------------------------------------------------------------------------------------------------------------|
+| Satellite Role     | Passive repeater (RF front-end only).                                                                          |
+| gNB Stack Placement| Full stack at the gNB Earth Station on the ground.                                                            |
+| Layers Onboard     | None of the NR protocol layers (PDCP, RLC, MAC, PHY baseband).                                                |
+| Benefits           | Simpler satellite design, lower power consumption, easier software upgrades (all done on the ground).         |
+| Drawbacks          | Higher end-to-end latency (long RTT between UE and gNB), limited geographical coverage from a single gNB ES.  |
+
+#### End-to-End Delay Path:
+The delay includes the long hop from the UE to the Satellite, the hop from the Satellite to the gNB Earth Station (where the protocol processing occurs), and the subsequent hops through the core network.
+
+This long RTT is the reason for the extensive modifications needed in the RLC/MAC timers.
+
+### 2. Regenerative Mode (Onboard Processing)
+In this mode, the satellite is equipped with onboard processing capabilities, allowing it to perform at least part of the gNB's functions, effectively terminating the radio interface link in space.
+| Feature            | Description                                                                                                                   |
+|--------------------|-------------------------------------------------------------------------------------------------------------------------------|
+| Satellite Role     | Active node with processing capabilities (mini-gNB).                                                                          |
+| gNB Stack Placement| Partial gNB stack onboard (e.g., PHY/MAC/RLC). Remaining stack (PDCP/RRC/Core Network) stays on the ground or partially onboard. |
+| Layers Onboard     | Typically PHY and MAC are fully or partially terminated onboard.                                                              |
+| Benefits           | Shorter RTT (UE → satellite), enabling less-modified 3GPP protocols and reducing RLC/HARQ timing constraints.                |
+| Drawbacks          | More complex and heavier satellite, higher power consumption, and complex software upgrades.                                  |
+
+#### Delay Impact
+The primary advantage is the reduction of the short radio loop (UE $\leftrightarrow$ Protocol Termination Point):
+- Reduced RTT for MAC/RLC: The HARQ and ARQ feedback loops only have to cover the distance between the UE and the satellite. This is a much shorter RTT, especially for LEO satellites.
+- Result: Allows the use of less-modified terrestrial 5G NR protocols for the L2 layers, improving efficiency. The total end-to-end delay to the Core Network is still high, but the latency-sensitive radio protocols are less impacted.
+
+
+
+
+## NTN's Main Problem 
 The massive delays (e.g., 270ms one-way to GEO) and high Doppler shifts (from LEO satellite movement) force significant changes:
 ### PHY Layer Adaptations:
 
@@ -100,12 +204,18 @@ To do this, the UE needs to know two things:
 2. The satellite's exact location and velocity (from the satellite ephemeris data, which is broadcast by the network).
 
 With this data, the UE makes two calculations:
-- Timing Advance Pre-Compensation: The UE calculates the one-way propagation delay to the satellite ($Delay = Distance / c$). It then advances its own uplink transmission by this amount, so its signal arrives at the satellite's receiver perfectly in-sync with the gNB's time.
+- Timing Advance Pre-Compensation: The UE calculates the one-way propagation delay to the satellite $$Delay = Distance / c$$ It then advances its own uplink transmission by this amount, so its signal arrives at the satellite's receiver perfectly in-sync with the gNB's time.
 - Doppler Pre-Compensation: The UE calculates the relative velocity between itself and the satellite. It then applies an opposite frequency shift (a "pre-shift") to its uplink signal. This way, the Doppler shift that happens in transit actually "corrects" the signal, and it arrives at the satellite on the exact right frequency.
 
 ## Logical and Physical Channel
 The NTN standard (Rel-17) re-uses the existing 5G NR channel structure. The names and jobs of the channels are identical. Logical and Physical channel for NTN can be seen at the RLC and the Physical layer.
-![image](https://hackmd.io/_uploads/BJpXYg1xbx.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/5G NR Channel Structure.png" alt="Logical and Physical Channel">
+  <figcaption><strong>Fig.4 </strong>NTN Channel Structure</figcaption>
+</figure>
+
+
 - Radio Bearer (PDCP): This is just a high-level name for a service.
 - Logical Channel (RLC): The RLC layer creates and uses Logical Channels. Its job is to decide what kind of data is being sent (e.g., user data vs. control data).
 - Transport Channel (MAC): The MAC layer creates and uses Transport Channels. Its job is to decide how the data will be handled (e.g., will it be broadcast, or shared by one user?).
@@ -135,8 +245,10 @@ The NTN standard (Rel-17) re-uses the existing 5G NR channel structure. The name
 - PDCCH (Physical Downlink Control Channel): Carries scheduling commands (telling where PDSCH/PUSCH are).
 - PRACH (Physical Random Access Channel): Carries the RACH.
 
-![image](https://hackmd.io/_uploads/B1KMFl1ebl.png)
-
+<figure style="text-align:center;">
+  <img src="notes-png/phy-channel.png" alt="Physical Channels">
+  <figcaption><strong>Figure 5. </strong>NTN Physical Channels</figcaption>
+</figure>
 
 ### Key NTN Adaptations for Channels
 This is the most important part. Because of the massive delay, the procedures using these channels had to be adapted, especially at the MAC layer.
@@ -161,8 +273,260 @@ The whole RACH "handshake" (Msg1-4) would take seconds.
 ##### NTN Solution
 The process is adapted for pre-compensation. When the UE sends its first message (Msg1 on the PRACH), it must already be pre-compensated for delay and Doppler. The gNB configures a much larger "guard time" on the PRACH to allow for small estimation errors from UEs spread across the beam.
 
-# LEO
+# LEO Characteristics + NTN Challenges
 
+## LEO Characteristics (orbital mechanics — with numbers & formulas)
+### Relevant definitions
+Low Earth Orbit (LEO): roughly 160–2,000 km altitude. Typical LEO for commercial NTN: ~500–1,200 km.
+
+### Key constants / formulas
+-  **Earth radius** $R_e = 6,371\ \text{km}$.
+-  **Gravitational parameter** $\mu = 3.986004418 \times 10^{14}\ \text{m}^3/\text{s}^2$.
+-  **Orbital (circular) speed** (where $h$ is altitude): $v = \sqrt{\mu / (R_e + h)}$.
+-  **Orbital period** (where $h$ is altitude): $T = 2\pi \sqrt{(R_e + h)^3 / \mu}$.
+-  **One-way propagation time (approx, nadir)** (where $c$ is the speed of light): $\tau_{\min} \approx h/c$.
+-  **Slant (horizon) range** (where $R$ is the receiver's radius): $d_{\text{hor}} = \sqrt{(R_e + h)^2 - R^2}$ and $\tau_{\max} = d_{\text{hor}} / c$.
+-  **Doppler shift (instantaneous)**: $f_D = (v_{\text{rad}} / c) f_c$ where $v_{\text{rad}}$ is the radial velocity component toward/away from receiver. (Use signed value for sign).
+
+### Numeric examples (useful reference table)
+computed for circular orbit and UE at surface:
+| Altitude (km) | Orbital speed (km/s) | Orbital period (min) | one-way τ (nadir) | one-way τ (horizon) |
+| ------------: | -------------------: | -------------------: | ----------------: | ------------------: |
+|           160 |           7.812 km/s |             87.5 min |      **0.534 ms** |         **4.79 ms** |
+|           500 |           7.617 km/s |             94.5 min |      **1.668 ms** |         **8.58 ms** |
+|           600 |           7.562 km/s |         **96.5 min** |       **2.00 ms** |         **9.44 ms** |
+|          1200 |           7.256 km/s |            109.3 min |       **4.00 ms** |        **13.64 ms** |
+|          2000 |           6.900 km/s |            127.0 min |       **6.67 ms** |        **18.11 ms** |
+
+(How to read it: at 600 km a straight nadir hop is ≈2.0 ms one-way; to horizon ≈9.44 ms.) These numbers match standard LEO latency ranges used in 3GPP analyses [1].
+
+## Propagation delay (UE → Satellite → Gateway / gNB)
+### Components
+1. Service link: UE ↔ satellite (slant range dependent, τ as above).
+2. Feeder (gateway) link: satellite ↔ gateway (can add similar order of magnitude). If gateway is under the same satellite nadir the feeder link adds another ~τ (nadir); if gateway far from UE nadir, feeder slant distance increases.
+3. On-board processing / switching: regenerative satellites add processing delay (ms order variable). Transparent (bent-pipe) satellites have lower on-board processing but feeder route may go via long terrestrial/backhaul networks.
+
+### Representative RTT / RTD
+For LEO (~600 km) RTD (round-trip delay) for service + feeder is typically in the tens of ms (3GPP/ITU examples quote ~25–30 ms RTD for LEO-600 scenarios). By contrast GEO RTD can be hundreds of ms. This is why 3GPP treats LEO as feasible for NR timing with protocol adaptations [9].
+
+### 3GPP operational note
+TR 38.811 [1] cites LEO 600 km one-way propagation: ≈2 ms (min) to ≈7–9 ms (max) depending on geometry; GEO one-way ≈240–270 ms. Guard times, HARQ timers, RACH windows must be adjusted accordingly.
+
+## Doppler shift & Doppler rate
+### Magnitude
+For LEO speeds ≈ 7.1–7.8 km/s the maximum normalized Doppler is about ~25 ppm (i.e., ~50 kHz at 2 GHz). Example (600 km, v≈7.56 km/s):
+- At 1.6 GHz: ≈ 40.4 kHz
+- At 2.0 GHz: ≈ 50.4 kHz
+- At 20 GHz: ≈ 504 kHz.
+
+(Use $f_D \approx (7.56 \times 10^3 / 3 \times 10^8) \cdot f_c$.) [10]
+
+### Doppler rate (time derivative)
+Doppler varies as satellite passes: residual Doppler can change rapidly (not instantaneous step — it’s roughly continuous and can be approximated linear over short CPI). Reported Doppler rates in literature vary with geometry and constellation; example measured/quoted values for some LEO signals reach hundreds to thousands of Hz/s in extreme geometries (depends on carrier frequency scaling). Practical UE residual Doppler rates after satellite-side pre-compensation are often handled with tracking loops and PT-RS in NR.
+
+### Practical mitigation (3GPP / industry)
+- Ephemeris broadcast & pre-compensation: satellite (or network) broadcasts ephemeris; gNB/satellite pre-compensates frequency per beam center; UE applies residual compensation.
+- PT-RS and enhanced tracking loops in NR physical layer.
+- Regenerative payloads (on-board gNB) can pre-correct more aggressively vs. transparent payloads. 3GPP documents these approaches as enablers for NR in LEO.
+
+## Handover frequency & mobility challenges
+### Why handover is frequent
+Satellite motion causes moving cells / moving spot beams; a UE’s serving beam or satellite changes as satellites/beam footprints move over the Earth. 3GPP emphasizes that UEs can be kept in the same beam only for minutes (or less) depending on beam size and constellation geometry.
+
+### Simple estimate (dwell time)
+- Ground-track speed approx equals satellite orbital speed projected onto ground (~7–8 km/s).
+- Dwell time $𝑡_{dwell}$ ≈ (beam diameter) / (ground-track speed).
+    - Example: spot beam diameter 200 km → 𝑡 ≈ 200 / 7.6 ≈ 26 t ≈ 200 / 7.6 ≈ 26 s.
+    - Beam diameter 1000 km → 𝑡 ≈ 132 t ≈ 132 s (≈2.2 min).
+
+So handovers can happen every tens of seconds to a few minutes depending on beam design (narrow spot beams → faster handover).
+
+### Operational implications
+- Radio resource control (RRC), paging, and NAS procedures must handle frequent handovers (fast context transfer or centralized mobility anchoring).
+- Handover decisions can be scheduled/predicted using satellite ephemeris (movement is deterministic). 3GPP suggests using ephemeris and location info for mobility management.
+
+## Full NTN (LEO) challenge summary
+### 1. Latency variability: 
+LEO service-link one-way ≈ 2–10 ms (geometry dependent); combined service+feeder RTD often ~20–40 ms for practical architectures. Need to adjust MAC/HARQ timers, RACH windows, TA handling.
+
+### 2. Large Doppler: 
+Tens of kHz at GHz bands (scaled with fc); residual Doppler & Doppler rate require pre-compensation, tight frequency tracking and PT-RS / advanced synchronization.
+
+### 3. Fast mobility / frequent handovers:
+Beams move quickly; HO every tens of seconds → minutes depending on beamwidth. Predictive mobility (ephemeris) is crucial.
+
+### 4. Resource split & payload choice: 
+Transparent (bent-pipe) vs regenerative (on-board gNB) affects latency, Doppler handling and mobility complexity: regenerative simplifies many PHY/MAC issues but increases payload complexity.
+
+### 5. Radio link / coexistence: 
+NTN introduces new coexistence and adjacent-band constraints; 3GPP TR-38.863 contains RF/coexistence solutions and updates for NR-NTN. Spectrum selection (L/S/Ka bands) changes link budgets and Doppler.
+
+### 6. Upper-layer impacts: 
+TCP, real-time services, split-RAN fronthaul choices are constrained by extra propagation delay and jitter — some RAN splits not feasible over long feeder links without optimization.
+
+# How 3GPP fixes NTN problems (LEO Focus)
+## 1) Doppler compensation (main NTN fix)
+**Problem:** LEO relative speed ($\sim 7-8\ \text{km/s}$) $\rightarrow$ large **Doppler shift** $f_D \approx (v_{\text{rad}} / c) f_c$ and **fast Doppler rate**. This breaks **OFDM orthogonality** and **uplink multi-user orthogonality** if uncompensated.
+
+### 3GPP solution stack (summary):
+#### Ephemeris-assisted pre-compensation (sat/gNB side): 
+Satellite or on-board gNB computes expected Doppler for beam center using broadcast ephemeris & clock; it applies beam-centric pre-compensation so transmissions toward the beam are frequency-shifted to remove the bulk Doppler seen by UEs in that beam. This reduces the residual Doppler to an edge-dependent value.
+
+#### UE Residual Estimation & Pre-compensation
+UE measures the residual frequency offset (e.g., using synchronization signals / PRS / PT-RS) and applies fine frequency pre-compensation for the uplink.
+Typical method: Estimate $f_{\text{res}}$ from reference signals and subtract it before the UL OFDM symbol generation.
+
+#### PHY layer enhancements in NR
+Use of **PT-RS**, enhanced frequency tracking loops, and more frequent **SSB/PRS** transmissions to support coarse + fine estimation.
+3GPP defines signaling for assistance (ephemeris, timing epoch, common TA params) and procedures for pre-compensation.
+
+#### Practical Formula & Implementation Note
+
+* **Pre-compensation amount at beam center:**
+    $$\Delta f_{\text{pre}} = - \frac{v_{\text{rad, BC}}}{c} \cdot f_c$$
+* **Residual at UE edge:** The difference between true radial velocity and beam-center radial velocity $\rightarrow$ tracked by the **UE loop**. The residual must be kept small (within subcarrier spacing (SCS) $\times$ small fraction) to avoid **ICI**.
+
+Where this is standardized: TR 38.811/TR 38.863 describe the study & solutions; implementation specifics are handled in the NR PHY & RRC (SIB assistance).
+
+## 2) Timing Advance (TA) extensions & GNSS (Global Navigation Satellite System)-based TA
+Problem: Terrestrial NR TA ranges are small; NTN LEO slant ranges produce much larger and geometry-dependent delays (variable TA + high RTT).
+
+### 3GPP solution stack:
+#### Extended TA ranges & common TA parameters in SIB-NTN: 
+3GPP extends the TA range/format so TA values can cover LEO slant distances and horizon geometries; SIB (SIB-NR-NTN / RRC assistance) can carry common TA parameters and epoch times for computation.
+
+#### GNSS-assisted TA (UE side): 
+If UE has GNSS, it can compute expected propagation delay to the serving satellite from ephemeris (sat pos) and its own position, then apply an initial TA pre-adjustment during RACH/initial access to avoid large RACH timing errors. This is explicitly covered by 3GPP RRC assistance information proposals.
+
+#### Network-assisted epoch/time stamping: 
+3GPP specifies assistance information including epoch time & ephemeris so UEs/networks compute TA relative to a shared reference and compensate dynamic TA.
+
+### Equation (UE pre-computed TA):
+* **Compute slant range** ($d$):
+    $$d = ||\mathbf{r}_{\text{sat}}(t) - \mathbf{r}_{\text{UE}}||$$
+    * Where $\mathbf{r}_{\text{sat}}(t)$ is the satellite position vector at time $t$, and $\mathbf{r}_{\text{UE}}$ is the UE position vector.
+    
+* **TA estimate (in samples or $\mu \text{s}$):**
+    $$\text{TA} \approx \left\lfloor \frac{d}{c} \cdot f_s \right\rfloor$$
+    * Where $c$ is the speed of light and $f_s$ is the sampling frequency. This value is then mapped to the NR TA granularity.
+
+Where standardized: RRC spec (TS 38.331) + TR 38.863/TR 38.811 procedural guidance.
+
+## 3) HARQ adaptations
+Problem: HARQ timing assumptions in terrestrial NR assume low RTT; LEO adds extra and variable RTT and jitter, impacting HARQ RTT, retransmission timers, and buffer sizing.
+
+### 3GPP solution elements:
+#### Flexible HARQ timers / extended RTT support:
+TR/TS define extended HARQ RTT bounds and configuration parameters (HARQ RTT timers can be increased to accommodate NTN RTD). HARQ feedback timing and scheduling offsets are made configurable for NTN.
+
+#### Asynchronous & adaptive HARQ processes:
+Use more HARQ processes (to maintain pipeline) or adaptive HARQ process allocation depending on RTT to maintain throughput. Design tradeoff: more processes → more soft-buffer memory
+
+#### Higher-layer fallback / TCP optimizations:
+Where HARQ latency remains harmful for TCP, 3GPP points to higher-layer solutions (PDCP / RLC reordering, TCP proxies) and local on-board processing (regenerative payload) to reduce round trips.
+
+### Implementation Note: HARQ for LEO
+The number of **HARQ process count** $N_{\text{HARQ}}$ must be chosen such that:
+
+$$N_{\text{HARQ}} \cdot T_{\text{slot}} \ge \text{RTT}$$
+
+* **Goal:** This condition ensures the **pipeline remains full**. If this condition isn't met, the transmitter will run out of available HARQ processes while waiting for acknowledgments, and overall **throughput will degrade**.
+* **3GPP Guidance:** Suggests tuning $N_{\text{HARQ}}$ for **LEO Round Trip Times (RTTs)**, which are typically **$\sim 20-40\ \text{ms}$** (depending on the specific architecture).
+
+## 4) Beam management for moving satellites
+Problem: Beams (and the cell coverage) move relative to Earth; standard beam management (SSB measurements, beam recovery) must account for moving beams, differential Doppler and predicted handovers.
+
+### 3GPP solutions:
+#### Ephemeris + predicted beam schedule: 
+Satellites/gNB broadcast ephemeris & beam schedule so UEs can predict which beam/satellite will serve them next — enabling proactive handover and beam switching instead of reactive.
+
+#### Beam-centric pre-compensation + per-UE residual tracking: 
+Beam center pre-comp ensures UEs see near-stationary frequency; beam management uses SSB/CSI-RS with adjusted periodicity for NTN dynamics.
+
+#### Enhanced measurement/HO criteria: 
+Mobility measurements include ephemeris-based predicted metrics, not only instantaneous RSRP/RSRQ, to decide HO timing (minimize HO signalling & ping-pong).
+
+Operational pattern: use deterministic satellite motion to schedule "planned handovers" with context transfer before beam edge, reducing RRC signalling spikes.
+
+## 5) Uplink scheduling adaptations
+Problem: UL transmissions need strict timing & frequency orthogonality; variable propagation delay and residual Doppler complicate grant timing and multi-user scheduling.
+
+### 3GPP mitigations:
+
+#### Grant timing with extended RA/UL offsets:
+support larger TA and flexible grant scheduling windows; apply TA corrections based on ephemeris/UE GNSS. 
+
+#### Pre-compensated UL so that scheduled OFDMA subcarriers remain orthogonal:
+after beam pre-comp and UE residual pre-comp, scheduler can assume near-synchronized uplink.
+
+#### Semi-persistent scheduling & predictive grants: 
+for stable flows (e.g., mMTC or continuous uplink) use SPS to avoid repetitive scheduling overhead in fast HO scenarios. 3GPP studies include such adaptations.
+
+## 6) NTN-friendly Random Access Procedure (RACH)
+Problem: Standard RACH timing & RA-response windows are too tight given large/variable TA; collision resolution needs change with possibly GNSS-assisted pre-timing.
+
+### 3GPP solutions:
+#### Extended RACH windows and TA ranges: 
+TR/TS define extended RA-RAR windows & response timers for NTN so UEs with larger one-way delays are supported. 
+
+#### GNSS-assisted RACH pre-timing: 
+If UE has GNSS and ephemeris from SIB-NTN, UE can transmit RACH pre-timed (TA pre-applied) so RA uses correct timing at the satellite/gNB — reduces RACH failures. 
+
+#### Two-step RACH enhancements & contention-free options:
+Use of 2-step RACH, contention-free RA, or pre-signalled RA resources for predictable UEs (e.g., VSAT/terminals) reduces collision and repeated attempts. TR 38.863 and RAN1 contributions cover RA variants.
+
+## 7) NTN topologies with NR protocol stack
+Problem: NTN deployments vary: bent-pipe (transparent payload) vs regenerative (on-board gNB) vs multi-hop/ISL. Each topology affects where NR protocol functions reside, latency, and mobility handling.
+
+### 3GPP topologies & mapping to NR stack:
+
+### 1. Transparent / bent-pipe (sat as RF repeater):
+- NR gNB functions reside on ground (gNB at gateway). Satellite is RF front-end only.
+- Pros: simpler satellite HW; Cons: higher feeder + transport RTT, more stringent terrestrial timing relaxations
+
+### 2. Regenerative (on-board gNB):
+- Some or all gNB L1/L2 functions run on satellite (on-board DU/PHY or full gNB).
+- Pros: reduces service+feeder RTT, enables better Doppler compensation & local scheduling; Cons: heavier SWaP & complexity. 3GPP treats this as an enabling option.
+
+### 3. Hybrid & ISL routing:
+ISLs carry traffic between satellites; NR control/user plane can be split across satellite/GW; routing/topology changes demand dynamic session anchoring and possible PDN/NG-CN relocation. 3GPP discusses architecture options & denotes the NTN-GW and NTN platform roles.
+
+#### Where NR protocol functions can be placed (examples):
+- On-board DU/PHY: reduces PHY/HARQ RTT, allows local scheduling & immediate HARQ/ARQ actions.
+- On-ground CU/UP: centralizes mobility & core integration but increases feeder latency.
+
+Practical guidance from 3GPP: choose topology per service SLAs: interactive / low-latency services → regenerative local processing favored; massive IoT/backhaul → bent-pipe may suffice.
+
+# References
+### Primary 3GPP NTN References
+1. 3GPP TR 38.811 — Study on New Radio (NR) to support Non-Terrestrial Networks (NTN), Release 15.
+2. 3GPP TR 38.821 — Solutions for NR to support NTN (RAN1 & RAN2 aspects), Release 17.
+3. 3GPP TR 38.863 — Solutions for NR to support NTN (RAN4 aspects, RF & coexistence), Release 18.
+4. 3GPP TS 38.300 — NR Overall Description (includes NTN integration notes).
+5. 3GPP TS 38.211 / 38.212 / 38.213 / 38.214 — Physical layer procedures, coding, MIMO, covering NTN-related PHY adaptations.
+6. 3GPP TS 38.331 — RRC Protocol Specification (contains NTN-specific IEs: GNSS, ephemeris, SIB-NR-NTN).
+
+### Secondary Guidance & Official Technical Sources
+7. 3GPP RP-193235 — Work item proposal for NR NTN.
+8. ETSI TR 103 611 — Satellite Earth Stations and Systems; NTN Integration Trends.
+9. ITU-R M.2101 — Performance requirements for non-GSO systems (delay/Doppler baselines).
+
+### Industry / Vendor Whitepapers (Useful for Real Numbers & Engineering Practices)
+10. Ericsson: “NR-NTN — Extending 5G Coverage from Sky” (Doppler & timing diagrams).
+11.  Huawei: “Challenges and Key Technologies for 5G NTN.”
+12.  NTT DOCOMO + Rohde & Schwarz NTN demos (Doppler compensation case studies).
+13.  OneWeb System Definition Documents (example LEO latency & feeder link architecture).
+14.  SpaceX Starlink System Parameters (FCC Filings) (orbital altitudes, Doppler, link budgets).
+
+### Academic Sources (GNSS/LEO Orbital Dynamics & Doppler Math)
+15. Kaplan & Hegarty — Understanding GPS/GNSS, 2nd ed., Artech House.
+16. Maral, Bousquet — Satellite Communications Systems, 6th ed., Wiley.
+17. Mengali & D’Andrea — Synchronization Techniques for Digital Receivers, Springer.
+18. 2020–2024 survey papers on NR-NTN & LEO Doppler (IEEE Communications Surveys & Tutorials).
+
+### Simulation / Tooling References
+19. 3GPP channel models implemented in ns-3 (LEO propagation profiles, Doppler).
+2. MATLAB Satellite Toolbox documentation (orbital mechanics & slant-range delay formulas).
 
 # DVB-S2X & DVB-RCS2
 The **Digital Video Broadcasting – Satellite (DVB)** family defines standards for broadband satellite communication.  
@@ -192,7 +556,12 @@ Multiple topologies are supported:
 - **Transparent Star:** UT ↔ Hub via satellite (single-hop).  
 - **Transparent Star with Contention Access:** Similar to star, but uplink uses contention-based slots for initial access.  
 - **Transparent Mesh Overlay:** Terminals communicate indirectly through two satellite hops (UT → Hub → UT).
-![image](https://hackmd.io/_uploads/SJ5HRb1g-l.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/dvb-trans_archi.png" alt="DVB Transparent Architecture">
+  <figcaption><strong>Figure 6. </strong> DVB Transparent Architecture</figcaption>
+</figure>
+
 **Components:**
 - Transparent satellite(s) (possibly with **Digital Transparent Processor (DTP)** payloads for multi-beam connectivity).  
 - **Hub/NCC:** Performs traffic control, management, and user-plane interfacing.  
@@ -216,7 +585,11 @@ In the regenerative configuration, the satellite performs **demodulation, decodi
   A hybrid terminal acting as an access gateway to terrestrial networks, possibly hosting SLA enforcers, routers, or VoIP servers.
 - **Regenerative Mesh Terminals:**  
   Support single-hop connectivity via the satellite, similar to 3GPP NTN’s regenerative mode.
-![image](https://hackmd.io/_uploads/BkmaRZklZl.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/dvb-regen_archi.png" alt="DVB Regenerative Architecture">
+  <figcaption><strong>Figure 7. </strong>DVB Regenerative Architecture</figcaption>
+</figure>
 
 **Key Characteristic:**  
 Smart satellite with OBP enables lower latency, optimized link utilization, and independent inter-beam routing.
@@ -239,8 +612,11 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
 - FEC (LDPC + BCH) → Reliability for 36,000 km GEO link.
 - PLFRAME → Adds PLS header, optional pilots.
 - PHY (Transmits the radio signal)
-![image](https://hackmd.io/_uploads/H1dzefJe-l.png)
 
+<figure style="text-align:center;">
+  <img src="notes-png/downlink-stack_s2x.png" alt="S2X Downlink Stack">
+  <figcaption><strong>Figure 8. </strong> DVB-S2X Downlink Stack</figcaption>
+</figure>
 
 ### Uplink (RCS2) Stack:
 - Application Layer: User data (HTTP requests, VoIP packets, etc.).
@@ -253,18 +629,31 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
     - FEC for error protection.
     - Carrier frequency and modulation selection.
 
-![image](https://hackmd.io/_uploads/H1V0xM1gbg.png)
+<figure style="text-align:center;">
+  <img src="notes-png/uplink-stack_rcs2.png" alt="RCS2 Uplink Stack">
+  <figcaption><strong>Figure 9. </strong>DVB-RCS2 Uplink Stack</figcaption>
+</figure>
+
 
 ## Frame Structures
 ### Downlink (DVB-S2X): 
 Baseband Frame (BBFrame) This is a large, fixed-size frame (e.g., 64,800 bits) transmitted in a continuous stream. It's protected by powerful LDPC/BCH Forward Error Correction (FEC). Its key feature is ACM (Adaptive Coding and Modulation), allowing the gateway to change the modulation (e.g., from QPSK to 16APSK) for each frame based on the user's link conditions.
-![image](https://hackmd.io/_uploads/HksdfGkeZg.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/frame-structures_s2x.png" alt="Downlink Frame Structures">
+  <figcaption><strong>Figure 10. </strong>DVB-S2X Frame Structures</figcaption>
+</figure>
 
 
 
 ### Uplink (DVB-RCS2): 
 MF-TDMA Burst The uplink is not a continuous frame. It's a 2D grid of Frequency and Time. This is called MF-TDMA (Multi-Frequency Time Division Multiple Access). The NCC assigns an RCST a specific "slot" (a frequency and a time block) for a single transmission. This transmission is called a burst.
-![image](https://hackmd.io/_uploads/H1PubMkebg.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/frame-structures_rcs2.png" alt="Uplink Frame Structures">
+  <figcaption><strong>Figure 11. </strong>DVB-RCS2 Frame Structures</figcaption>
+</figure>
+
 - Time-Division: Multiple RCSTs share the same frequency but transmit in non-overlapping time slots.
 - Multi-Frequency: Several frequency carriers are available, and NCC assigns both time & frequency to each RCST.
 
@@ -288,7 +677,12 @@ Here is the flow:
 - Grant (The Map): The NCC runs its scheduling algorithm (based on QoS) and creates a master schedule called the TBTP (Terminal Burst Time Plan).
 - Broadcast: The NCC broadcasts this TBTP map to all RCSTs on the downlink.
 - Transmission: Each RCST receives the map, waits for its assigned slot, and then transmits its data burst in that exact time/frequency window. This cycle repeats continuously.
-![image](https://hackmd.io/_uploads/BkxVLfJl-g.png)
+
+<figure style="text-align:center;">
+  <img src="notes-png/MAC-Scheduling.png" alt="Mac & Scheduling Visualization">
+  <figcaption><strong>Figure 12. </strong>Mac & Scheduling Visualization</figcaption>
+</figure>
+![alt text](image.png)
 - B1, B2, B3: These are the satellite's spot beams. A satellite uses multiple beams to cover its service area, just like a cell tower has multiple sectors.
 - T1, T2, T3: These are the Terminals (RCSTs).
     - T1 is a terminal in beam B1.
