@@ -8,10 +8,10 @@ The primary reference documents are **3GPP TR 38.821** (study on NR to support N
 ## 3GPP NTN Architecture Overview
 The basic NTN architecture follows the 5G system model but includes a **space segment** (satellite) between the **User Equipment (UE)** and the **Ground Gateway (gNB / NG-RAN)**. 
 
-<figure style="text-align:center;">
+<div align="center">
   <img src="notes-png/3gpp-ntn_overview.png" alt="3GPP NTN Architecture Overview" />
-  <figcaption><strong>Figure 1.</strong> 3GPP NTN Architecture</figcaption>
-</figure>
+  <p align="center"><strong>Figure 1.</strong> 3GPP NTN Architecture</p>
+</div>
 
 
 - Label Service Link (UE ↔ Satellite)
@@ -23,10 +23,10 @@ The basic NTN architecture follows the 5G system model but includes a **space se
 ## NR Protocol Stack Overview
 In 3GPP NTN, the radio interface follows the **New Radio (NR)** protocol stack used in terrestrial 5G but with critical adaptations in the lower layers (MAC and PHY) to handle satellite-specific challenges.
 
-<figure style="text-align:center;">
-  <img src="notes-png/NR-protocol-stack_overview.png" alt="NR Protocol Stack Overview">
-  <figcaption><strong>Figure 2.</strong> User Plane Protocol Stack</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/NR-protocol-stack_overview.png" alt="NR Protocol Stack Overview" />
+  <p align="center"><strong>Figure 2.</strong> User Plane Protocol Stack</p>
+</div>
 
 Here is a quick breakdown of what each layer does, from top to bottom, which explains why the stack is in that order:
 
@@ -103,10 +103,10 @@ This is the truck and the driver. It's the actual physical transport that moves 
 ### 2. Control Plane (C-Plane)
 This plane handles the signaling between the UE and the network for connection management, security, and mobility.
 
-<figure style="text-align:center;">
-  <img src="notes-png/c-plane_prot-stack.png" alt="C-Plane Protocol Stack Overview">
-  <figcaption><strong>Figure 3.</strong> C-Plane Protocol Stack</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/c-plane_prot-stack.png" alt="C-Plane Protocol Stack Overview" />
+  <p align="center"><strong>Figure 3.</strong> C-Plane Protocol Stack</p>
+</div>
 
 This diagram illustrates the 5G NR (New Radio) Control Plane Protocol Stack for the Uu (Air) Interface and its connection to the Core Network.
 It shows the layers responsible for signaling and control between the User Equipment (UE), the gNB (Base Station), and the Access and Mobility Management Function (AMF) in the 5G Core Network.
@@ -210,10 +210,10 @@ With this data, the UE makes two calculations:
 ## Logical and Physical Channel
 The NTN standard (Rel-17) re-uses the existing 5G NR channel structure. The names and jobs of the channels are identical. Logical and Physical channel for NTN can be seen at the RLC and the Physical layer.
 
-<figure style="text-align:center;">
-  <img src="notes-png/5G NR Channel Structure.png" alt="Logical and Physical Channel">
-  <figcaption><strong>Fig.4 </strong>NTN Channel Structure</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/5G NR Channel Structure.png" alt="Logical and Physical Channel" />
+  <p align="center"><strong>Fig.4</strong> NTN Channel Structure</p>
+</div>
 
 
 - Radio Bearer (PDCP): This is just a high-level name for a service.
@@ -245,10 +245,10 @@ The NTN standard (Rel-17) re-uses the existing 5G NR channel structure. The name
 - PDCCH (Physical Downlink Control Channel): Carries scheduling commands (telling where PDSCH/PUSCH are).
 - PRACH (Physical Random Access Channel): Carries the RACH.
 
-<figure style="text-align:center;">
-  <img src="notes-png/phy-channel.png" alt="Physical Channels">
-  <figcaption><strong>Figure 5. </strong>NTN Physical Channels</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/phy-channel.png" alt="Physical Channels" />
+  <p align="center"><strong>Figure 5.</strong> NTN Physical Channels</p>
+</div>
 
 ### Key NTN Adaptations for Channels
 This is the most important part. Because of the massive delay, the procedures using these channels had to be adapted, especially at the MAC layer.
@@ -557,10 +557,10 @@ Multiple topologies are supported:
 - **Transparent Star with Contention Access:** Similar to star, but uplink uses contention-based slots for initial access.  
 - **Transparent Mesh Overlay:** Terminals communicate indirectly through two satellite hops (UT → Hub → UT).
 
-<figure style="text-align:center;">
-  <img src="notes-png/dvb-trans_archi.png" alt="DVB Transparent Architecture">
-  <figcaption><strong>Figure 6. </strong> DVB Transparent Architecture</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/dvb-trans_archi.png" alt="DVB Transparent Architecture" />
+  <p align="center"><strong>Figure 6.</strong> DVB Transparent Architecture</p>
+</div>
 
 **Components:**
 - Transparent satellite(s) (possibly with **Digital Transparent Processor (DTP)** payloads for multi-beam connectivity).  
@@ -586,10 +586,10 @@ In the regenerative configuration, the satellite performs **demodulation, decodi
 - **Regenerative Mesh Terminals:**  
   Support single-hop connectivity via the satellite, similar to 3GPP NTN’s regenerative mode.
 
-<figure style="text-align:center;">
-  <img src="notes-png/dvb-regen_archi.png" alt="DVB Regenerative Architecture">
-  <figcaption><strong>Figure 7. </strong>DVB Regenerative Architecture</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/dvb-regen_archi.png" alt="DVB Regenerative Architecture" />
+  <p align="center"><strong>Figure 7.</strong> DVB Regenerative Architecture</p>
+</div>
 
 **Key Characteristic:**  
 Smart satellite with OBP enables lower latency, optimized link utilization, and independent inter-beam routing.
@@ -613,10 +613,10 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
 - PLFRAME → Adds PLS header, optional pilots.
 - PHY (Transmits the radio signal)
 
-<figure style="text-align:center;">
-  <img src="notes-png/downlink-stack_s2x.png" alt="S2X Downlink Stack">
-  <figcaption><strong>Figure 8. </strong> DVB-S2X Downlink Stack</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/downlink-stack_s2x.png" alt="S2X Downlink Stack" />
+  <p align="center"><strong>Figure 8.</strong> DVB-S2X Downlink Stack</p>
+</div>
 
 ### Uplink (RCS2) Stack:
 - Application Layer: User data (HTTP requests, VoIP packets, etc.).
@@ -629,30 +629,30 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
     - FEC for error protection.
     - Carrier frequency and modulation selection.
 
-<figure style="text-align:center;">
-  <img src="notes-png/uplink-stack_rcs2.png" alt="RCS2 Uplink Stack">
-  <figcaption><strong>Figure 9. </strong>DVB-RCS2 Uplink Stack</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/uplink-stack_rcs2.png" alt="RCS2 Uplink Stack" />
+  <p align="center"><strong>Figure 9.</strong> DVB-RCS2 Uplink Stack</p>
+</div>
 
 
 ## Frame Structures
 ### Downlink (DVB-S2X): 
 Baseband Frame (BBFrame) This is a large, fixed-size frame (e.g., 64,800 bits) transmitted in a continuous stream. It's protected by powerful LDPC/BCH Forward Error Correction (FEC). Its key feature is ACM (Adaptive Coding and Modulation), allowing the gateway to change the modulation (e.g., from QPSK to 16APSK) for each frame based on the user's link conditions.
 
-<figure style="text-align:center;">
-  <img src="notes-png/frame-structures_s2x.png" alt="Downlink Frame Structures">
-  <figcaption><strong>Figure 10. </strong>DVB-S2X Frame Structures</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/frame-structures_s2x.png" alt="Downlink Frame Structures" />
+  <p align="center"><strong>Figure 10.</strong> DVB-S2X Frame Structures</p>
+</div>
 
 
 
 ### Uplink (DVB-RCS2): 
 MF-TDMA Burst The uplink is not a continuous frame. It's a 2D grid of Frequency and Time. This is called MF-TDMA (Multi-Frequency Time Division Multiple Access). The NCC assigns an RCST a specific "slot" (a frequency and a time block) for a single transmission. This transmission is called a burst.
 
-<figure style="text-align:center;">
-  <img src="notes-png/frame-structures_rcs2.png" alt="Uplink Frame Structures">
-  <figcaption><strong>Figure 11. </strong>DVB-RCS2 Frame Structures</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/frame-structures_rcs2.png" alt="Uplink Frame Structures" />
+  <p align="center"><strong>Figure 11.</strong> DVB-RCS2 Frame Structures</p>
+</div>
 
 - Time-Division: Multiple RCSTs share the same frequency but transmit in non-overlapping time slots.
 - Multi-Frequency: Several frequency carriers are available, and NCC assigns both time & frequency to each RCST.
@@ -678,10 +678,10 @@ Here is the flow:
 - Broadcast: The NCC broadcasts this TBTP map to all RCSTs on the downlink.
 - Transmission: Each RCST receives the map, waits for its assigned slot, and then transmits its data burst in that exact time/frequency window. This cycle repeats continuously.
 
-<figure style="text-align:center;">
-  <img src="notes-png/MAC-Scheduling.png" alt="Mac & Scheduling Visualization">
-  <figcaption><strong>Figure 12. </strong>Mac & Scheduling Visualization</figcaption>
-</figure>
+<div align="center">
+  <img src="notes-png/MAC-Scheduling.png" alt="Mac & Scheduling Visualization" />
+  <p align="center"><strong>Figure 12.</strong> Mac & Scheduling Visualization</p>
+</div>
 ![alt text](image.png)
 - B1, B2, B3: These are the satellite's spot beams. A satellite uses multiple beams to cover its service area, just like a cell tower has multiple sectors.
 - T1, T2, T3: These are the Terminals (RCSTs).
