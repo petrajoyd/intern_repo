@@ -528,6 +528,101 @@ Practical guidance from 3GPP: choose topology per service SLAs: interactive / lo
 19. 3GPP channel models implemented in ns-3 (LEO propagation profiles, Doppler).
 2. MATLAB Satellite Toolbox documentation (orbital mechanics & slant-range delay formulas).
 
+# Sharetechnote - NTN
+In these notes, I want to organize everything I’ve learned from ShareTechnote + 3GPP into one flow: starting from what NTN actually is and why we need it, then going through the challenges, the technical requirements, how spectrum is allocated, and how the NTN architecture looks. After that, I’ll dive into the more detailed parts like RACH, Timing Advance for NTN, and the RRC behaviors in NR, LTE, and NB-IoT. I’ll close it with NB-IoT call flow, since a lot of NTN deployments start from IoT.
+
+## What is NTN + Why NTN?
+### What is NTN?
+NTN basically stands for Non-Terrestrial Networks, which just means “cellular networks that don’t rely on ground towers.” Instead, the signal comes from things like satellites, HAPS (high-altitude balloons/planes), and even drones. The whole point is to extend coverage to places where building terrestrial sites is too expensive or flat-out impossible.
+</br>
+**In short: NTN = bringing 3GPP (LTE/NR/NB-IoT) into the sky.**
+</br>
+Instead of thinking of them as a totally different system, it’s easier to see NTN as an extension of existing cellular networks — just with different challenges (long distance, fast-moving satellites, Doppler, etc.).
+
+<div align="center">
+  <img src="notes-png/ntn-viz_overview.png" alt="NTN Network Overview" />
+  <p align="center"><strong>Figure 6.</strong> NTN Network Overview</p>
+</div>
+
+### NTN Components (Based on the figure)
+
+#### Satellites
+- GEO: very high up (~36k km), huge coverage but big latency.
+- MEO: middle ground.
+- LEO: fast-moving, low altitude → much lower latency, better for UE and IoT.
+
+#### HAPS (High-Altitude Platforms)
+- Flying in the stratosphere. Think balloons or solar drones.
+- Good for regional coverage, feeder links, or emergency networks.
+
+#### UAVs (Unmanned Aerial Vehicles)
+- Drones acting as relays or temporary towers.
+
+#### Types of Links (quick breakdown)
+- ISL (Inter-Satellite Link) → satellites talking to each other without going through the ground.
+- Feeder Link → ground station <-> satellite/HAPS.
+- Service Link → satellite/HAPS <-> end devices (phones, sensors, VSATs).
+- Air-to-Ground Link → planes connecting to the network.
+- UAV Control Link → for drone command + safety.
+
+#### Use Cases
+- Direct satellite-to-phone (Direct-to-UE)
+- NTN IoT (maritime sensors, remote areas)
+- Air-to-ground Internet for aircraft
+- VSAT for rural/out-of-coverage regions
+- Backhaul to support remote terrestrial sites
+
+#### Geography Overview
+- Remote: mostly NTN (backhaul/IoT).
+- Rural: combo of HAPS, feeder links, and terrestrial.
+- Urban: dense terrestrial, NTN mostly for UAVs, aviation, backup.
+
+So overall → NTN fills the gaps that ground networks can never reach.
+
+### Why NTN?
+If I have to explain it simply: NTN exists because there are places where terrestrial networks just can’t go. Either it’s too expensive (islands, mountains), too remote (deserts, oceans), or too vulnerable to disasters.
+
+Here’s the breakdown of why NTN is becoming a big deal:
+
+#### 1. Bridging Coverage Gaps
+- Remote forests, mountains, deserts → way too costly for towers.
+- Ships at sea → almost zero terrestrial coverage.
+- Planes → need constant connectivity.
+- Islands and offshore areas → terrestrial is basically impossible.
+- Satellites don’t care about geography → coverage everywhere.
+
+#### 2. Disaster Recovery & Resilience
+- Terrestrial network can be destroyed by earthquakes, floods, etc.
+- Satellites stay operational → perfect for emergencies.
+- Provides redundancy when the ground network fails.
+- NTN = a safety net for national communication.
+
+#### 3. Expanding the 5G Ecosystem
+- 5G wants “coverage everywhere.”
+- NTN allows new use cases:
+- r3mote healthcare, precision agriculture, environmental sensing, maritime IoT, smart shipping, etc.
+- This is basically the “wider ecosystem” argument → 5G isn’t just for cities.
+
+#### 4. Seamless Mobility & Roaming
+- With LEO satellites, latency is low enough to support real-time apps.
+- 3GPP is optimizing protocols so UE can hand over between terrestrial ↔ satellite without dropping.
+- Feels like “just another cell.”
+
+##### This is important for:
+- plane
+- ships
+- connected cars
+- large moving platforms
+
+#### 5. Cost Benefits
+- Cellular standards = mass production → cheaper hardware.
+- Sharing architecture with terrestrial = less custom satellite stuff.
+- Lower cost to deploy than trying to build towers in impossible areas.
+- NTN shifts satellite communications from “premium and expensive” → to “mass-market and integrated.
+
+## Challenges of NTN
+
+
 # DVB-S2X & DVB-RCS2
 The **Digital Video Broadcasting – Satellite (DVB)** family defines standards for broadband satellite communication.  
 
@@ -559,7 +654,7 @@ Multiple topologies are supported:
 
 <div align="center">
   <img src="notes-png/dvb-trans_archi.png" alt="DVB Transparent Architecture" />
-  <p align="center"><strong>Figure 6.</strong> DVB Transparent Architecture</p>
+  <p align="center"><strong>Figure 7.</strong> DVB Transparent Architecture</p>
 </div>
 
 **Components:**
@@ -588,7 +683,7 @@ In the regenerative configuration, the satellite performs **demodulation, decodi
 
 <div align="center">
   <img src="notes-png/dvb-regen_archi.png" alt="DVB Regenerative Architecture" />
-  <p align="center"><strong>Figure 7.</strong> DVB Regenerative Architecture</p>
+  <p align="center"><strong>Figure 8.</strong> DVB Regenerative Architecture</p>
 </div>
 
 **Key Characteristic:**  
@@ -615,7 +710,7 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
 
 <div align="center">
   <img src="notes-png/downlink-stack_s2x.png" alt="S2X Downlink Stack" />
-  <p align="center"><strong>Figure 8.</strong> DVB-S2X Downlink Stack</p>
+  <p align="center"><strong>Figure 9.</strong> DVB-S2X Downlink Stack</p>
 </div>
 
 ### Uplink (RCS2) Stack:
@@ -631,7 +726,7 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
 
 <div align="center">
   <img src="notes-png/uplink-stack_rcs2.png" alt="RCS2 Uplink Stack" />
-  <p align="center"><strong>Figure 9.</strong> DVB-RCS2 Uplink Stack</p>
+  <p align="center"><strong>Figure 10.</strong> DVB-RCS2 Uplink Stack</p>
 </div>
 
 
@@ -641,7 +736,7 @@ Baseband Frame (BBFrame) This is a large, fixed-size frame (e.g., 64,800 bits) t
 
 <div align="center">
   <img src="notes-png/frame-structures_s2x.png" alt="Downlink Frame Structures" />
-  <p align="center"><strong>Figure 10.</strong> DVB-S2X Frame Structures</p>
+  <p align="center"><strong>Figure 11.</strong> DVB-S2X Frame Structures</p>
 </div>
 
 
@@ -651,7 +746,7 @@ MF-TDMA Burst The uplink is not a continuous frame. It's a 2D grid of Frequency 
 
 <div align="center">
   <img src="notes-png/frame-structures_rcs2.png" alt="Uplink Frame Structures" />
-  <p align="center"><strong>Figure 11.</strong> DVB-RCS2 Frame Structures</p>
+  <p align="center"><strong>Figure 12.</strong> DVB-RCS2 Frame Structures</p>
 </div>
 
 - Time-Division: Multiple RCSTs share the same frequency but transmit in non-overlapping time slots.
@@ -680,7 +775,7 @@ Here is the flow:
 
 <div align="center">
   <img src="notes-png/MAC-Scheduling.png" alt="Mac & Scheduling Visualization" />
-  <p align="center"><strong>Figure 12.</strong> Mac & Scheduling Visualization</p>
+  <p align="center"><strong>Figure 13.</strong> Mac & Scheduling Visualization</p>
 </div>
 ![alt text](image.png)
 - B1, B2, B3: These are the satellite's spot beams. A satellite uses multiple beams to cover its service area, just like a cell tower has multiple sectors.
