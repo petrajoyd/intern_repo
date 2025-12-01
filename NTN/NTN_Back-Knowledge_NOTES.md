@@ -621,7 +621,7 @@ Here’s the breakdown of why NTN is becoming a big deal:
 - NTN shifts satellite communications from “premium and expensive” → to “mass-market and integrated.
 
 ## Challenges of NTN
-
+  
 
 # DVB-S2X & DVB-RCS2
 The **Digital Video Broadcasting – Satellite (DVB)** family defines standards for broadband satellite communication.  
