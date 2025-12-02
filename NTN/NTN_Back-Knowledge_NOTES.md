@@ -600,7 +600,7 @@ Here’s the breakdown of why NTN is becoming a big deal:
 #### 3. Expanding the 5G Ecosystem
 - 5G wants “coverage everywhere.”
 - NTN allows new use cases:
-- r3mote healthcare, precision agriculture, environmental sensing, maritime IoT, smart shipping, etc.
+- remote healthcare, precision agriculture, environmental sensing, maritime IoT, smart shipping, etc.
 - This is basically the “wider ecosystem” argument → 5G isn’t just for cities.
 
 #### 4. Seamless Mobility & Roaming
@@ -621,7 +621,403 @@ Here’s the breakdown of why NTN is becoming a big deal:
 - NTN shifts satellite communications from “premium and expensive” → to “mass-market and integrated.
 
 ## Challenges of NTN
+So even though NTN sounds super cool (and honestly I’m excited for it too), the reality is… there are a LOT of challenges. Like, real engineering problems  not just “make it work” level. Here’s my distilled version:
+
+### Latency
+- Signals have to travel hundreds to thousands of kilometers.
+- GEO = crazy high latency (36,000 km up).
+- LEO = much better, sometimes even faster than bad terrestrial WiFi, but you need a ton of satellites (like Starlink).
   
+### Ground Station Demand + Integration with Terrestrial Core
+- Even if the radio stuff (gNB, relay, etc.) is floating in space, the core network still lives on Earth.
+- Satellites must eventually connect to a ground station → but coverage to a ground station is limited.
+- Remote areas like deep ocean? Hard to build ground stations there.
+- One solution: use inter-satellite links so a satellite routes data through another satellite instead of straight to Earth.
+- This is easier on paper than in real-life (early Starlink didn’t have it at all).
+
+### Antenna Technology
+- Antenna size and steering are big issues:
+  - Large dishes are not ideal. Everyone wants small, cheap, efficient antennas.
+  - Mechanical steering = works, but slow and bad for mobility.
+  - Phased-array antennas = ideal, but super expensive.
+- So the challenge is: high performance but small + affordable.
+
+### User Terminal Alignment
+- Not everyone can point an antenna properly.
+- Especially in consumer NTN (Direct-to-UE), terminals need to work without manual alignment.
+
+### Large Doppler Shift
+- Satellites move fast, user devices usually don’t.
+- This creates huge Doppler shifts, way bigger than terrestrial 5G deals with.
+
+### Large Delay Spread
+- Because distances are insane (hundreds to 36k km), delay spread is naturally high.
+- PHY layer must handle these long propagation delays.
+
+### Competition With Existing Tech
+- Why would someone pick 3GPP NTN if Starlink, Kuiper, etc. already exist?
+- Business-wise, it’s a tough fight.
+- Also companies like AST SpaceMobile promise direct-to-phone connectivity, but technical details are still vague.
+
+### Handover Complexity
+- LEO satellites move FAST.
+- Handover isn’t just between beams or cells — sometimes the whole satellite moves out of view.
+- NTN is easier than old satellite systems but still tougher than terrestrial LTE/5G.
+
+### Network Management & Traffic Optimization
+- Traffic changes depending on satellite position, link quality, weather, etc.
+- Dynamic routing + resource allocation = much harder in space.
+
+### Power Limitations
+- Satellites have limited power, limited antenna size, limited cooling.
+- So achieving high data rates is not trivial.
+
+### Scalability
+- NTN must support millions of devices… without becoming too expensive or too complex.
+- More devices → more satellites → more ground stations → more cost.
+
+### On-board Processing
+- Satellites need to do more than just relay data — some must process it on board.
+- But size/weight/power constraints limit how “smart” they can be.
+
+### Launch Costs
+Launching hundreds or thousands of satellites = not cheap, even with reusable rockets.
+
+### Orbit Management & Space Debris
+- With huge constellations, collision risk becomes a big deal.
+- Debris = more risk, more regulatory issues.
+
+### User Terminal Cost
+- For mass adoption, devices must be cheap.
+- Good phased-array antennas + affordable? → still an engineering challenge.
+
+### Business Case
+- NTN needs massive upfront investment.
+- ROI is uncertain, especially competingwith terrestrial 5G expansion.
+
+## NTN Requirements
+When I look at the 3GPP NTN requirements, the whole idea is basically: “How do we make satellites behave like part of a normal 5G network without breaking everything?”
+And honestly, most of the requirements come from physics: long delays, Doppler, weird channel behavior, and the fact that the satellite core is still on Earth.
+
+So here’s how I understand the requirements, point by point.
+
+### Delay Requirements
+The total Delay Requirement specified in TS 22.261 is roughly the following value + 5 ms (delay caused by 5G protocol)
+
+<div align="center">
+  <img src="notes-png/total Delay Requirement.png" alt="UE to satellite propagation delay" />
+  <p align="center"><strong>Figure 7. < 22.261 (Rel 18) - Table 7.4.1-1:</strong> UE to satellite propagation delay</p>
+</div>
+
+> [!NOTE]
+ Even the smallest propagation is greater than the max delay that can be covered by TA field of RAR. (Around 2 ms is covered by RAR TA in SCS 15Khz, 1 ms in SCS 30Khz).
+
+<div align="center">
+  <img src="notes-png/NTN scenarios versus delay constraints.png" alt="NTN scenarios versus delay constraints" />
+  <p align="center"><strong>Figure 8. < TR 38.821 - Table 7.1-1:</strong> NTN scenarios versus delay constraints  </p>
+</div>
+
+### Performance Requirements
+High lights of Performance Requirements can be summarized as :
+- GEO satellite access with up to 285 ms end-to-end latency, including a 5 ms assumed network latency.
+- MEO satellite access with up to 95 ms end-to-end latency, plus a 5 ms network latency.
+- LEO satellite access with up to 35 ms end-to-end latency, with an additional 5 ms network latency.
+- Allow for quality of service negotiation to optimize user experience, considering the latency.
+- Provide high uplink and downlink data rates for satellite UEs.
+- Ensure communication service availability of at least 99.99%.
+
+More detailed requirement would vary depending on various scenario and UE type which is summarized in following table.
+
+<div align="center">
+  <img src="notes-png/Performance requirements for satellite access.png" alt="NTN scenarios versus delay constraints" />
+  <p align="center"><strong>Figure 9. < 22.261 (Rel 18) - Table 7.4.2-1:</strong> Performance requirements for satellite access?  </p>
+</div>
+
+The table can be summarized as follows :
+
+#### 1. Pedestrians DL: 
+~1 Mbps, UL: ~100 kbps, Traffic density: 1.5 Mbps/km² DL, 150 kbps/km² UL,User density: 100 users/km², Activity factor: 1.5%. Basically low-mobility, low-throughput users.
+
+#### 2. Public Safety
+DL/UL: ~3.5 Mbps each, Speed: up to 100 km/h, Other parameters still TBD. So this category needs reliable uplink + downlink for emergency ops.
+
+#### 3. Vehicular Connectivity
+DL: ~50 Mbps, UL: ~25 Mbps, Activity factor: 50%, Mobility: up to 250 km/h. Higher demands since vehicles move fast and need decent throughput.
+
+#### 4. Airplane Connectivity
+DL: ~360 Mbps per aircraft, UL: ~180 Mbps per aircraft, Speed: up to 1000 km/h. Massive throughput but per-plane, not per-user. This is like inflight WiFi backbone.
+
+#### 5. Stationary Users
+DL: ~50 Mbps, UL: ~25 Mbps, No activity factor (not needed).
+This is basically the “fixed wireless / home internet via satellite” type.
+
+#### 6. Video Surveillance
+DL: ~0.5 Mbps, UL: ~3 Mbps (important because video upload), Mobility: 0–120 km/h. These are mostly uplink-heavy scenarios (CCTV, sensors).
+
+#### 7. NB-IoT over NTN
+DL: ~2 kbps, UL: ~10 kbps, Traffic density: 8 kbps/km² DL, 40 kbps/km² UL, User density: 400 devices/km², Activity factor: 1%, Mobility: up to 100 km/h. Super low-rate IoT devices that need coverage everywhere.
+
+## How 3GPP Updated the Specs to Handle NTN Problems
+To deal with all the crazy NTN constraints (delay, Doppler, moving beams), 3GPP Release 17 added several new mechanisms. Here’s my simplified version of what actually changed:
+
+### 1. Handling Huge Timing Offset (Long Propagation Delay)
+Because the UE–satellite distance is massive, the normal Timing Advance range isn’t enough.
+So 3GPP added:
+- [`ta-Info-r17`](https://www.sharetechnote.com/html/5G/5G_NTN.html#TAInfo_r17) in SIB19
+This gives the UE extra timing adjustment info so uplink alignment doesn’t go out of range.
+
+Basically: “help the UE compensate for the very big TA.”
+
+### 2. Handling Long HARQ Timers
+HARQ needs more time when the round-trip delay is super long.
+To handle this, 3GPP added:
+
+- [`DL-DataToUL-ACK-v1700`](https://www.sharetechnote.com/html/5G/5G_NTN.html#DL_DataToUL_ACK_v1700)
+This allows the network to configure a much larger K1 (time between DL data and UL ACK).
+
+Even with this, HARQ count only increases to 32, which is still limited for some NTN cases. </br>
+There’s discussion in the industry about removing HARQ entirely and letting higher layers handle retransmissions.
+But that would break a lot of existing signaling procedures, so it’s not trivial.
+
+### 3. Providing Satellite Position + Motion Info
+Since the satellite is moving, the UE needs to know geometry to compensate Doppler and delay.
+
+3GPP added:
+- [`ephemerisInfo-r17`](https://www.sharetechnote.com/html/5G/5G_NTN.html#EphemerisInfo_r17) in SIB19
+This gives satellite orbital parameters (position + velocity), so the UE can calculate timing/Doppler predictions.
+
+This is crucial for LEO satellites especially.
+
+## NTN Spectrum
+This section is just me summarizing how 3GPP organizes the spectrum for NTN systems. The idea is to know which frequencies satellites, HAPS, and other non-terrestrial platforms use under the NTN umbrella.
+
+### General Spectrum/Frequency Range
+NTN operates under a set of defined frequency bands in the 3GPP specs. These bands tell us:
+- where NTN can transmit/receive, 
+- how wide the channels can be,
+- and how NTN coexists with terrestrial networks.
+
+The important thing:
+**What we see now is just the current release.**
+3GPP can (and probably will) add more NTN bands in future releases, especially as commercial LEO constellations grow.
+</br>
+NTN bands are divided based on:
+Frequency ranges for NTN systems are divided into distinct bands to accommodate different operational requirements, performance needs, and regulatory constraints
+
+<div align="center">
+  <img src="notes-png/Definition of NTN frequency ranges.png" alt="Definition of NTN frequency ranges" />
+  <p align="center"><strong>Figure 10. < 38.101-5 - Table 5.2.2-1:</strong> NTN satellite bands in FR1-NTN</p>
+</div>
+
+
+### Operating Bands
+A few operating bands both for FR1 and FR2 is specified by 3GPP as follows.
+
+> [!NOTE]
+All the band specified as of now is FDD only, not only for FR1 but also for FR2. This implies that downlink link adaptation based on SRS based on channel reciprocity may not be applicable.
+
+<div align="center">
+  <img src="notes-png/NTN satellite bands in FR1-NTN .png" alt="NTN satellite bands in FR1-NTN" />
+  <p align="center"><strong>Figure 11. < 38.101-5 - Table 5.1-1:</strong> NTN satellite bands in FR1-NTN</p>
+</div>
+
+
+<div align="center">
+  <img src="notes-png/Satellite operating bands in FR2-NTN.png" alt="Satellite operating bands in FR2-NTN.png" />
+  <p align="center"><strong>Figure 12. < 38.101-5 - Table 5.2.3-1:</strong> Satellite operating bands in FR2-NTN </p>
+</div>
+
+## NTN Architecture and Scenario
+NTN basically exists to cover the places normal terrestrial networks can’t—remote areas, oceans, mountains, places where building towers is either too expensive or straight-up impossible.
+</br>
+At the core of the system are satellites, which come in two types:
+- Transparent (bent pipe): they don’t process data; they just take the signal, boost it, and send it back down.
+- Regenerative: these are smarter—they can process data onboard, kind of like having a mini gNB in space. </br>
+
+NTN can use different orbits. GEO stays in one spot and covers a huge area, but latency is high. LEO moves fast across the sky, so you get Doppler issues and shifting timing, but latency is much lower—good for broadband and IoT.
+</br>
+Coverage is done using beams. Some beams are steerable (you can shift coverage based on demand), while others are Earth-fixed, staying pointed at the same region even though the satellite moves.
+
+In 5G NTN, devices can connect through multiple setups—either the simple bent-pipe relaying model or the regenerative “satellite-as-gNB” model. Because of this flexibility, NTN can deliver stable connectivity across land, sea, and air.
+Overall, this architecture is why NTN is super useful for maritime, aviation, rural connectivity, emergencies, and anywhere normal networks fail.
+### Payload Type
+When we talk about “payload” in NTN, we’re basically talking about the communication hardware on a satellite or high-altitude platform—the part that sends, receives, and sometimes even processes signals. 
+
+> [!NOTE]
+And just to be clear, this “payload” has nothing to do with data-packet payloads; it’s purely the satellite’s comms equipment.
+
+NTN generally uses two kinds of payloads:
+
+#### Non-Regenerative (Bent-Pipe / Transparent)
+This is the simpler type. The satellite doesn’t process anything on board—it just picks up the uplink signal, shifts the frequency, filters it, amplifies it, and sends it back down. It’s cheaper and easier to design, but it can only act as a relay. All the heavy processing still has to be done on the ground.
+
+#### Regenerative (Non-Transparent)
+This one is more advanced. Besides the usual RF tasks, the satellite can actually demodulate, decode, re-encode, switch, or route data—basically doing part of the job of a base station in space. Because some processing happens onboard, it can reduce the load on ground stations and use spectrum more efficiently.
+
+<div align="center">
+  <img src="notes-png/NTN Beam patterns.png" alt="NTN Beam patterns" />
+  <p align="center"><strong>Figure 13. < TR 38.811 Figure 4.6-1:</strong> NTN Beam patterns </p>
+</div>
+
+### Reference Scenario
+Following two illustration describes two typical scenarios of Non-Terrestrial Networks (NTN), showcasing how they use satellites or Unmanned Aircraft Systems (UAS) to provide communication services to user equipment (UE) on the ground
+
+<div align="center">
+  <img src="notes-png/transparent payload-ntn.png" alt="transparent payload-ntn" />
+  <p align="center"><strong>TR38.821 Figure 4.1-1:</strong> NTN typical scenario based on transparent payload </p>
+</div>
+
+<div align="center">
+  <img src="notes-png/regenerative payload.png" alt="regenerative payload-ntn" />
+  <p align="center"><strong>Figure 15. < TR 38.811 Figure 4.6-1:</strong> NTN typical scenario based on regenerative payload </p>
+</div>
+
+Let's break down the key elements:
+
+#### Common Elements In Both Scenarios
+- Sat-gateways = These are basically the bridge between the NTN and the regular ground network. Think of them as special ground stations that connect the satellite to the internet/core network.
+- Feeder Link = This is the radio link between the gateway and the satellite/UAS. All the data going up or down passes through this link.
+- Service Link = This is the radio link between the user device (phone, IoT, etc.) and the satellite/UAS. This is what your UE uses to actually send/receive data.
+- Satellite / UAS Platform = The main NTN “node” in the sky. It can be either transparent (bent-pipe) or regenerative (processing onboard).
+- Beam Footprints = Satellites form multiple beams to cover different areas on Earth. Each beam has a footprint, usually shaped like an ellipse.
+- Field of View (FoV) = The total area the satellite/UAS can “see.” This depends on the antenna and the minimum elevation angle for service.
+
+#### Scenario 1: Transparent Payload
+- In this setup, the satellite/UAS acts as a simple repeater. It receives signals, amplifies them, and transmits them back down. Think of it like a mirror reflecting light.
+- Key Feature: The signal is not processed or altered in any way onboard the satellite/UAS.
+
+#### Scenario 2: Regenerative Payload
+- Here, the satellite/UAS has more advanced capabilities. It can demodulate, decode, and even route signals. It's like having a mini base station in space.
+- Key Feature: This allows for more efficient use of bandwidth and potentially better performance.
+- ISL (Inter-Satellite Links): This scenario often includes connections between satellites, enabling them to work together as a network. This is particularly useful for constellations of multiple satellites.
+
+### Key Differences and Considerations
+Key Things to Keep in Mind About Payload Types
+- Complexity: Regenerative payloads are harder to build and cost more, while transparent ones are simpler and cheaper.
+- Latency: Regenerative payloads add a bit of extra delay because they process the signal onboard.
+- Coverage: The type of payload and the satellite/UAS used can affect how wide the coverage is and how good the service feels.
+- Use Cases: Some applications work better with one payload type than another—for example, simple data collection may not need regeneration, but broadband services might.
+
+There are several ways an NTN system can hook users up to the internet. The main idea is that everything depends on:
+- What orbit the satellite is in (GEO vs LEO)
+- Whether the satellite processes the signal (regenerative) or just relays it (transparent)
+- Whether beams stay fixed or can steer to follow demand
+- Whether satellites talk to each other (ISL or no ISL)
+
+These scenarios fall into two big groups:
+- Transparent satellites: act like mirrors, no processing, just relay.
+- Regenerative satellites: do onboard processing, almost like having a mini base station in space.
+GEO stays fixed over one spot; LEO moves across the sky. The choice of orbit and payload mode changes how coverage behaves and how stable the user experience is.
+
+<div align="center">
+  <img src="notes-png/Reference scenarios.png" alt="Reference scenarios" />
+  <p align="center"><strong>Figure 16. < TR38.821 Table 4.2-1:</strong> Reference scenarios </p>
+</div>
+
+| **Scenario**                                | **GEO NTN (Scenarios A & B)**                                            | **LEO NTN (Scenarios C & D)**                                                                                                    |
+| ------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Orbit Type**                              | Fixed position relative to Earth                                         | Circular orbit around Earth                                                                                                      |
+| **Altitude**                                | 35,786 km                                                                | 600 km / 1,200 km                                                                                                                |
+| **Service Link Spectrum**                   | < 6 GHz (e.g., 2 GHz) / > 6 GHz (e.g., DL 20 GHz, UL 30 GHz)             | Same options apply                                                                                                               |
+| **Max Channel Bandwidth (Service Link)**    | 30 MHz (<6 GHz) / 1 GHz (>6 GHz)                                         | Same options apply                                                                                                               |
+| **Payload Type**                            | **A:** Transparent (RF only) <br> **B:** Regenerative (partial/full RAN) | **C:** Transparent (RF only) <br> **D:** Regenerative (partial/full RAN)                                                         |
+| **Inter-Satellite Link (ISL)**              | No                                                                       | **C:** No <br> **D:** Optional (Yes/No)                                                                                          |
+| **Earth-Fixed Beams**                       | Yes                                                                      | **C1/D1:** Yes (steerable) <br> **C2/D2:** No (beams move with satellite)                                                        |
+| **Max Beam Footprint (edge-to-edge)**       | 3500 km                                                                  | 1000 km                                                                                                                          |
+| **Min Elevation Angle (UE + Gateway)**      | 10° (service & feeder link)                                              | 10° (service & feeder link)                                                                                                      |
+| **Max Distance (Satellite → UE)**           | 40,581 km                                                                | 1,932 km (600 km) <br> 3,131 km (1200 km)                                                                                        |
+| **Max Round-Trip Delay (Propagation Only)** | **A:** 541.46 ms (service+feeder) <br> **B:** 270.73 ms (service only)   | **C (transparent):** <br> 25.77 ms (600 km) / 41.77 ms (1200 km) <br> **D (regen):** <br> 12.89 ms (600 km) / 20.89 ms (1200 km) |
+| **Max Differential Delay (Within a Cell)**  | 10.3 ms                                                                  | 3.12 ms (600 km) <br> 3.18 ms (1200 km)                                                                                          |
+| **Max Doppler Shift (Earth-Fixed UE)**      | 0.93 ppm                                                                 | 24 ppm (600 km) <br> 21 ppm (1200 km)                                                                                            |
+| **Doppler Rate (Variation Over Time)**      | 0.000045 ppm/s                                                           | 0.27 ppm/s (600 km) <br> 0.13 ppm/s (1200 km)                                                                                    |
+| **UE Motion Supported**                     | Up to 1200 km/h (aircraft)                                               | 500 km/h (train) <br> Up to 1200 km/h (aircraft)                                                                                 |
+| **UE Antenna Type**                         | Omnidirectional (0 dBi) <br> Directive (up to 60 cm aperture)            | Same types apply                                                                                                                 |
+| **UE Transmit Power**                       | 200 mW (omni) <br> Up to 20 W (directive)                                | Same                                                                                                                             |
+| **UE Noise Figure**                         | 7 dB (omni) <br> 1.2 dB (directive)                                      | Same                                                                                                                             |
+| **Service Link Interface**                  | 3GPP NR                                                                  | 3GPP NR                                                                                                                          |
+| **Feeder Link Interface**                   | 3GPP or non-3GPP                                                         | 3GPP or non-3GPP                                                                                                                 |
+
+> [!NOTE]
+- Satellites with steerable beams can point at fixed Earth locations during their visibility window.
+- Delay variation is based on minimum elevation angle.
+- Differential delay is computed using the max beam footprint at nadir.
+- Speed of light used: 299,792,458 m/s.
+- GEO beam footprint (~3500 km) follows current high-throughput GEO systems.
+- Max differential delay at cell level won’t exceed the values shown, even if a cell uses multiple beams.
+
+### Architecture Options
+There are four main NTN architecture options, each showing a different way to integrate satellites or aerial platforms into a 5G system. Some designs use the satellite or UAV as a simple relay that just forwards signals between the ground and the user. Others place parts of the gNB directly onboard, allowing the platform to process signals and communicate with users more intelligently. These different setups give operators flexibility to extend 5G coverage and capacity in places where building traditional ground networks isn’t practical.
+
+| NTN Architecture Options | NTN Terminal | Space or HAPS                                      | NTN Gateway                           |
+|--------------------------|--------------|----------------------------------------------------|----------------------------------------|
+| **A1**: Access network serving UEs via bent-pipe satellite/aerial | UE           | Remote Radio Head (bent-pipe relay of Uu signals) | gNB                                    |
+| **A2**: Access network serving UEs with gNB onboard satellite/aerial | UE           | gNB or Relay Node functions                      | Router interfacing to Core Network     |
+| **A3**: Access network serving Relay Nodes via bent-pipe satellite/aerial | Relay Node  | Remote Radio Head (bent-pipe relay of Uu signals) | gNB                                    |
+| **A4**: Access network serving Relay Nodes with gNB onboard satellite/aerial | Relay Node  | gNB or Relay Node functions                      | Router interfacing to Core Network     |
+
+<div align="center"> **TR38.811 v15.4.0 — Table 4.7-1: 5G system elements mapping in NTN architecture**
+</div>
+
+Each of the options can be presented as illustrations as below.
+
+<div align="center">
+  <img src="notes-png/NTN-architecture-options.png" alt="Non-Terrestrial Network architecture options" />
+  <p align="center"><strong>Figure 17. < TR38.811 v15.4.0 - 4.7:</strong> Non-Terrestrial Network architecture options </p>
+</div>
+
+Followings are brief description for each options :
+> [!NOTE]
+> The titles for each option in this description is an arbitry title. 3GPP does not specify any title/name for each option
+
+#### Option A: Simple Relay/Bent Pipe
+Imagine the satellite or high-altitude platform like a mirror reflecting a special kind of 5G signal ("Satellite friendly" NR signal). It simply bounces the signal between your phone and the ground station (gNB) without changing it.
+
+#### Option B:  Mini Base Station in the Sky
+Here, the satellite or platform is more sophisticated. It has some of the same equipment as a ground base station, allowing it to directly communicate with your phone. Think of it as a mini cell tower in space.
+
+#### Option C: Relay for Faraway Places
+This is similar to Option A, but instead of connecting directly to your phone, it connects to a relay station on the ground. This relay station then communicates with your phone. This is helpful for extending coverage to very 
+remote areas.
+
+#### Option D: Advanced Relay for Faraway Places
+This combines the ideas of Option B and C. The satellite or platform has base station equipment and connects to a relay station on the ground. This offers both advanced processing and extended coverage.
+
+
+### Deployment Scenario
+The 3GPP TR 38.811 document defines five main NTN deployment options, each designed for different types of platforms and service needs. These deployments differ in orbit (GEO vs. Non-GEO), altitude (from 600 km satellites down to 8 km UAS), and the frequencies used to connect with user equipment (around 2 GHz or 20 GHz). They also vary in beam behavior (fixed or moving), duplexing mode (FDD), channel bandwidth (up to 2×800 MHz), and which NTN architecture options they support. </br>
+
+Each option uses different terminals—some use VSAT for relay nodes, while others rely on standard 3GPP class-3 UEs for direct access. The purpose of each deployment is also different: D1 and D2 use GEO satellites mainly for indirect access through relay nodes, D3 and D4 rely on Non-GEO satellites for direct user coverage, and D5 uses UAS to provide low-latency service with both indoor and outdoor reach. </br>
+
+Overall, these five options cover a wide range of use cases, from eMBB and IoT to public safety and rural connectivity.
+
+| Main Attributes | Deployment-D1 | Deployment-D2 | Deployment-D3 | Deployment-D4 | Deployment-D5 |
+|-----------------|---------------|---------------|---------------|---------------|---------------|
+| **Platform orbit & altitude** | GEO @ 35,786 km | GEO @ 35,786 km | Non-GEO down to 600 km | Non-GEO down to 600 km | UAS 8–50 km (incl. HAPS) |
+| **Carrier frequency (platform ↔ UE)** | ~20 GHz DL / ~30 GHz UL (Ka) | ~2 GHz DL & UL (S-band) | ~2 GHz DL & UL (S-band) | ~20 GHz DL / ~30 GHz UL (Ka) | Below & above 6 GHz |
+| **Beam pattern** | Earth-fixed | Earth-fixed | Moving beams | Earth-fixed | Earth-fixed |
+| **Duplexing** | FDD | FDD | FDD | FDD | FDD |
+| **Channel bandwidth (DL+UL)** | Up to 2 × 800 MHz | Up to 2 × 20 MHz | Up to 2 × 20 MHz | Up to 2 × 800 MHz | Up to 2 × 80 MHz (mobile), 2 × 1800 MHz (fixed) |
+| **NTN architecture options** | A3 | A1 | A2 | A4 | A2 |
+| **NTN terminal type** | VSAT (fixed or on moving platforms) as Relay Node | 3GPP class-3 UE | 3GPP class-3 UE | VSAT as Relay Node | 3GPP class-3 UE; VSAT |
+| **Terminal distribution** | 100% outdoor | 100% outdoor | 100% outdoor | 100% outdoor | Indoor + outdoor |
+| **Terminal speed** | Up to 1000 km/h | Up to 1000 km/h | Up to 1000 km/h | Up to 1000 km/h | Up to 500 km/h |
+| **Main rationales** | GEO indirect (relay node) | GEO direct | Non-GEO direct | Non-GEO indirect (relay node) | Low-latency NTN for mobile UEs |
+| **Supported use cases** | eMBB: multi-connectivity, mobile/fixed cells, resilience, trunking, edge delivery, hybrid backhaul, D2N broadcast | eMBB: regional & wide-area public safety, direct-to-mobile broadcast, wide-area IoT | eMBB: regional & wide-area public safety, wide-area IoT | eMBB: multi-homing, mobile/fixed cells, resilience, trunking, hybrid backhaul | eMBB: hotspot on-demand |
+
+<div align="center"> **R38.811 v15.4.0 - Table 5.1-1: Reference Non-Terrestrial Network Deployment scenarios to be considered in the NR-NTN study**
+</div>
+
+## RACH
+
+## Timing Advance
+
+## RRC (NR)
+
+## RRC (LTE)
+
+## RRC (NB IoT)
+
+## Call Flow (NB IoT)
 
 # DVB-S2X & DVB-RCS2
 The **Digital Video Broadcasting – Satellite (DVB)** family defines standards for broadband satellite communication.  
@@ -654,7 +1050,7 @@ Multiple topologies are supported:
 
 <div align="center">
   <img src="notes-png/dvb-trans_archi.png" alt="DVB Transparent Architecture" />
-  <p align="center"><strong>Figure 7.</strong> DVB Transparent Architecture</p>
+  <p align="center"><strong>Figure 8.</strong> DVB Transparent Architecture</p>
 </div>
 
 **Components:**
@@ -683,7 +1079,7 @@ In the regenerative configuration, the satellite performs **demodulation, decodi
 
 <div align="center">
   <img src="notes-png/dvb-regen_archi.png" alt="DVB Regenerative Architecture" />
-  <p align="center"><strong>Figure 8.</strong> DVB Regenerative Architecture</p>
+  <p align="center"><strong>Figure 9.</strong> DVB Regenerative Architecture</p>
 </div>
 
 **Key Characteristic:**  
@@ -710,7 +1106,7 @@ Unlike 3GPP NTN, which is a native IP stack, the DVB stack is an "IP-over-DVB" e
 
 <div align="center">
   <img src="notes-png/downlink-stack_s2x.png" alt="S2X Downlink Stack" />
-  <p align="center"><strong>Figure 9.</strong> DVB-S2X Downlink Stack</p>
+  <p align="center"><strong>Figure 10.</strong> DVB-S2X Downlink Stack</p>
 </div>
 
 ### Uplink (RCS2) Stack:
