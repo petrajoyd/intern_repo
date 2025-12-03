@@ -938,12 +938,12 @@ GEO stays fixed over one spot; LEO moves across the sky. The choice of orbit and
 | **Feeder Link Interface**                   | 3GPP or non-3GPP                                                         | 3GPP or non-3GPP                                                                                                                 |
 
 > [!NOTE]
-- Satellites with steerable beams can point at fixed Earth locations during their visibility window.
-- Delay variation is based on minimum elevation angle.
-- Differential delay is computed using the max beam footprint at nadir.
-- Speed of light used: 299,792,458 m/s.
-- GEO beam footprint (~3500 km) follows current high-throughput GEO systems.
-- Max differential delay at cell level won’t exceed the values shown, even if a cell uses multiple beams.
+> - Satellites with steerable beams can point at fixed Earth locations during their visibility window.
+> - Delay variation is based on minimum elevation angle.
+> - Differential delay is computed using the max beam footprint at nadir.
+> - Speed of light used: 299,792,458 m/s.
+> - GEO beam footprint (~3500 km) follows current high-throughput GEO systems.
+> - Max differential delay at cell level won’t exceed the values shown, even if a cell uses multiple beams.
 
 ### Architecture Options
 There are four main NTN architecture options, each showing a different way to integrate satellites or aerial platforms into a 5G system. Some designs use the satellite or UAV as a simple relay that just forwards signals between the ground and the user. Others place parts of the gNB directly onboard, allowing the platform to process signals and communicate with users more intelligently. These different setups give operators flexibility to extend 5G coverage and capacity in places where building traditional ground networks isn’t practical.
@@ -955,7 +955,7 @@ There are four main NTN architecture options, each showing a different way to in
 | **A3**: Access network serving Relay Nodes via bent-pipe satellite/aerial | Relay Node  | Remote Radio Head (bent-pipe relay of Uu signals) | gNB                                    |
 | **A4**: Access network serving Relay Nodes with gNB onboard satellite/aerial | Relay Node  | gNB or Relay Node functions                      | Router interfacing to Core Network     |
 
-<div align="center"> **TR38.811 v15.4.0 — Table 4.7-1: 5G system elements mapping in NTN architecture**
+<div align="center"> TR38.811 v15.4.0 — Table 4.7-1: 5G system elements mapping in NTN architecture
 </div>
 
 Each of the options can be presented as illustrations as below.
@@ -1004,10 +1004,114 @@ Overall, these five options cover a wide range of use cases, from eMBB and IoT t
 | **Main rationales** | GEO indirect (relay node) | GEO direct | Non-GEO direct | Non-GEO indirect (relay node) | Low-latency NTN for mobile UEs |
 | **Supported use cases** | eMBB: multi-connectivity, mobile/fixed cells, resilience, trunking, edge delivery, hybrid backhaul, D2N broadcast | eMBB: regional & wide-area public safety, direct-to-mobile broadcast, wide-area IoT | eMBB: regional & wide-area public safety, wide-area IoT | eMBB: multi-homing, mobile/fixed cells, resilience, trunking, hybrid backhaul | eMBB: hotspot on-demand |
 
-<div align="center"> **R38.811 v15.4.0 - Table 5.1-1: Reference Non-Terrestrial Network Deployment scenarios to be considered in the NR-NTN study**
+<div align="center"> TR38.811 v15.4.0 - Table 5.1-1: Reference Non-Terrestrial Network Deployment scenarios to be considered in the NR-NTN study
 </div>
 
-## RACH
+## RACH in NTN
+In cellular systems, the Random Access Channel (RACH) is the mechanism that lets a device say, “Hey, network, I want to connect.” It’s the first handshake, the step that allows a UE to request uplink resources, achieve timing alignment, or re-establish connection after losing sync.
+</br>
+In terrestrial networks, RACH is already important. But in Non-Terrestrial Networks (NTN), it becomes way more complex.
+</br>
+
+The RACH procedure is a fundamental part of building a connection, but implementing it in Non-Terrestrial Networks introduces challenges we don’t see in normal ground networks. Unlike terrestrial systems where signals travel short and stable paths, NTNs involve long distances, fast-moving satellites, and constantly changing coverage areas. </br>
+
+These conditions create several technical hurdles:
+1. Large propagation delays from long satellite paths
+2. Strong Doppler shifts caused by satellite motion
+3. Difficulty maintaining timing and frequency synchronization over huge footprints
+4. Higher contention and limited spectrum, since satellite bandwidth is more constrained
+
+Because of these factors, the traditional RACH design needs major adjustments. Improving and adapting RACH for NTN is essential for making satellite-based 5G/6G connectivity reliable and globally scalable.
+
+### Potential Challenge In NTN RACH
+Followings are various issues that may get involved in RACH Process in NTN environment. I think current 3GPP defines the specification only a small subset of these potential issues.
+
+#### 1. Increased Latency & RTT
+##### Impact: 
+Because satellites are far away, signals take much longer to travel. This increases round-trip time and can cause RACH timeouts or slow down access attempts.
+##### What it means: 
+RACH timers must be extended so UEs don’t give up too early.
+
+#### 2. Timing Advance (TA) Difficulties
+##### Impact: 
+Moving satellites and huge coverage areas make it hard for UEs to calculate precise timing advance. Bad TA → uplink collisions or misaligned reception at the satellite.
+##### What it means: 
+Smarter TA-estimation algorithms are needed so UEs can constantly correct their timing.
+
+#### 3. Doppler Shift
+
+##### Impact: 
+Fast satellite motion causes strong Doppler shifts, affecting frequency accuracy and breaking RACH attempts.
+##### What it means: 
+UEs need better Doppler compensation and tracking.
+
+#### 4. Variable Channel Conditions
+
+##### Impact: 
+Long paths, atmospheric effects, and signal fading make the channel unpredictable. UEs may struggle to decode random access responses.
+##### What it means: 
+Adaptive power control + stronger coding schemes improve reliability.
+
+#### 5. Large Coverage Footprints
+
+##### Impact: 
+A single satellite serves a huge area, so many UEs may send RACH preambles at the same time → more collisions and retries.
+##### What it means: 
+Efficient RACH resource planning and contention management are critical.
+
+#### 6. High Collision Probability
+
+##### Impact: 
+Massive service areas mean many devices compete for the same RACH resources, increasing preamble collisions and slowing access.
+##### What it means: 
+Researchers are developing smarter access control and dynamic RACH allocation to reduce collisions.
+
+#### 7. Synchronization Challenges
+
+##### Impact: 
+Large delays and Doppler cause timing and frequency offsets. If UE can’t sync, RACH cannot even start.
+##### What it means: 
+Accurate frequency estimation, compensation, and timing acquisition are essential.
+
+#### 8. Power Control Issues
+
+##### Impact: 
+Path loss varies a lot depending on where the UE is under the satellite footprint. Too little power → satellite can’t detect the preamble. Too much → interference.
+##### What it means: 
+UEs need adaptive power control that adjusts based on distance and channel conditions.
+
+#### 9. Beam Management
+
+##### Impact: 
+Satellites use many beams. UEs may need to switch or track beams during RACH, adding complexity.
+##### What it means: 
+Smooth beam tracking and handover mechanisms help keep access stable.
+
+### Challenges on Premable detection (4 Step RACH)
+In NTN, due to the varying distances between the User Equipment (UE) and the network, there can be a significant difference in the time it takes for a preamble to reach the network. There can be a few critical challenges due to this delay.
+
+#### Issue 1 : Differential Delay Challenges
+Because UEs in an NTN cell are located at very different distances from the satellite, their RACH preambles don’t arrive at the same time even if they transmit during the same RACH occasion. The large variation in propagation delay makes it harder for the network to correctly detect and classify each preamble, since the arrival times can overlap or fall outside the expected window. </br>
+
+In short, the huge cell size means UEs sharing one RACH occasion may still reach the satellite at noticeably different times. The diagram illustrates this by showing how the minimum and maximum one-way delays define the earliest and latest possible arrival times of the preambles.
+
+<div align="center">
+  <img src="notes-png/Preamble receiving window in NTN.png" alt="Preamble receiving window in NTN" />
+  <p align="center"><strong>Figure 18. < TR 38.821 - Figure 7.2.1.1.1.2-1 > </strong> Preamble receiving window in NTN </p>
+</div>
+
+|  | Typical Cell Size | Maximum Delay Difference (×2) |
+|---------|--------------------|-------------------------------|
+| GEO     | 1000 km           | 6.44 ms                       |
+| GEO     | 500 km            | 3.26 ms                       |
+| LEO     | 200 km            | LEO600: 1.306 ms </br> LEO1200: 1.308 ms |
+| LEO     | 100 km            | LEO600: 0.654 ms </br> LEO1200: 0.654 ms |
+<div align="center"> TR 38.821 - Table 7.2.1.1.1.2-1: Maximum delay difference*2 for typical GEO and LEO cell
+</div>
+
+#### Issue 2: Overlapping RACH Ocassions
+When RACH occasions are scheduled too close together, the receiving windows for their preambles can overlap. Once this happens, the network may not be able to tell which RACH occasion a detected preamble belongs to. This ambiguity makes timing-advance calculation difficult and can reduce synchronization accuracy—an especially serious issue in NTN, where timing is already challenging due to long propagation delays.
+
 
 ## Timing Advance
 
