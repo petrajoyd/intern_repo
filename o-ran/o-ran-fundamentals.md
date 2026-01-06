@@ -418,7 +418,9 @@ Its purpose are to execute non-real-time intelligence.
 #### Impact
 - Indirect, strategic control
 
+### AI/ML For RAN
 
+### Network Automation
 
 
 
