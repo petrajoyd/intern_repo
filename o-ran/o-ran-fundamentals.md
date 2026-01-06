@@ -235,6 +235,7 @@ Located on O-CU-CP. Controls connection and mobility. Its functions are:
 | **PDCP**     | O-CU      | Security & IP      | Medium           |
 | **RRC**      | O-CU-CP   | Control & mobility | Low              |
 
+# HW vs FW vs SW
 
 # Interfaces & Control Plane 
 O-RAN separates radio processing, control intelligence, and management using standardized interfaces and time-based control loops.
