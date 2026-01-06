@@ -237,10 +237,20 @@ Located on O-CU-CP. Controls connection and mobility. Its functions are:
 
 # HW vs FW vs SW
 
-# Interfaces & Control Plane 
+# O-RAN Interfaces & Transport
 O-RAN separates radio processing, control intelligence, and management using standardized interfaces and time-based control loops.
 
 ![alt text](image-2.png)
+
+## Topology
+
+## CPRI vs eCPRI
+
+## Fronthaul Interface
+
+## RAN Control
+
+## E2AP
 
 ## Open Fronthaul
 Located between **O-RU ↔ O-DU**. Transport radio signals and timing. 
@@ -375,7 +385,7 @@ O-RAN introduces closed-loop control based on timescales.
 - Measurements via E2
 - Control actions via E2
 
-## Appplications in RIC
+# Appplications And Automation in O-RAN
 ### xApps (Near-RT RIC)
 Its purpose are to execute real-time control logic
 
