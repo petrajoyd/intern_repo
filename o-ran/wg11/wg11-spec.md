@@ -1,6 +1,10 @@
-# WG11 Official Specifications & Security Requirements (Skim Notes)
+# WG11 Official Specifications & Security Requirements (A Study Notes)
 
-> Source: O-RAN Alliance WG11 official documents only
+> Source: 
+> - O-RAN.WG11.TR.Security-Near-RT-RIC-xApps.0-R004-v06.00 (@SPEC1) 
+> - O-RAN.WG11.TR.Threat-Modeling.O-R004-v05.00
+> - O-RAN.WG11.TR.O-CLOUD-Security-Analysis.0-R004-v07.00 c                  
+> - O-RAN.WG11.TS.SRCS.0-R004-v13.00
 
 ## WG11 Overview
 - WG11 mandate and objectives
