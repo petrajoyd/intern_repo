@@ -16,31 +16,32 @@ This is an exploration pass to build a **security knowledge map**, not a deep im
 ---
 
 ## 1. Security Test Scope & Target Components
-- near-RT RIC
-- xApps
-- E2 Interface
-- Trust boundaries defined by WG11
+
+### 1.1 near-RT RIC
+### 1.2 xApps
+### 1.3 E2 Interface
+### 1.4 Trust boundaries defined by WG11
 
 ---
 
 ## 2. Security Test Categories & Scenarios
-- Runtime behavior testing
-- Interface misuse cases
-- Misbehaving but authenticated components
+###  Runtime behavior testing
+### Interface misuse cases
+### Misbehaving but authenticated components
 
 ---
 
 ## 3. Threat Assumptions & Attacker Model
-- Assumed attacker capabilities
-- Preconditions for security tests
-- In-scope vs out-of-scope attacks
+### Assumed attacker capabilities
+### Preconditions for security tests
+### In-scope vs out-of-scope attacks
 
 ---
 
 ## 4. Testing Logic & Objectives
-- What WG11 wants to validate
-- What “secure behavior” means in tests
-- Conceptual test flow (not implementation)
+### What WG11 wants to validate
+### What “secure behavior” means in tests
+### Conceptual test flow (not implementation)
 
 WG11 assumes **protocol-compliant but malicious behavior** is possible.
 
@@ -49,21 +50,21 @@ WG11 assumes **protocol-compliant but malicious behavior** is possible.
 ## 5. Near-RT RIC Security Focus
 Specific observations for near-RT RIC:
 
-- xApps are not fully trusted at runtime
-- E2 interface is a major attack surface
-- Security must not break near-real-time constraints
-- Monitoring and anomaly detection are preferred over heavy inspection
+### xApps are not fully trusted at runtime
+### E2 interface is a major attack surface
+### Security must not break near-real-time constraints
+### Monitoring and anomaly detection are preferred over heavy inspection
 
 ---
 
 ## 6. Testing Perspective 
 This section identifies **testable security aspects** from WG11 specs.
 
-- Authentication failures
-- Unauthorized access attempts
-- Abnormal interface traffic
-- Certificate misconfiguration
-- Policy violations (RBAC)
-- Logging and alert generation
+### Authentication failures
+### Unauthorized access attempts
+### Abnormal interface traffic
+### Certificate misconfiguration
+### Policy violations (RBAC)
+### Logging and alert generation
 
 ---
