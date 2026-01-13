@@ -197,29 +197,232 @@ These trust boundaries enforce a zero-trust security model, requiring explicit s
 
 ---
 
-## 2. Security Test Categories & Scenarios @SPEC3
-
-
+## 2. Security Test Categories & Scenarios (@SPEC2 & @SPEC3)
+WG11 defines security testing not as classical penetration testing, but as behavioral validation of O-RAN components under realistic operational and threat conditions. The focus is on whether components continue to enforce security assumptions while remaining standards-compliant and authenticated.
 
 ###  Runtime behavior testing
+Runtime behavior testing evaluates how O-RAN components behave during normal operation under dynamic, potentially adversarial conditions, rather than static configuration checks.
+
+According to @SPEC2, this category focuses on validating:
+- Security enforcement after successful onboarding
+- Behavior under valid but unexpected runtime inputs
+- Correct handling of load, timing, and state transitions
+
+For example, WG11 highlights the importance of testing whether:
+- An xApp can continuously issue control messages that legally conform to E2AP but cause scheduler instability at the O-DU
+- Near-RT RIC enforces rate limiting, prioritization, and isolation between multiple xApps at runtime
+- Resource exhaustion scenarios (CPU, memory, threads) are detected and mitigated without service collapse
+
 ### Interface misuse cases
+Interface misuse testing focuses on legitimate interfaces being used in unintended or abusive ways, without violating syntax, authentication, or protocol compliance.
+
+WG11 emphasizes that O-RAN’s openness increases the risk of @SPEC3:
+- Semantic misuse
+- Protocol edge-case exploitation
+- Abuse of optional or vendor-specific behaviors
+
+Typical interfaces under test include:
+- E2 (Near-RT RIC ↔ O-DU / O-CU)
+- A1 (Non-RT RIC ↔ Near-RT RIC)
+- O1 (SMO ↔ managed nodes)
+- Open Fronthaul management plane
+
+Examples of interface misuse scenarios include:
+- Repeated E2 control actions that remain standards-compliant but lead to oscillatory RAN behavior
+- Abuse of optional fields in E2AP messages to bypass expected validation logic
+- A1 policy updates that conflict or overlap, causing ambiguous enforcement at Near-RT RIC
+- Excessive or malformed O1 telemetry requests that degrade management-plane availability
+
+WG11 explicitly treats these as security-relevant, even though:
+- TLS is intact
+- Certificates are valid
+- Messages are syntactically correct
+
+The test objective is to verify that:
+- Interfaces enforce semantic validation
+- Rate limits and sanity checks exist
+- One component cannot degrade system behavior by exploiting interface flexibility
+
 ### Misbehaving but authenticated components
+This category is central to WG11’s threat model.
+WG11 assumes that authentication alone is insufficient in an open, multi-vendor RAN ecosystem. A component may:
+- Be properly certified
+- Hold valid credentials
+- Pass onboarding and integrity checks
+
+but sill behave maliciously or negligently
+
+Misbehaving component testing evaluates scenarios where:
+- An xApp intentionally or unintentionally issues harmful control logic
+- A Near-RT RIC forwards excessive or conflicting commands
+- An O-DU reports misleading or selectively incomplete telemetry
+
+Key assumptions defined by WG11:
+- The attacker may control a trusted component
+- Attacks originate inside the trust boundary
+- Behavior deviates from intent, not from protocol compliance
+
+Concrete examples include:
+- An authenticated xApp continuously overriding scheduler decisions to starve specific UEs
+- A compromised RIC manipulating E2 indications to mislead higher-layer optimization logic
+- An O-DU accepting control inputs but applying them selectively or inconsistently
+
+Security testing in this category validates:
+- Component isolation (xApp sandboxing)
+- Policy conflict resolution
+- Kill-switches and revocatio mechanisms
+- Detection of anomalous but valid behavior patterns
 
 ---
 
-## 3. Threat Assumptions & Attacker Model
+## 3. Threat Assumptions & Attacker Model (@SPEC3)
+This section defines the security assumptions, attacker capabilities, and scope boundaries used by WG11 to design and evaluate O-RAN security test scenarios. The threat model explicitly acknowledges that O-RAN introduces new threat surfaces due to architectural openness, functional disaggregation, and cloud-native deployment.
+
 ### Assumed attacker capabilities
+WG11 assumes attackers with varying levels of capability, access, and intent, ranging from low-skill external actors to highly resourced nation-state adversaries. The attacker is not limited to external threats; internal and authenticated entities are explicitly considered.
+
+Based on the defined threat agents, assumed attacker capabilities include:
+- Ability to exploit open and standardized interfaces (A1, E2, O1, O2, Open Fronthaul, Y1, R1)
+- Capability to operate as an authenticated but misbehaving component, such as a compromised xApp, rApp, or management function
+- Knowledge of O-RAN architecture, interfaces, and message flows
+- Ability to launch attacks targeting Confidentiality, Integrity, and Availability (CIA) objectives
+- Exploitation of software vulnerabilities, including those introduced through open-source components
+- Capability to abuse virtualization and container orchestration layers (e.g., poor isolation, misconfiguration in O-Cloud)
+
+WG11 explicitly includes threat agents such as:
+- Cyber-criminals and script kiddies (limited sophistication, opportunistic)
+- Insiders (authorized access, high impact)
+- Hacktivists and cyber-terrorists (disruptive intent)
+- Nation-state actors (advanced persistence, strategic objectives)
+
+The model therefore assumes that authentication, encryption, and onboarding alone do not eliminate risk.
+
 ### Preconditions for security tests
+WG11 security testing is performed under a set of explicit preconditions to ensure realism and consistency.
+
+The following preconditions are assumed for all security tests:
+- O-RAN components (SMO, RICs, O-CU, O-DU, O-RU, O-Cloud) are:
+    - Properly deployed
+    - Successfully onboarded
+    - Authenticated using valid credentials
+- Secure transport mechanisms (e.g., TLS/IPsec where specified) are enabled
+- Interfaces conform to O-RAN and 3GPP specifications
+- Components are operational and actively exchanging control and user-plane data
+
+These preconditions intentionally exclude trivial failures such as:
+- Missing certificates
+- Disabled encryption
+- Non-compliant protocol implementations
+
+The objective is to test whether the system remains secure after trust is established, particularly under:
+- Runtime stress
+- Conflicting control logic
+- Malicious-but-valid behavior
+
+This reflects WG11’s assumption that most realistic attacks occur post-compromise or within trusted domains.
+
 ### In-scope vs out-of-scope attacks
+WG11 clearly defines the scope boundaries of its threat analysis and security testing to focus on O-RAN–specific risks.
+
+#### In-scope attacks
+The following attack classes are considered in scope:
+- Attacks exploiting O-RAN-specific interfaces (A1, E2, O1, O2, Open Fronthaul, Y1, R1)
+- Threats originating from:
+    - Inside the O-RAN system (e.g., compromised xApp, insider misuse)
+    - Outside the system but targeting exposed interfaces
+- Attacks against:
+    - RAN availability (e.g., scheduler disruption, control-loop instability)
+    - Data confidentiality (e.g., x/rApp access to subscriber or network data)
+    - Integrity of control and synchronization planes
+- Exploitation of:
+    - Trust-chain weaknesses caused by disaggregation
+    - Virtualization and container orchestration misconfigurations
+    - Open-source software vulnerabilities
+    - STRIDE-classified threats, including spoofing, tampering, repudiation, information disclosure, denial of service, and privilege escalation
+
+These attacks are evaluated using the STRIDE framework and mapped to impacted assets and security objectives.
+
+#### Out-of-scope attacks
+The following are explicitly or implicitly out of scope for WG11 testing:
+- Physical attacks on hardware (e.g., antenna tampering, site intrusion)
+- RF-layer attacks unrelated to O-RAN architectural changes
+- Core Network–only attacks not involving RAN or O-RAN interfaces
+- Generic Internet-scale DDoS attacks not specific to O-RAN components
+- Attacks requiring violation of basic deployment assumptions (e.g., no authentication, plaintext management traffic)
+
+WG11 limits scope to ensure focus on architectural and systemic security implications introduced by O-RAN, rather than general telecom security issues.
 
 ---
 
 ## 4. Testing Logic & Objectives
-### What WG11 wants to validate
-### What “secure behavior” means in tests
-### Conceptual test flow (not implementation)
+WG11 security testing is designed to validate system-level security behavior of O-RAN architectures rather than individual component robustness in isolation. The emphasis is on how components interact, respond, and enforce trust assumptions at runtime under realistic operational conditions.
 
-WG11 assumes **protocol-compliant but malicious behavior** is possible.
+### What WG11 wants to validate
+WG11 testing aims to validate that O-RAN components and interfaces behave securely after onboarding, authentication, and integration, and that the system remains resilient to threats introduced by openness and disaggregation.
+
+Specifically, WG11 seeks to validate that:
+- O-RAN components correctly enforce security boundaries despite functional disaggregation
+- Open interfaces (A1, E2, O1, O2, Open Fronthaul, Y1) do not introduce uncontrolled propagation paths for attacks
+- Near-RT RIC and xApps do not destabilize RAN behavior through valid but harmful control actions
+- Trust relationships remain enforceable even when components are:
+  - Multi-vendor
+  - Cloud-hosted
+  - Dynamically instantiated
+- Security controls remain effective against:
+    - Authenticated but misbehaving components
+    - Runtime misuse of interface
+    - Internal threat agents
+
+WG11 does not aim to prove absolute security; instead, it validates that expected security assumptions hold under stress and misuse scenarios.
+
+### What “secure behavior” means in tests
+In WG11 context, secure behavior is defined behaviorally, not cryptographically.
+
+A system is considered to behave securely if it:
+- Maintains availability of RAN services under abnormal but standards-compliant inputs
+- Prevents a single component (e.g., xApp, O-DU) from:
+    - Exercising excessive control authority
+    - Overriding system-wide policies
+- Enforces semantic validation on control and management interfaces
+- Detects and mitigates anomalous behavior, even when:
+    - Messages are authenticated
+    - Protocol syntax is correct
+- Preserves confidentiality and integrity of:
+    - Subscriber data
+    - Network telemetry
+    - Control-plane signaling
+- Secure behavior therefore includes:
+    - Rate limiting
+    - Isolation between applications and functions
+    - Conflict resolution mechanisms
+    - Graceful degradation instead of cascading failure
+
+WG11 explicitly recognizes that a secure system may still experience degradation, but must avoid uncontrolled or systemic collapse.
+
+### Conceptual test flow (not implementation)
+WG11 defines a conceptual testing logic that abstracts away from specific tools, vendors, or lab environments.
+
+The conceptual test flow is as follows:
+1. Establish Trusted Baseline
+    - Deploy O-RAN components in a compliant configuration
+    - Ensure authentication, authorization, and secure transport are enabled
+2. Introduce Controlled Threat Conditions
+    - Simulate misbehaving but authenticated components
+    - Apply interface misuse scenarios using valid protocol messages
+3. Observe runtime interactions
+    - Monitor cross-component effects through open interfaces
+    - Identify propagation of abnormal behavior across planes
+4. Evaluate security responses
+    - Verify enforcement of limits, isolation, and policy controls
+    - Confirm absence of uncontrolled escalation or instability
+5. Assess system-level impact
+    - Determine whether confidentiality, integrity, and availability are preserved
+    - Evaluate whether degradation remains localized and recoverable
+6. Validate assumptions
+    - Confirm that the original threat and trust assumptions remain valid
+    - Identify gaps where assumptions fail under realistic conditions
+
+This flow reflects WG11’s philosophy that security emerges from interaction control, not from isolated component hardening.
 
 ---
 
