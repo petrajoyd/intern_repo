@@ -527,8 +527,469 @@ localcm/ric-common      3.3.2                           Common templates for inc
 > - Fix: Align packaged chart location with ChartMuseum storage and regenerate index
 
 ### 2. Deploy RIC Platform (Near-RT Core)
+> [!NOTE]
+> The Near-RT RIC deployment targets O-RAN SC Release J.  
+> An E-release–based reference recipe was selected to improve compatibility with modern Kubernetes versions, as Cherry-based recipes rely heavily on deprecated APIs.
 
+#### 2.1 Copy E-Release Recipe Example and Rename
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ cd ric-dep
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/ric-dep$ cp RECIPE_EXAMPLE/example_recipe_oran_e_release.yaml relj-wg11-recipe.yaml
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/ric-dep$ cd ..
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ./bin/deploy-ric-platform -f ric-dep/relj-wg11-recipe.yaml
+```
+
+#### 2.2 Deploy RIC Platform
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ./bin/deploy-ric-platform -f ric-dep/relj-wg11-recipe.yaml
+```
+output:
+```
++++ dirname /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/prepare-common-templates
+++ cd /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin
+++ pwd
++ ROOT_DIR=/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin
+++ helm version -c --short
+++ grep -e '^v3'
++ IS_HELM3=v3.19.4+g7cfb6e4
+++ grep 'helm serve'
+++ ps -x
+++ grep -v grep
+++ awk '{print $1}'
++ HELM_REPO_PID=8770
++ '[' -z 8770 ']'
++ command='curl --silent --output /dev/null  http://127.0.0.1:8879/charts'
+++ seq 1 5
++ for i in $(seq 1 5)
++ curl --silent --output /dev/null http://127.0.0.1:8879/charts
++ s=0
++ break
++ '[' 0 -gt 0 ']'
++ '[' v3.19.4+g7cfb6e4 ']'
+++ helm env
+++ grep HELM_REPOSITORY_CACHE
++ eval 'HELM_REPOSITORY_CACHE="/home/geemajor/.cache/helm/repository"'
+++ HELM_REPOSITORY_CACHE=/home/geemajor/.cache/helm/repository
++ HELM_LOCAL_REPO=/home/geemajor/.cache/helm/repository/local/
++ mkdir -p /home/geemajor/.cache/helm/repository/local/
+++ cat /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/ric-common/Chart.yaml
+++ grep version
+++ awk '{print $2}'
++ COMMON_CHART_VERSION=3.3.2
++ helm package -d /tmp /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/ric-common
+Successfully packaged chart and saved it to: /tmp/ric-common-3.3.2.tgz
++ cp /tmp/ric-common-3.3.2.tgz /home/geemajor/.cache/helm/repository/local/
+++ cat /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/aux-common/Chart.yaml
+++ grep version
+++ awk '{print $2}'
++ AUX_COMMON_CHART_VERSION=3.0.0
++ helm package -d /tmp /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/aux-common
+Successfully packaged chart and saved it to: /tmp/aux-common-3.0.0.tgz
++ cp /tmp/aux-common-3.0.0.tgz /home/geemajor/.cache/helm/repository/local/
+++ cat /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/nonrtric-common/Chart.yaml
+++ grep version
+++ awk '{print $2}'
++ NONRTRIC_COMMON_CHART_VERSION=2.0.0
++ helm package -d /tmp /mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/bin/../ric-common/Common-Template/helm/nonrtric-common
+Successfully packaged chart and saved it to: /tmp/nonrtric-common-2.0.0.tgz
++ cp /tmp/nonrtric-common-2.0.0.tgz /home/geemajor/.cache/helm/repository/local/
++ helm repo index /home/geemajor/.cache/helm/repository/local/
++ helm repo remove local
+"local" has been removed from your repositories
++ helm repo add local http://127.0.0.1:8879/charts
+"local" has been added to your repositories
+Deploying RIC infra components [infrastructure dbaas appmgr rtmgr e2mgr e2term a1mediator submgr vespamgr o1mediator alarmmanager ]
+Note that the following optional components are NOT being deployed: {influxdb jaegeradapter}. To deploy them add them with -c to the default component list of the install command
+configmap "ricplt-recipe" deleted from ricplt namespace
+configmap/ricplt-recipe created
+Add cluster roles
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 7 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: unable to build kubernetes objects from release manifest: [resource mapping not found for name: "kongconsumers.configuration.konghq.com" namespace: "" from "": no matches for kind "CustomResourceDefinition" in version "apiextensions.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "kongcredentials.configuration.konghq.com" namespace: "" from "": no matches for kind "CustomResourceDefinition" in version "apiextensions.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "kongplugins.configuration.konghq.com" namespace: "" from "": no matches for kind "CustomResourceDefinition" in version "apiextensions.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "kongingresses.configuration.konghq.com" namespace: "" from "": no matches for kind "CustomResourceDefinition" in version "apiextensions.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-kong" namespace: "" from "": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-prometheus-alertmanager" namespace: "" from "": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-prometheus-server" namespace: "" from "": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-kong" namespace: "" from "": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-prometheus-alertmanager" namespace: "" from "": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-prometheus-server" namespace: "" from "": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-kong" namespace: "" from "": no matches for kind "Role" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "ricxapp-tiller-base" namespace: "ricxapp" from "": no matches for kind "Role" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "ricxapp-tiller-operation" namespace: "ricinfra" from "": no matches for kind "Role" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "ricxapp-tiller-deployer" namespace: "ricxapp" from "": no matches for kind "Role" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "tiller-secret-creator-xpfsjs-secret-create" namespace: "ricinfra" from "": no matches for kind "Role" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "r4-infrastructure-kong" namespace: "ricplt" from "": no matches for kind "RoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-tiller-ricxapp-ricxapp-tiller-base" namespace: "ricxapp" from "": no matches for kind "RoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-tiller-ricxapp-ricxapp-tiller-operation" namespace: "ricinfra" from "": no matches for kind "RoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-tiller-ricxapp-ricxapp-tiller-deployer" namespace: "ricxapp" from "": no matches for kind "RoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "tiller-secret-creator-xpfsjs-secret-create" namespace: "ricinfra" from "": no matches for kind "RoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first]
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: unable to build kubernetes objects from release manifest: [resource mapping not found for name: "svcacct-ricplt-appmgr-ricxapp-access" namespace: "" from "": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-ricplt-appmgr-ricxapp-getappconfig" namespace: "" from "": no matches for kind "ClusterRole" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-ricplt-appmgr-ricxapp-access" namespace: "ricplt" from "": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "svcacct-ricplt-appmgr-ricxapp-getappconfig" namespace: "ricxapp" from "": no matches for kind "ClusterRoleBinding" in version "rbac.authorization.k8s.io/v1beta1"
+ensure CRDs are installed first, resource mapping not found for name: "ingress-ricplt-appmgr" namespace: "" from "": no matches for kind "Ingress" in version "networking.k8s.io/v1beta1"
+ensure CRDs are installed first]
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "localcm" chart repository
+...Successfully got an update from the "local" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: unable to build kubernetes objects from release manifest: resource mapping not found for name: "ingress-ricplt-e2mgr" namespace: "" from "": no matches for kind "Ingress" in version "networking.k8s.io/v1beta1"
+ensure CRDs are installed first
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "localcm" chart repository
+...Successfully got an update from the "local" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "localcm" chart repository
+...Successfully got an update from the "local" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: unable to build kubernetes objects from release manifest: resource mapping not found for name: "ingress-ricplt-a1mediator" namespace: "" from "": no matches for kind "Ingress" in version "networking.k8s.io/v1beta1"
+ensure CRDs are installed first
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "local" chart repository
+...Successfully got an update from the "localcm" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+Error: INSTALLATION FAILED: cannot re-use a name that is still in use
+```
+
+#### 2.3 Deployment Verification: Success / Failed / Partially deployed
+- How to check?
+```
+geemajor@joy:~$ kubectl get pods -n ricplt -w
+NAME                                              READY   STATUS             RESTARTS        AGE
+deployment-ricplt-alarmmanager-674894b75-5dkph    1/1     Running            0               11m
+deployment-ricplt-e2term-alpha-5998cb44f6-rjrsn   1/1     Running            1 (5m31s ago)   12m
+deployment-ricplt-o1mediator-7555fbd67c-gtbzp     1/1     Running            0               11m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     CrashLoopBackOff   5 (2m21s ago)   13m
+deployment-ricplt-submgr-59c6659784-9kwdt         1/1     Running            0               12m
+deployment-ricplt-vespamgr-d686664b-nwptg         1/1     Running            0               12m
+statefulset-ricplt-dbaas-server-0                 1/1     Running            0               13m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Running            6 (2m53s ago)   13m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          1/1     Running            6 (3m10s ago)   13m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Completed          6 (3m56s ago)   14m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     CrashLoopBackOff   6 (14s ago)     14m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Running            7 (5m13s ago)   19m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          1/1     Running            7 (5m28s ago)   20m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Completed          7 (6m16s ago)   20m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     CrashLoopBackOff   7 (13s ago)     21m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Running            8 (5m8s ago)    25m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          1/1     Running            8 (5m13s ago)   26m
+```
+
+The following Near-RT RIC core components were successfully deployed and reached a `Running` state:
+- DBaaS
+- E2 Termination (E2T)
+- Subscription Manager (SubMgr)
+- VESPA Manager
+- O1 Mediator
+- Alarm Manager
+
+These components are sufficient to form a **functional Near-RT RIC control plane** for xApp interaction and security analysis.
+</br>
+
+The following components failed to deploy fully or exhibited unstable behavior:
+- Kong Ingress Controller
+- App Manager (AppMgr)
+- Routing Manager (RTMgr) — CrashLoopBackOff observed
+
+> [!WARNING]
+> Multiple deployment failures were observed due to incompatibilities between RIC Helm charts and the Kubernetes API version.
+
+Identified Root Causes
+- Usage of deprecated Kubernetes APIs removed in Kubernetes ≥1.22:
+  - `rbac.authorization.k8s.io/v1beta1`
+  - `networking.k8s.io/v1beta1`
+  - `apiextensions.k8s.io/v1beta1`
+- Missing pre-installed Custom Resource Definitions (CRDs) for Kong
+- Partial Helm installations leading to release name reuse conflicts
+
+
+
+> [!NOTE]
+> **Deployment Status: ⚠️ Partially Successful (Near-RT Core Only)**
+> 
+> The Near-RT RIC deployment targets O-RAN SC Release J.
+An E-release–based reference recipe was selected to improve compatibility with modern Kubernetes versions, as Cherry-based recipes rely heavily on deprecated APIs removed in Kubernetes ≥1.22.
 
 ### 3. Deploy Auxiliary Services
+Auxiliary services in the Near-RT RIC context provide observability, ingress, and lifecycle support for xApps.
+For the purpose of WG11 security analysis, only auxiliary components required to observe or influence xApp behavior were considered.
+
+#### 3.1 Scope Decision (Intentional Partial Deployment)
+> [!IMPORTANT]
+> The following auxiliary components were intentionally not fully deployed due to Kubernetes API incompatibilities and security relevance considerations:
+> - Kong Ingress Controller
+> - App Manager (AppMgr)
+
+Rationale:
+- WG11 threat scenarios focus on xApp trust, authorization, and interaction boundaries, not full production ingress
+- Partial deployment allows analysis of implicit trust assumptions and failure modes
+- Observed deployment failures themselves constitute security-relevant findings
+
+#### 3.2 Successfully Available Auxiliary Capabilities
+The following auxiliary services were **successfully deployed** as part of the RIC platform installation:
+| Component     | Function                | Status  |
+| ------------- | ----------------------- | ------- |
+| VESPA Manager | Metrics & telemetry     | Running |
+| Alarm Manager | Fault & event reporting | Running |
+| O1 Mediator   | Management interface    | Running |
+| DBaaS         | Persistent state        | Running |
+
+Evidence:
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list -n ricplt
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+r4-alarmmanager ricplt          1               2026-01-21 14:03:35.767436442 +0700 WIB deployed        alarmmanager-5.0.0      1.0
+r4-dbaas        ricplt          1               2026-01-21 14:01:45.825924815 +0700 WIB deployed        dbaas-2.0.0             1.0
+r4-e2term       ricplt          1               2026-01-21 14:02:33.617372346 +0700 WIB deployed        e2term-3.0.0            1.0
+r4-o1mediator   ricplt          1               2026-01-21 14:03:19.777131453 +0700 WIB deployed        o1mediator-3.0.0        1.0
+r4-rtmgr        ricplt          1               2026-01-21 14:02:11.231799098 +0700 WIB deployed        rtmgr-3.0.0             1.0
+r4-submgr       ricplt          1               2026-01-21 14:02:56.776701208 +0700 WIB deployed        submgr-3.0.0            1.0
+r4-vespamgr     ricplt          1               2026-01-21 14:03:08.688487007 +0700 WIB deployed        vespamgr-3.0.0          1.0
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get pods -n ricplt
+NAME                                              READY   STATUS    RESTARTS         AGE
+deployment-ricplt-alarmmanager-674894b75-5dkph    1/1     Running   0                43m
+deployment-ricplt-e2term-alpha-5998cb44f6-rjrsn   1/1     Running   1 (37m ago)      44m
+deployment-ricplt-o1mediator-7555fbd67c-gtbzp     1/1     Running   0                43m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Running   11 (5m18s ago)   44m
+deployment-ricplt-submgr-59c6659784-9kwdt         1/1     Running   0                44m
+deployment-ricplt-vespamgr-d686664b-nwptg         1/1     Running   0                43m
+statefulset-ricplt-dbaas-server-0                 1/1     Running   0                45m
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get svc -n ricplt
+NAME                                     TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+service-ricplt-alarmmanager-http         ClusterIP   10.96.166.69    <none>        8080/TCP                     43m
+service-ricplt-alarmmanager-rmr          ClusterIP   10.96.28.151    <none>        4560/TCP,4561/TCP            43m
+service-ricplt-dbaas-tcp                 ClusterIP   None            <none>        6379/TCP                     45m
+service-ricplt-e2term-prometheus-alpha   ClusterIP   10.96.91.123    <none>        8088/TCP                     44m
+service-ricplt-e2term-rmr-alpha          ClusterIP   10.96.118.77    <none>        4561/TCP,38000/TCP           44m
+service-ricplt-e2term-sctp-alpha         NodePort    10.96.93.221    <none>        36422:32222/SCTP             44m
+service-ricplt-o1mediator-http           ClusterIP   10.96.124.186   <none>        9001/TCP,8080/TCP,3000/TCP   43m
+service-ricplt-o1mediator-tcp-netconf    NodePort    10.96.144.179   <none>        830:30830/TCP                43m
+service-ricplt-rtmgr-http                ClusterIP   10.96.121.134   <none>        3800/TCP                     44m
+service-ricplt-rtmgr-rmr                 ClusterIP   10.96.113.214   <none>        4561/TCP,4560/TCP            44m
+service-ricplt-submgr-http               ClusterIP   None            <none>        3800/TCP                     44m
+service-ricplt-submgr-rmr                ClusterIP   None            <none>        4560/TCP,4561/TCP            44m
+service-ricplt-vespamgr-http             ClusterIP   10.96.194.222   <none>        8080/TCP,9095/TCP            43m
+```
+#### 3.3 Auxiliary Deployment Observations
+> [!WARNING]
+> Multiple auxiliary components failed due to deprecated Kubernetes APIs, revealing tight coupling between RIC Helm charts and legacy cluster assumptions.
+
+Observed issues:
+- Missing Kong CRDs (`configuration.konghq.com`)
+- Deprecated RBAC APIs (`rbac.authorization.k8s.io/v1beta1`)
+- Deprecated Ingress APIs (`networking.k8s.io/v1beta1`)
+
+Security implication:
+Control-plane availability and ingress reliability may be affected by platform drift, potentially enabling denial-of-service or misconfiguration exploitation.
 
 ### 4. Verify
+verify what matters for threat modeling
+
+#### 4.1 Control Plane Verification
+Verification focused on confirming the presence of critical Near-RT RIC interfaces required for xApp interaction and control-plane communication.
+
+##### 4.1.1 Helm Release State
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list -n ricplt
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+r4-alarmmanager ricplt          1               2026-01-21 14:03:35.767436442 +0700 WIB deployed        alarmmanager-5.0.0      1.0
+r4-dbaas        ricplt          1               2026-01-21 14:01:45.825924815 +0700 WIB deployed        dbaas-2.0.0             1.0
+r4-e2term       ricplt          1               2026-01-21 14:02:33.617372346 +0700 WIB deployed        e2term-3.0.0            1.0
+r4-o1mediator   ricplt          1               2026-01-21 14:03:19.777131453 +0700 WIB deployed        o1mediator-3.0.0        1.0
+r4-rtmgr        ricplt          1               2026-01-21 14:02:11.231799098 +0700 WIB deployed        rtmgr-3.0.0             1.0
+r4-submgr       ricplt          1               2026-01-21 14:02:56.776701208 +0700 WIB deployed        submgr-3.0.0            1.0
+r4-vespamgr     ricplt          1               2026-01-21 14:03:08.688487007 +0700 WIB deployed        vespamgr-3.0.0          1.0
+```
+- Core RIC components in deployed state
+- No FAILED Helm releases
+
+##### 4.1.2 Pod-Level Health Check
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get pods -n ricplt
+NAME                                              READY   STATUS    RESTARTS         AGE
+deployment-ricplt-alarmmanager-674894b75-5dkph    1/1     Running   0                43m
+deployment-ricplt-e2term-alpha-5998cb44f6-rjrsn   1/1     Running   1 (37m ago)      44m
+deployment-ricplt-o1mediator-7555fbd67c-gtbzp     1/1     Running   0                43m
+deployment-ricplt-rtmgr-5c9947764c-nrt2w          0/1     Running   11 (5m18s ago)   44m
+deployment-ricplt-submgr-59c6659784-9kwdt         1/1     Running   0                44m
+deployment-ricplt-vespamgr-d686664b-nwptg         1/1     Running   0                43m
+statefulset-ricplt-dbaas-server-0                 1/1     Running   0                45m
+```
+- Core services (E2Term, SubMgr, DBaaS) in Running state
+- RTMgr exhibiting unstable behavior with frequent restarts (intermittent CrashLoopBackOff observed earlier)
+
+> [!WARNING]
+> RTMgr exhibiting unstable behavior with frequent restarts (intermittent CrashLoopBackOff observed earlier)
+
+Security note:
+Intermittent failure of routing components is treated as a resilience and availability concern, relevant to WG11 threat modeling.
+
+#### 4.2 Interface Exposure Verification
+
+##### 4.2.1 E2 Interface
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get svc service-ricplt-e2term-sctp-alpha -n ricplt
+NAME                               TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)            AGE
+service-ricplt-e2term-sctp-alpha   NodePort   10.96.93.221   <none>        36422:32222/SCTP   72m
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$
+```
+Confirms:
+- SCTP exposure
+- Near-RT RIC capable of E2 setup interactions over SCTP
+
+##### 4.2.2 Internal Messaging (RMR)
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get svc -n ricplt | grep rmr
+service-ricplt-alarmmanager-rmr          ClusterIP   10.96.28.151    <none>        4560/TCP,4561/TCP            72m
+service-ricplt-e2term-rmr-alpha          ClusterIP   10.96.118.77    <none>        4561/TCP,38000/TCP           73m
+service-ricplt-rtmgr-rmr                 ClusterIP   10.96.113.214   <none>        4561/TCP,4560/TCP            73m
+service-ricplt-submgr-rmr                ClusterIP   None            <none>        4560/TCP,4561/TCP            72m
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$
+```
+Confirms:
+- RMR-based internal communication between RIC components
+- Implicit trust between platform services (no service-level authentication enforced by default)
+
+#### 4.3 Log-Based Verification
+
+##### 1. E2 Termination
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl logs deployment/deployment-ricplt-e2term-alpha -n ricplt | tail -n 50
+```
+key output lines:
+```
+sigenaddr: error from getaddrinfo: target=service-ricplt-e2mgr-rmr.ricplt:3801
+error=(-2) Name or service not known
+```
+- E2Term is running
+- It is trying to resolve the DNS name:
+  ```
+  service-ricplt-e2mgr-rmr.ricplt
+  ```
+- Kubernetes DNS cannot resolve it
+- That service (E2Mgr) is not deployed
+
+This is expected in many minimal Near-RT RIC deployments. ⚠️ This is not a crash, not fatal, and not misconfiguration of E2Term itself.
+</br>
+
+The Important Part of the output is:
+```
+25/RMR [INFO] sends:
+src=service-ricplt-e2term-rmr-alpha.ricplt:38000
+target=service-admission-ctrl-xapp-rmr.ricxapp:4560
+
+target=service-ricplt-a1mediator-rmr.ricplt:4562
+```
+This means:
+- RMR stack is initialized
+- E2Term is actively attempting message routing
+- Multiple RMR targets are configured
+- Message routing attempts continue even when some services are missing
+
+##### 2. Subscription Manager
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl logs deployment/deployment-ricplt-submgr -n ricplt | tail -n 50
+
+{"ts":1768983285270,"crit":"INFO","id":"submgr","mdc":{"time":"2026-01-21T08:14:45"},"msg":"restapi: method=GET url=/ric/v1/health/ready"}
+{"ts":1768983300255,"crit":"INFO","id":"submgr","mdc":{"time":"2026-01-21T08:15:00"},"msg":"restapi: method=GET url=/ric/v1/health/alive"}
+{"ts":1768983300257,"crit":"INFO","id":"submgr","mdc":{"time":"2026-01-21T08:15:00"},"msg":"restapi: method=GET url=/ric/v1/health/ready"}
+{"ts":1768983315257,"crit":"INFO","id":"submgr","mdc":{"time":"2026-01-21T08:15:15"},"msg":"restapi: method=GET url=/ric/v1/health/ready"}
+```
+- SubMgr is:
+  - Running
+  - Serving HTTP
+  - Responding to Kubernetes health probes
+- `/alive` → process is running
+- `/ready` → service considers itself operational
+
+##### 3. Router Manager
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl logs deployment/deployment-ricplt-rtmgr -n ricplt --previous | tail -n 50
+
+---Successful startup---
+Start rtmgr service
+Connection to database established!
+rmrClient: RMR is ready
+Xapp started, listening on: :8080
+
+---Dependency failure---
+cannot get xapp data due to:
+lookup service-ricplt-appmgr-http on 10.96.0.10:53: server misbehaving
+
+---Controlled Shutdown---
+ERROR: Exiting as nbi failed to get the initial startup data
+ERROR: Failed to initialize nbi
+```
+
+RTMgr logs confirm successful startup, database connectivity, and RMR initialization. However, repeated failures to retrieve xApp metadata from the App Manager service resulted in controlled termination and subsequent restarts.
