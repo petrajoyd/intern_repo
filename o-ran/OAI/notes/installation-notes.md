@@ -993,3 +993,12 @@ ERROR: Failed to initialize nbi
 ```
 
 RTMgr logs confirm successful startup, database connectivity, and RMR initialization. However, repeated failures to retrieve xApp metadata from the App Manager service resulted in controlled termination and subsequent restarts.
+
+
+# Rel-J To Rel-L Update
+
+## REL-L Recon + Prep
+
+## Fix Rel-J Health Before Touching Rel-L
+
+## Deploy Rel-L Near-RT RIC Platform

@@ -4,17 +4,44 @@
 ### 1.1 Platform
 (EXAMPLE)
 - O-RAN SC Near-RT RIC
-- Deployment Method: it-dep (Helm-based)
+- Release: O-RAN SC Release J
+- Deployment Method: it-dep (Helm-based deployment)
+- Deployment Recipe: E-release–based reference recipe
+  - Used to avoid deprecated Kubernetes APIs present in Cherry-based deployments
 - Kubernetes Version: 
-- OS: Ubuntu 
+    - Client: v1.34.3
+    - Server: v1.30.0
+    - Note: Minor version skew warning observed (client newer than server)
+- OS: Ubuntu (WSL-based development environment)
 
 ### 1.2 Components Involved
-(EXAMPLES)
-- RIC Platform Services (AppMgr, E2Mgr, A1 Mediator, RTMgr)
-- xApps:
-  - Hello World xApp
-  - Traffic Steering xApp
-  - Custom Malicious / Rogue xApp
+
+#### Deployed RIC Platform Services 
+Based on Kubernetes service discovery and log inspection, the following Near-RT RIC components were observed:
+- E2 Termination (E2Term)
+    - SCTP interface exposed via NodePort
+    - RMR messaging initialized and active
+
+Subscription Manager (SubMgr)
+    - REST-based health endpoints (/alive, /ready) operational
+
+Routing Manager (RTMgr)
+    - Successfully initializes RMR and database connectivity
+    - Enters restart loop due to missing AppMgr dependency
+
+- A1 Mediator
+    - RMR service endpoint present
+    - Actively targeted by E2Term RMR send attempts
+
+#### Non-Deployed / Missing Platform Services
+The following components were referenced in logs but not deployed in the environment:
+
+- App Manager (AppMgr)
+    - Required by RTMgr for xApp metadata retrieval
+    - Absence causes RTMgr controlled termination and CrashLoop behavior
+- E2 Manager (E2Mgr)
+    - Referenced by E2Term via RMR
+    - DNS resolution failures observed
 
 ---
 
