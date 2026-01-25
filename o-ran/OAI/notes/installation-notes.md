@@ -1002,3 +1002,6 @@ RTMgr logs confirm successful startup, database connectivity, and RMR initializa
 ## Fix Rel-J Health Before Touching Rel-L
 
 ## Deploy Rel-L Near-RT RIC Platform
+
+
+# Deploy Full E2E O-RAN Devices
