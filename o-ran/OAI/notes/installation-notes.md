@@ -994,14 +994,380 @@ ERROR: Failed to initialize nbi
 
 RTMgr logs confirm successful startup, database connectivity, and RMR initialization. However, repeated failures to retrieve xApp metadata from the App Manager service resulted in controlled termination and subsequent restarts.
 
-
 # Rel-J To Rel-L Update
 
 ## REL-L Recon + Prep
 
+### 1. Switch repo to REL-L tag (LOCAL ONLY)
+1. Make sure we on `/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep` directory
+2. Do
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ git checkout l-release
+Updating files: 100% (343/343), done.
+M       bin/prepare-common-templates
+M       ric-dep
+M       smo-install/onap_oom
+Note: switching to 'l-release'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 7c0cc5f Merge "script to install k8s"
+```
+
+### 2. Explore Rel-L Layout
+1. check the folder
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ls
+INFO.yaml     RECIPE_EXAMPLE                         chartstorage  docs       ranpm       ric-dep           tools
+LICENSES.txt  bin                                    ci            nonrtric   ric-aux     ricplt-role.yaml  tox.ini
+README.md     chartmuseum_0.16.2_linux_amd64.tar.gz  demos         o-du-high  ric-common  smo-install
+```
+
+2. find and make sure the ric-dep are complete
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ find ric-dep -maxdepth 2 -type d
+ric-dep
+ric-dep/bin
+ric-dep/ci
+ric-dep/docs
+ric-dep/docs/_static
+ric-dep/helm
+ric-dep/helm/3rdparty
+ric-dep/helm/a1mediator
+ric-dep/helm/alarmmanager
+ric-dep/helm/appmgr
+ric-dep/helm/dbaas
+ric-dep/helm/e2mgr
+ric-dep/helm/e2term
+ric-dep/helm/infrastructure
+ric-dep/helm/jaegeradapter
+ric-dep/helm/o1mediator
+ric-dep/helm/redis-cluster
+ric-dep/helm/rsm
+ric-dep/helm/rtmgr
+ric-dep/helm/submgr
+ric-dep/helm/vespamgr
+ric-dep/helm/xapp-onboarder
+ric-dep/RECIPE_EXAMPLE
+```
+
+### 3. Find Helm Charts
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ find ric-dep -type d -name "*helm*"
+ric-dep/helm
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ find ric-dep -type d -name "*e2*"
+ric-dep/helm/e2mgr
+ric-dep/helm/e2term
+```
+
+### 4. Search Release Docs
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ find . -iname "*release*"
+./.releases
+./.releases/container-release-it-dep-init.yaml
+./.releases/container-release-it-dep-secret.yaml
+./docs/release-notes.rst
+./ric-dep/docs/release-notes.rst
+./ric-dep/RECIPE_EXAMPLE/example_recipe_oran_cherry_release.yaml
+./ric-dep/RECIPE_EXAMPLE/example_recipe_oran_dawn_release.yaml
+./ric-dep/RECIPE_EXAMPLE/example_recipe_oran_e_release.yaml
+./smo-install/multicloud-k8s/releases
+./smo-install/onap_oom/docs/sections/guides/deployment_guides/oom_argo_release_deploy.rst
+./smo-install/onap_oom/docs/sections/guides/deployment_guides/oom_helm_release_repo_deploy.rst
+./smo-install/onap_oom/docs/sections/release_notes
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-amsterdam.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-beijing.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-casablanca.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-dublin.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-elalto.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-frankfurt.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-guilin.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-honolulu.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-istanbul.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-jakarta.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-kohn.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-london.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-montreal.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-newdelhi.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes-oslo.rst
+./smo-install/onap_oom/docs/sections/release_notes/release-notes.rst
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ls docs || true
+_static       conf.yaml             images                   installation-nonrtric.rst  overview.rst           ric
+api-docs.rst  developer-guides.rst  index.rst                installation-ric.rst       release-notes.rst
+conf.py       favicon.ico           installation-guides.rst  nrtric                     requirements-docs.txt
+```
+
+### 5. Kubernetes Version Expectations
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ grep -R "kubernetes" -n .
+```
+
+### 6. Registry Expectations
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ grep -R "nexus3.o-ran-sc.org" -n ric-dep
+ric-dep/helm/a1mediator/values.yaml:29:    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+ric-dep/helm/alarmmanager/values.yaml:23:    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc" #"ranco-dev-tools.eastus.cloudapp.azure.com:10001"
+ric-dep/helm/appmgr/values.yaml:28:          registry: nexus3.o-ran-sc.org:10002/o-ran-sc
+ric-dep/helm/appmgr/values.yaml:60:     registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+ric-dep/helm/appmgr/values.yaml:64:     registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+ric-dep/helm/dbaas/values.yaml:20:    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+ric-dep/helm/e2mgr/values.yaml:28:    registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+ric-dep/helm/e2term/values.yaml:28:      registry: "nexus3.o-ran-sc.org:10002/o-ran-sc"
+...
+```
+
 ## Fix Rel-J Health Before Touching Rel-L
+1. Find Actual Control-Plane IP
+```
+geemajor@joy:~$ ip route | grep joy
+10.1.0.0/24 dev joy scope link
+192.168.8.0/24 dev joy scope link
+```
+2. Get cluster names
+```
+geemajor@joy:~$ kind get clusters
+oran-ric
+ric-j
+```
+3. Start both clusters
+```
+geemajor@joy:~$ docker start ric-j-control-plane oran-ric-control-plane
+ric-j-control-plane
+oran-ric-control-plane
+```
+4. Results
+```
+geemajor@joy:~$ kubectl get pods -A
+NAMESPACE            NAME                                              READY   STATUS    RESTARTS        AGE
+kube-system          coredns-7db6d8ff4d-9qf6f                          1/1     Running   3 (2m ago)      10d
+kube-system          coredns-7db6d8ff4d-d9b8k                          1/1     Running   3 (119s ago)    10d
+kube-system          etcd-ric-j-control-plane                          1/1     Running   2 (2m ago)      6d1h
+kube-system          kindnet-dmmv5                                     1/1     Running   10 (2m ago)     10d
+kube-system          kube-apiserver-ric-j-control-plane                1/1     Running   7 (2m ago)      6d1h
+kube-system          kube-controller-manager-ric-j-control-plane       1/1     Running   50 (2m ago)     10d
+kube-system          kube-proxy-pt7h7                                  1/1     Running   3 (119s ago)    10d
+kube-system          kube-scheduler-ric-j-control-plane                1/1     Running   49 (119s ago)   10d
+local-path-storage   local-path-provisioner-988d74bc-sckqp             1/1     Running   6 (45s ago)     10d
+ricplt               deployment-ricplt-alarmmanager-674894b75-5dkph    1/1     Running   2 (119s ago)    5d4h
+ricplt               deployment-ricplt-e2term-alpha-5998cb44f6-rjrsn   0/1     Running   21 (2m ago)     5d4h
+ricplt               deployment-ricplt-o1mediator-7555fbd67c-gtbzp     1/1     Running   2 (2m ago)      5d4h
+ricplt               deployment-ricplt-rtmgr-5c9947764c-nrt2w          1/1     Running   154 (2m ago)    5d4h
+ricplt               deployment-ricplt-submgr-59c6659784-9kwdt         1/1     Running   15 (2m ago)     5d4h
+ricplt               deployment-ricplt-vespamgr-d686664b-nwptg         1/1     Running   2 (2m ago)      5d4h
+ricplt               statefulset-ricplt-dbaas-server-0                 1/1     Running   8 (41s ago)     5d4h
+```
 
 ## Deploy Rel-L Near-RT RIC Platform
 
+### 1. Rel-L Prep
+1. Pick Cluster
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl config get-contexts
+CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+          kind-oran-ric   kind-oran-ric   kind-oran-ric
+*         kind-ric-j      kind-ric-j      kind-ric-j
+```
+we switch to `kind-oran-ric`
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl config use-context kind-oran-ric
+Switched to context "kind-oran-ric".
+```
+
+
+2. StorageClass Check
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get sc
+NAME                 PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
+standard (default)   rancher.io/local-path   Delete          WaitForFirstConsumer   false                  11d
+```
+This satisfies Near-RT RIC PVC requirements.
+
+3. Chartmuseum check
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ls chartmuseum*
+chartmuseum_0.16.2_linux_amd64.tar.gz
+```
+present
+
+
+### 2. Deployment Pipeline
+
+#### 1. Start ChartMuseum
+
+1. Download chartmuseum
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ curl -L -o chartmuseum-v0.16.2-linux-amd64.tar.gz \
+https://get.helm.sh/chartmuseum-v0.16.2-linux-amd64.tar.gz
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 18.6M  100 18.6M    0     0  2096k      0  0:00:09  0:00:09 --:--:-- 2190k
+```
+
+2. Check file tipe
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ file chartmuseum-v0.16.2-linux-amd64.tar.gz
+chartmuseum-v0.16.2-linux-amd64.tar.gz: gzip compressed data, from Unix, original size modulo 2^32 68730880
+```
+
+3. extract
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ tar -xzf chartmuseum-v0.16.2-linux-amd64.tar.gz
+```
+
+4. verify
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ls
+INFO.yaml       chartmuseum-v0.16.2-linux-amd64.tar.gz  linux-amd64  ric-common        tox.ini
+LICENSES.txt    chartstorage                            nonrtric     ric-dep
+README.md       ci                                      o-du-high    ricplt-role.yaml
+RECIPE_EXAMPLE  demos                                   ranpm        smo-install
+bin             docs                                    ric-aux      tools
+```
+
+5. go to `linux-amd64` directory, and execute the chartmuseum, and move it to PATH
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ cd linux-amd64
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/linux-amd64$ ls
+LICENSE  README.md  chartmuseum
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/linux-amd64$ chmod +x chartmuseum
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/linux-amd64$ ./chartmuseum --version
+ChartMuseum version 0.16.2 (build 8795e99)
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/linux-amd64$ sudo mv chartmuseum /usr/local/bin
+[sudo] password for geemajor:
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep/linux-amd64$ chartmuseum --version
+ChartMuseum version 0.16.2 (build 8795e99)
+```
+
+#### 2. Helm repo add
+1. Start ChartMuseum
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ mkdir -p chartstorage
+
+chartmuseum \
+  --port=8080 \
+  --storage=local \
+  --storage-local-rootdir=./chartstorage &
+[1] 135033
+```
+2.  Helm repo add
+```
+geemajor@joy:~$ helm repo add localric http://localhost:8080//localhost:8080
+helm repo update
+helm repo list
+"localric" has been added to your repositories
+Hang tight while we grab the latest from your chart repositories...
+...Unable to get an update from the "local" chart repository (http://127.0.0.1:8879/charts):
+        Get "http://127.0.0.1:8879/charts/index.yaml": dial tcp 127.0.0.1:8879: connect: connection refused
+...Unable to get an update from the "localcm" chart repository (http://127.0.0.1:8879/charts):
+        Get "http://127.0.0.1:8879/charts/index.yaml": dial tcp 127.0.0.1:8879: connect: connection refused
+...Successfully got an update from the "localric" chart repository
+Update Complete. ⎈Happy Helming!⎈
+NAME            URL
+localcm         http://127.0.0.1:8879/charts
+local           http://127.0.0.1:8879/charts
+localric        http://localhost:8080
+```
+3. Helm health check
+```
+geemajor@joy:~$ curl http://localhost:8080/health
+{"healthy":true}
+```
+4. search repo
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm search repo localric
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION                                     
+localric/a1controller                   2.0.0           2.0.0           A Helm chart for nonrtric a1controller          
+localric/a1simulator                    2.1.0           2.0.0           A Helm chart for A1 simulator                   
+localric/capifcore                      1.0.0           2.0.0           A Helm chart for CAPIF core                     
+localric/common                         1.0.0           1.16.0          A Helm chart third party components             
+localric/controlpanel                   2.0.0           2.0.0           A Helm chart for nonrtric controlpanel          
+localric/dmaapadapterservice            1.0.0           1.0.0           A Helm chart for Dmaap Adapter Service          
+localric/informationservice             1.0.0           1.0.0           A Helm chart for Information Coordinator Service
+localric/kong                           1.0.0           1.0.0           A Helm chart for deploying DB-mode Kong with Po...
+localric/nonrtric                       1.0.0           test            Open Radio Access Network (ORAN)                
+localric/nonrtric-common                2.0.0                           NONRTRIC Common templates for inclusion in othe...
+localric/nonrtricgateway                1.0.0           0.0.1           A Helm chart for Nonrtric Gateway               
+localric/policymanagementservice        2.0.0           2.0.0           A Helm chart for Policy Management Service      
+localric/ranpm                          1.0.0           1.16.0          A Helm chart for RANPM Components               
+localric/rappmanager                    1.0.0           2.0.0           A Helm chart for rAppmanager                    
+localric/servicemanager                 1.0.0           2.0.0           A Helm chart for ServiceManager                 
+localric/smo                            1.0.0           test            Open Radio Access Network (ORAN)                
+localric/smo-common                     1.0.0                           SMO Common templates for inclusion in other charts
+localric/topology                       1.0.0           1.0.0           A Helm chart to deploy topology                 
+localric/topology-exposure-inventory    1.0.0           1.16.0          A Helm chart for Kubernetes                     
+```
+
+#### 3. Verify Nexus Registry Reachable
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ curl -I https://nexus3.o-ran-sc.org
+HTTP/1.1 200 OK
+Server: nginx/1.24.0
+Date: Mon, 26 Jan 2026 16:11:36 GMT
+Content-Type: text/html
+Content-Length: 10267
+Connection: keep-alive
+Keep-Alive: timeout=5
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Last-Modified: Mon, 26 Jan 2026 16:11:36 GMT
+Pragma: no-cache
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate, post-check=0, pre-check=0
+Expires: 0
+Referrer-Policy: no-referrer
+Permissions-Policy: camera=(), geolocation=(), microphone=()
+Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' www.google-analytics.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com; img-src 'self' https: data:; connect-src 'self' 'unsafe-inline' www.google-analytics.com stats.g.doubleclick.net; frame-src 'self'; font-src 'self' fonts.gstatic.com
+Strict-Transport-Security: max-age=15552000
+```
+>[!Note]
+registry connectivity is good
+
+#### 4. Namespace prep
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl create namespace nonrtric
+kubectl create namespace smo
+kubectl create namespace ranpm
+kubectl create namespace ricinfra
+namespace/nonrtric created
+namespace/smo created
+namespace/ranpm created
+namespace/ricinfra created
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get ns
+NAME                 STATUS   AGE
+default              Active   13d
+kube-node-lease      Active   13d
+kube-public          Active   13d
+kube-system          Active   13d
+local-path-storage   Active   13d
+nonrtric             Active   13s
+ranpm                Active   10s
+ricinfra             Active   8s
+smo                  Active   12s
+```
+>[!Note]
+> We're good to proceed
+
+### 3. Deploy Non-RT RIC Umbrella Chart (Rel-L)
 
 # Deploy Full E2E O-RAN Devices
