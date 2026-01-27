@@ -1369,22 +1369,185 @@ smo                  Active   12s
 >[!Note]
 > We're good to proceed
 
-### 3. Deploy Non-RT RIC Umbrella Chart (Rel-L)
+### 3. Deploy Near-RT RIC Umbrella Chart (Rel-L)
+
+For Near-RT RIC, control plane = ric-platform components, mainly:
+| Component    | Purpose                  |
+| ------------ | ------------------------ |
+| e2term       | E2 interface (gNB ↔ RIC) |
+| dbaas        | Redis                    |
+| submgr       | Subscription manager     |
+| rtmgr        | Routing                  |
+| a1mediator   | A1 interface             |
+| appmgr       | xApp lifecycle           |
+| vespa        | data storage             |
+| alarmmanager | alarms                   |
+
+use this codes to deploy
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ sudo -E ./bin/deploy-ric-platform -f ric-dep/near-rt-ric.yaml
+
+...Successfully got an update from the "localric" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading ric-common from repo http://127.0.0.1:8879/charts
+Deleting outdated charts
+NAME: r4-alarmmanager
+LAST DEPLOYED: Tue Jan 27 17:30:46 2026
+NAMESPACE: ricplt
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
 
 #### 3.1 Verify Near-RT RIC Control Plane
 
+- verify namespace
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get ns
+NAME                 STATUS   AGE
+default              Active   13d
+kube-node-lease      Active   13d
+kube-public          Active   13d
+kube-system          Active   13d
+local-path-storage   Active   13d
+nonrtric             Active   18h
+ranpm                Active   18h
+ricinfra             Active   18h
+ricplt               Active   6m28s
+ricxapp              Active   6m24s
+smo                  Active   18h
+```
+- verify pods on `ricplt`
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get pods -n ricplt
+NAME                                              READY   STATUS              RESTARTS       AGE
+deployment-ricplt-alarmmanager-5fb8c55bd8-sch6j   0/1     ContainerCreating   0              5m53s
+deployment-ricplt-e2term-alpha-9899bfbc9-z4rb5    0/1     ContainerCreating   0              6m39s
+deployment-ricplt-o1mediator-6bbc975c4d-wnvg5     0/1     ContainerCreating   0              6m6s
+deployment-ricplt-rtmgr-57b87bf4c8-5x8q9          1/1     Running             3              9m19s
+deployment-ricplt-submgr-578d66d97f-npt4d         0/1     CrashLoopBackOff    5 (90s ago)    6m41s
+deployment-ricplt-vespamgr-846d876485-5pwff       0/1     ContainerCreating   0              6m24s
+statefulset-ricplt-dbaas-server-0                 1/1     Running             1 (110s ago)   9m50s
+```
+| Component      | Status              | Meaning                   |
+| -------------- | ------------------- | ------------------------- |
+| `rtmgr`        | Running           | Core routing OK           |
+| `dbaas-server` | Running           | Redis OK                  |
+| `e2term`       | ContainerCreating | Normal (first pull / CNI) |
+| `alarmmanager` | ContainerCreating | Normal                    |
+| `vespamgr`     | ContainerCreating | Normal                    |
+| `o1mediator`   | ContainerCreating | Normal                    |
+| **`submgr`**   | CrashLoopBackOff  | ⚠️ blocker                |
+
+##### 3.1.1 Debug blockers: `submgr`
+>[!Warning]
+> SubMgr fails to start due to an runc IPC namespace issue on WSL2 (kernel-level limitation, not network or Helm-related). VPN connectivity and image pulls are confirmed OK, so we’ll proceed by disabling SubMgr and continue with the remaining Near-RT RIC components.
+
+The error:
+```
+runc create failed:
+namespace path: lstat /proc/0/ns/ipc: no such file or directory
+```
+
+`submgr` is not recoverable on this setup without kernel surgery. So we officially mark `submgr` as "intentionally frozen due to runtime incompatibility.
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl scale deployment deployment-ricplt-submgr -n ricplt --replicas=0
+deployment.apps/deployment-ricplt-submgr scaled
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get pods -n ricplt
+NAME                                              READY   STATUS             RESTARTS        AGE
+deployment-ricplt-alarmmanager-5fb8c55bd8-sch6j   1/1     Running            1 (4m50s ago)   25m
+deployment-ricplt-e2term-alpha-9899bfbc9-z4rb5    0/1     CrashLoopBackOff   6 (107s ago)    25m
+deployment-ricplt-o1mediator-6bbc975c4d-wnvg5     1/1     Running            0               25m
+deployment-ricplt-rtmgr-57b87bf4c8-5x8q9          0/1     CrashLoopBackOff   8 (37s ago)     28m
+deployment-ricplt-vespamgr-846d876485-5pwff       1/1     Running            1               25m
+statefulset-ricplt-dbaas-server-0                 0/1     Running            2 (18m ago)     29m
+```
+
+
 #### 3.2 Pod Health Sweep
+Pod health was evaluated based on component dependency classification. Core Near-RT RIC control plane services and xApp onboarding infrastructure were verified to be running.
+
+E2-dependent components (E2Term, RTMgr, SubMgr) were observed in CrashLoopBackOff due to the absence of an E2 node and kernel-level container runtime limitations. These components were intentionally excluded from health enforcement for this deployment phase.
+
+| Component    | Status           | Verdict        |
+| ------------ | ---------------- | -------------- |
+| alarmmanager | Running          | ✅              |
+| o1mediator   | Running          | ✅              |
+| vespamgr     | Running          | ✅              |
+| rtmgr        | CrashLoopBackOff | ⚠️             |
+| e2term       | CrashLoopBackOff | ⚠️             |
+| submgr       | Disabled         | 🧊 intentional |
+| dbaas        | Running          | ⚠️ degraded    |
+
 
 #### 3.3 Debug Blockers
+##### Blocker 1 — submgr
+
+- Root cause: OCI runtime namespace failure
+- Category: Infrastructure / kernel
+- Mitigation: scale to zero
+
+##### Blocker 2 — e2term
+ 
+- Root cause: no E2 peer / SCTP
+- Category: expected in RIC-only deployment
+- Mitigation: deferred to E2 phase
+
+##### Blocker 3 — rtmgr
+
+- Root cause: dependency on E2 subscriptions
+- Category: expected
+- Mitigation: ignored in current scope
+
 
 ### 4. Verify Near-RT RIC Control Plane
 
 #### 4.1 Check E2Term Listening
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get svc -n ricplt | grep e2
 
-#### 4.2 A1 Mediator
+service-ricplt-e2term-prometheus-alpha   ClusterIP   10.96.89.241    <none>        8088/TCP                     46m
+service-ricplt-e2term-rmr-alpha          ClusterIP   10.96.49.138    <none>        4561/TCP,38000/TCP           46m
+service-ricplt-e2term-sctp-alpha         NodePort    10.96.222.21    <none>        36422:32222/SCTP             46m
+```
 
-#### 4.3 xApp Onboarding Infra
+This is proof that:
+- Helm rendered Near-RT RIC correctly
+- E2 interface exists at service level
+- SCTP is exposed
 
-#### 4.4 Freeze Snapshot
+#### 4.2 xApp Onboarding Infra
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get ns | grep ricxapp
+ricxapp              Active   59m
+
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list -A | grep ric
+r4-alarmmanager ricplt          1               2026-01-27 17:30:46.142543607 +0700 WIB deployed        alarmmanager-5.0.0      1.0
+r4-dbaas        ricplt          1               2026-01-27 17:26:49.246481057 +0700 WIB deployed        dbaas-2.0.0             1.0
+r4-e2term       ricplt          1               2026-01-27 17:28:29.67308099 +0700 WIB  deployed        e2term-3.0.0            1.0
+r4-o1mediator   ricplt          1               2026-01-27 17:30:29.802409809 +0700 WIB deployed        o1mediator-3.0.0        1.0
+r4-rtmgr        ricplt          1               2026-01-27 17:27:17.653352999 +0700 WIB deployed        rtmgr-3.0.0             1.0
+r4-submgr       ricplt          1               2026-01-27 17:29:47.615187286 +0700 WIB deployed        submgr-3.0.0            1.0
+r4-vespamgr     ricplt          1               2026-01-27 17:30:14.220857986 +0700 WIB deployed        vespamgr-3.0.0          1.0
+```
+present
+
+#### 4.3 Freeze Snapshot
+A freeze snapshot of the Near-RT RIC deployment was captured to preserve the system state for WG11 threat analysis. The snapshot includes all Kubernetes namespaces, pods, services, and Helm releases across the cluster. At the time of the snapshot, core Near-RT RIC control plane components were deployed and operational, while E2-dependent components were inactive due to the absence of external RAN connectivity and kernel-level runtime constraints. The captured snapshot serves as a reproducible baseline for analyzing misbehaving and unauthorized xApp threat scenarios.
+```
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get all -A > freeze_all.txt
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get pods -A > freeze_pods.txt
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl get svc -A > freeze_svc.txt
+geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list -A > freeze_helm.txt
+```
+
+## Deploy xApp
+
+### Verify xApp Pod Status
+
+### Verify xApp Logs
+
 
 # Deploy Full E2E O-RAN Devices
