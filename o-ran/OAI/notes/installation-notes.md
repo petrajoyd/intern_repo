@@ -1202,6 +1202,7 @@ This satisfies Near-RT RIC PVC requirements.
 geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ ls chartmuseum*
 chartmuseum_0.16.2_linux_amd64.tar.gz
 ```
+
 present
 
 
@@ -1369,5 +1370,21 @@ smo                  Active   12s
 > We're good to proceed
 
 ### 3. Deploy Non-RT RIC Umbrella Chart (Rel-L)
+
+#### 3.1 Verify Near-RT RIC Control Plane
+
+#### 3.2 Pod Health Sweep
+
+#### 3.3 Debug Blockers
+
+### 4. Verify Near-RT RIC Control Plane
+
+#### 4.1 Check E2Term Listening
+
+#### 4.2 A1 Mediator
+
+#### 4.3 xApp Onboarding Infra
+
+#### 4.4 Freeze Snapshot
 
 # Deploy Full E2E O-RAN Devices
