@@ -1543,11 +1543,18 @@ geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ kubectl g
 geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list -A > freeze_helm.txt
 ```
 
-## Deploy xApp
+# OAI xApp Deployment At Near-RT RIC
 
-### Verify xApp Pod Status
+## 1. Overview
 
-### Verify xApp Logs
+## 2. Prerequisites
 
+## 3. Installation Guide
 
-# Deploy Full E2E O-RAN Devices
+## 3.1 Infrastructure
+
+## 3.2 Near-RT RIC Deployment
+
+## 3.3 Networking & E2 Simulator
+
+## 3.4 xApp Onboarding
