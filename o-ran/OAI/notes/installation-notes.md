@@ -1546,15 +1546,429 @@ geemajor@joy:/mnt/d/Documents/GitHub/intern_repo/o-ran/OAI/src/it-dep$ helm list
 # OAI xApp Deployment At Near-RT RIC
 
 ## 1. Overview
+The objective is to deploy the KPIMON-GO xApp on the O-RAN Software Community (OSC) Near-Real-Time RIC. This xApp will serve as the "monitor," collecting KPM (Key Performance Measurement) metrics from the RAN via the E2 interface.
+
+<p align="center">
+    <img src="../../../NTN/notes-png/gNB_To_xApp.png" alt="E2E Data Flow Architecture" />
+    <br/>
+    <em>E2E Data Flow Architecture</em>
+</p>
+
+
+### Target Architecture:
+- RIC Platform: OSC Near-RT RIC (Kubernetes Cluster).
+- xApp: kpimon-go (Golang version of KPI Monitor).
+- Interface: E2AP over SCTP (Port 36422).
+- Routing: Static Route Injection (bypassing dynamic RTMgr for stability).
 
 ## 2. Prerequisites
 
+### A. Host Information
+- OS: Ubuntu 20.04 LTS (Virtual Machine).
+- RIC IP Address: 192.168.8.38 (Verified).
+
+>[!Note] 
+> Deployment diagram references .14, but our active environment is confirmed at .38. All config files must be patched to match .38.
+
+### B. RIC Platform Health
+The platform is currently Active (Running 1/1).
+- SCTP Module: Loaded (lsmod | grep sctp confirmed).
+- E2 Termination:
+  - Internal Status: Running.
+  - Listening Port: 36422 (SCTP).
+  - External Access: NodePort 32222 mapped via iptables.
+
+### C. Software Dependencies
+- Kubernetes: v1.2x (Cluster is healthy after swapoff fix).
+- Helm: v3 (Ready for chart deployment).
+- `kpimon-go` xApp
+
 ## 3. Installation Guide
+Per the architecture diagram: We are using a Manual Route Bypass. Instead of relying on the Routing Manager (RTMgr) to dynamically discover the xApp, we will inject a static route file (kpimon.rt) into the container.
+- RMR Port: 4560 (TCP).
+- Route File Location: `/opt/route/kpimon.rt` (Inside the container).
 
 ## 3.1 Infrastructure
+### 3.1.1 VM Setup
+Run this Code
+```cmd
+C:\Windows\System32>ssh joy@192.168.8.38
+joy@192.168.8.38's password: [Put your VM pass here]
+
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-139-generic x86_64)
+```
+
+### 3.1.2 Clone Repository 
+Clone the O-RAN RIC Deployment Repository
+
+```bash
+joy@joy-virtual-machine:~$ git clone "https://gerrit.o-ran-sc.org/r/ric-plt/ric-dep"
+```
+
+### 3.1.3 Install Kubernetes, Docker, and Helm automatically.
+This step sets up the Chart Manager and common templates for helm:
+
+```bash
+joy@joy-virtual-machine:~$ cd ric-dep/bin
+
+joy@joy-virtual-machine:~$ ./install_k8s_and_helm.sh
+
+joy@joy-virtual-machine:~$ ./install_common_templates_to_helm.sh
+```
+
+Expected output:
+```bash
+Installing servecm (Chart Manager) and common templates to helm3
+Installed plugin: servecm
+---
+servcm up and running
+---
+checking that ric-common templates were added
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION               
+local/ric-common        3.3.2                           Common templates for inclusion in other charts
+```
 
 ## 3.2 Near-RT RIC Deployment
+
+### 3.2.1 Locate Recipe File
+
+```bash
+joy@joy-virtual-machine:~/ric-dep/bin$ ls ../RECIPE_EXAMPLE
+
+example_recipe_latest_stable.yaml
+example_recipe_latest_unstable_with_refs_to_staging.yaml
+example_recipe_latest_unstable.yaml
+example_recipe_oran_cherry_release.yaml
+example_recipe_oran_dawn_release.yaml
+example_recipe_oran_e_release.yaml
+example_recipe_oran_f_release.yaml
+example_recipe_oran_g_release.yaml
+example_recipe_oran_h_release.yaml
+example_recipe_oran_i_release.yaml
+example_recipe_oran_j_release.yaml
+example_recipe_oran_k_release.yaml
+example_recipe_oran_l_release.yaml # Our Recipe File (Rel-L)
+example_recipe_oran_m_release.yaml
+```
+
+### 3.2.2 Copy And Configure The Recipe File
+Change those `10.0.0.1` addresses to the actual VM address (`192.168.8.38`).
+```bash
+# Step 1: Inject Your IP Address
+sed -i 's/10.0.0.1/192.168.8.38/g' recipe.yaml
+
+# Step 2: Verify the Change
+cat recipe.yaml | grep "192.168.8.38"
+```
+The output should be
+```bash
+# ricip should be the ingress controller listening IP for the platform cluster
+  ricip: "192.168.8.38"
+```
+
+### 3.2.3 Run the Installer
+Launch the installation. This script will pull all the O-RAN containers (E2Term, E2Mgr, etc.) and deploy them to the Kubernetes cluster.
+```bash
+joy@joy-virtual-machine:~/ric-dep/bin$ sudo ./install -f recipe.yaml
+```
+#### Expected output for each component:
+```bash
+namespace/ricplt created
+namespace/ricinfra created
+namespace/ricxapp created
+---
+Deploying RIC infra components [infrastructure dbaas appmgr rtmgr e2mgr e2term a1mediator submgr vespamgr o1mediator alarmmanager ]
+---
+NAME: r4-infrastructure
+LAST DEPLOYED: Tue Feb  3 13:37:13 2026
+NAMESPACE: ricplt
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+---
+NAME: r4-dbaas
+LAST DEPLOYED: Tue Feb  3 13:37:25 2026
+NAMESPACE: ricplt
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+### 3.2.4 Check The Pods
+```bash
+NAME                                                         READY   STATUS    RESTARTS        AGE
+deployment-ricplt-a1mediator-64fd4bf64-pfsrz                 1/1     Running   3 (4m8s ago)    13m
+deployment-ricplt-alarmmanager-7d47d8f4d4-lcww7              1/1     Running   0               12m
+deployment-ricplt-appmgr-79848f94c-4fgv7                     1/1     Running   0               13m
+deployment-ricplt-e2mgr-856f655b4-pk8mc                      1/1     Running   5 (3m54s ago)   13m
+deployment-ricplt-e2term-alpha-d5fd5d9c6-7qn99               1/1     Running   1 (71s ago)     13m
+deployment-ricplt-o1mediator-76c4646878-gjxwc                1/1     Running   0               12m
+deployment-ricplt-rtmgr-6556c5bc7b-nftbj                     1/1     Running   2 (3m1s ago)    13m
+deployment-ricplt-submgr-66485ccc6c-x975w                    1/1     Running   4 (3m53s ago)   13m
+deployment-ricplt-vespamgr-786666549b-zxp8j                  1/1     Running   0               12m
+r4-infrastructure-kong-5986fc7965-kp7tl                      2/2     Running   0               14m
+r4-infrastructure-prometheus-alertmanager-64f9876d6d-cln8g   2/2     Running   0               14m
+r4-infrastructure-prometheus-server-bcc8cc897-nk544          1/1     Running   0               14m
+statefulset-ricplt-dbaas-server-0                            1/1     Running   0               13m
+```
+
 
 ## 3.3 Networking & E2 Simulator
 
 ## 3.4 xApp Onboarding
+Before deploying the xApp, the underlying RIC Platform (RICPLT) must be verified as healthy.
+
+### 3.4.1 Verify Platform Pods
+Make sure all Pods are running (or atleast the crucial ones)
+```bash
+joy@joy-virtual-machine:~/ric-app-hw-go$ kubectl get pods -n ricplt
+
+NAME                                                         READY   STATUS    RESTARTS      AGE
+deployment-ricplt-a1mediator-64fd4bf64-pfsrz                 1/1     Running   3 (23h ago)   23h
+deployment-ricplt-alarmmanager-7d47d8f4d4-lcww7              1/1     Running   0             23h
+deployment-ricplt-appmgr-79848f94c-4fgv7                     1/1     Running   0             23h
+deployment-ricplt-e2mgr-856f655b4-pk8mc                      1/1     Running   5 (23h ago)   23h
+deployment-ricplt-e2term-alpha-d5fd5d9c6-7qn99               1/1     Running   1 (23h ago)   23h
+deployment-ricplt-o1mediator-76c4646878-gjxwc                1/1     Running   0             23h
+deployment-ricplt-rtmgr-6556c5bc7b-nftbj                     1/1     Running   2 (23h ago)   23h
+deployment-ricplt-submgr-66485ccc6c-x975w                    1/1     Running   4 (23h ago)   23h
+deployment-ricplt-vespamgr-786666549b-zxp8j                  1/1     Running   0             23h
+r4-infrastructure-kong-5986fc7965-kp7tl                      2/2     Running   0             23h
+r4-infrastructure-prometheus-alertmanager-64f9876d6d-cln8g   2/2     Running   0             23h
+r4-infrastructure-prometheus-server-bcc8cc897-nk544          1/1     Running   0             23h
+statefulset-ricplt-dbaas-server-0                            1/1     Running   0             23h
+```
+#### Success Criteria:
+- `deployment-ricplt-e2term-alpha`: Running (Crucial for gNB connection)
+- `deployment-ricplt-rtmgr`: Running (Crucial for routing)
+- `statefulset-ricplt-dbaas-server`: Running (Crucial for database storage)
+
+### 3.4.2 Verify Network Service
+Ensure the internal Kubernetes services are available for the xApp to target.
+```bash
+joy@joy-virtual-machine:~/kpimon-go$ kubectl get svc -n ricplt
+NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+aux-entry                                   ClusterIP      10.101.137.136   <none>        80/TCP,443/TCP                  23h
+r4-infrastructure-kong-manager              NodePort       10.111.74.8      <none>        8002:31833/TCP,8445:32481/TCP   23h
+r4-infrastructure-kong-proxy                LoadBalancer   10.109.211.174   <pending>     80:32080/TCP,443:32443/TCP      23h
+r4-infrastructure-kong-validation-webhook   ClusterIP      10.110.121.26    <none>        443/TCP                         23h
+r4-infrastructure-prometheus-alertmanager   ClusterIP      10.98.235.220    <none>        80/TCP                          23h
+r4-infrastructure-prometheus-server         ClusterIP      10.109.240.64    <none>        80/TCP                          23h
+service-ricplt-a1mediator-http              ClusterIP      10.105.171.226   <none>        10000/TCP                       23h
+service-ricplt-a1mediator-rmr               ClusterIP      10.105.63.15     <none>        4561/TCP,4562/TCP               23h
+service-ricplt-alarmmanager-http            ClusterIP      10.103.19.96     <none>        8080/TCP                        23h
+service-ricplt-alarmmanager-rmr             ClusterIP      10.103.101.172   <none>        4560/TCP,4561/TCP               23h
+service-ricplt-appmgr-http                  ClusterIP      10.96.219.22     <none>        8080/TCP                        23h
+service-ricplt-appmgr-rmr                   ClusterIP      10.107.37.239    <none>        4561/TCP,4560/TCP               23h
+service-ricplt-dbaas-tcp                    ClusterIP      None             <none>        6379/TCP                        23h
+service-ricplt-e2mgr-http                   ClusterIP      10.108.140.35    <none>        3800/TCP                        23h
+service-ricplt-e2mgr-rmr                    ClusterIP      10.105.21.183    <none>        4561/TCP,3801/TCP               23h
+service-ricplt-e2term-prometheus-alpha      ClusterIP      10.110.148.38    <none>        8088/TCP                        23h
+service-ricplt-e2term-rmr-alpha             ClusterIP      10.106.64.145    <none>        4561/TCP,38000/TCP              23h
+service-ricplt-e2term-sctp-alpha            NodePort       10.103.8.27      <none>        36422:32222/SCTP                23h
+service-ricplt-o1mediator-http              ClusterIP      10.108.154.58    <none>        9001/TCP,8080/TCP,3000/TCP      23h
+service-ricplt-o1mediator-tcp-netconf       NodePort       10.100.112.109   <none>        830:30830/TCP                   23h
+service-ricplt-rtmgr-http                   ClusterIP      10.111.22.179    <none>        3800/TCP                        23h
+service-ricplt-rtmgr-rmr                    ClusterIP      10.98.75.39      <none>        4561/TCP,4560/TCP               23h
+service-ricplt-submgr-http                  ClusterIP      None             <none>        3800/TCP                        23h
+service-ricplt-submgr-rmr                   ClusterIP      None             <none>        4560/TCP,4561/TCP               23h
+service-ricplt-vespamgr-http                ClusterIP      10.103.154.193   <none>        8080/TCP,9095/TCP               23h
+```
+#### Critical Services to Check:
+- service-ricplt-e2term-rmr-alpha (Target for Subscription Requests)
+- service-ricplt-rtmgr-rmr (Target for Route Table Requests)
+- service-ricplt-dbaas-tcp (Target for SDL Storage)
+
+### 3.4.2 Clone The Repository
+
+```bash
+joy@joy-virtual-machine:~$ git clone "https://gerrit.o-ran-sc.org/r/ric-app/kpimon-go"
+Cloning into 'kpimon-go'...
+remote: Counting objects: 1, done
+remote: Total 1635 (delta 0), reused 1635 (delta 0)
+Receiving objects: 100% (1635/1635), 6.33 MiB | 3.56 MiB/s, done.
+Resolving deltas: 100% (1143/1143), done.
+```
+
+### 3.4.3 Build The Docker Image Locally
+We will build the image and tag it as `local` to distinguish it from remote versions.
+
+```bash
+joy@joy-virtual-machine:~/kpimon-go$ sudo docker build -t kpimon-go:local .
+
+Step 37/38 : COPY entripoint.sh entripoint.sh
+ ---> 6bc4d202caea
+Step 38/38 : ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","./entripoint.sh"]
+ ---> Running in a08900cc6ab4
+Removing intermediate container a08900cc6ab4
+ ---> a0bde5614880
+Successfully built a0bde5614880
+Successfully tagged kpimon-go:local
+```
+
+#### Verification: 
+Run `sudo docker images | grep kpimon`. You should see `kpimon-go:local`.
+```bash
+joy@joy-virtual-machine:~/kpimon-go$ sudo docker images | grep kpimon
+[sudo] password for joy:
+kpimon-go                                               local     a0bde5614880   8 minutes ago   3.03GB
+```
+
+
+### 3.4.4 Transfer Image to Kubernetes (Containerd)
+You must manually export the image from Docker and import it into the Kubernetes namespace.
+
+```bash
+# 1. Save to tarball
+joy@joy-virtual-machine:~/kpimon-go$ sudo docker save kpimon-go:local -o kpimon-go.tar
+
+
+
+
+# 2. Import To Kubernetes
+joy@joy-virtual-machine:~/kpimon-go$ sudo ctr -n k8s.io images import kpimon-go.tar
+unpacking docker.io/library/kpimon-go:local (sha256:136c2b663d45b7df10b36060c69be5306634f58811258716129b279832998700)...done
+
+# 3. Verify Availability
+joy@joy-virtual-machine:~/kpimon-go$ sudo crictl images | grep kpimon
+docker.io/library/kpimon-go                               local               a0bde56148807       3.06GB
+```
+
+### 3.4.5 Constructing the "Golden" Helm Chart
+We are going to manually build the installer that the broken App Manager couldn't. We will create a new folder for this so we don't mess up the source code.
+
+#### 3.4.5.1 Create the Folder Structure
+```text
+~/my-chart/kpimon-go/
+├── Chart.yaml
+├── values.yaml
+├── templates/
+│   ├── deployment.yaml   (The "Golden" Blueprint)
+│   ├── configmap.yaml    (The Route Table Injection)
+│   └── service.yaml
+```
+
+### 3.4.6 Route Table Fix
+
+To resolve the issue where RMR waits indefinitely, we must inject a static route table.
+
+**File:** `templates/configmap.yaml`
+
+```bash
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kpimon-routes
+data:
+  kpimon.rt: |
+    newrt|start
+    # Direct IP Connection to E2 Terminator
+    rte|12010|10.244.0.8:38000
+    newrt|end
+```
+
+### 3.4.7 Deployment File
+This is the most critical file. It bridges the app to the database and the network map.
+
+**File:** `templates/deployment.yaml`
+
+```bash
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "kpimon-go:local"
+          imagePullPolicy: Never
+          env:
+            # --- DATABASE CONNECTION FIX ---
+            - name: DBAAS_SERVICE_HOST
+              value: "service-ricplt-dbaas-tcp.ricplt"
+            - name: DBAAS_SERVICE_PORT
+              value: "6379"
+            # --- ROUTING MANAGER BYPASS FIX ---
+            - name: RMR_SEED_RT
+              value: "/opt/route/kpimon.rt"
+            # --- RAVI'S CONFIGURATION (DNS NAME) ---
+            - name: RMR_SRC_ID
+              value: "service-ricxapp-kpimon-go-rmr.ricxapp:4560"
+            - name: PLT_NAMESPACE
+              value: "ricplt"
+          volumeMounts:
+            - name: route-vol
+              mountPath: /opt/route
+      volumes:
+        - name: route-vol
+          configMap:
+            name: kpimon-routes
+```
+
+#### ~/my-chart/kpimon-go/Chart.yaml
+```bash
+apiVersion: v1
+appVersion: "1.0"
+description: A Helm chart for kpimon-go xApp
+name: kpimon-go
+```
+
+#### ~/my-chart/kpimon-go/values.yaml
+```bash
+image:
+  repository: kpimon-go
+  tag: local
+  pullPolicy: Never
+
+service:
+  http:
+    port: 8080
+  rmr:
+    data:
+      port: 4560
+    route:
+      port: 4561
+
+livenessProbe:
+  path: /ric/v1/health/alive
+  port: 8080
+readinessProbe:
+  path: /ric/v1/health/ready
+  port: 8080
+```
+
+### Issue Encountered: E2 Terminator "Loopback" Failure
+Despite applying the "Golden Chart" configuration above, the xApp fails to establish an RMR connection with the E2 Terminator.
+
+#### 1. Symptom:
+The xApp logs consistently show `open=0` (Connection Refused), even though we are targeting the correct IP and Port.
+
+```
+[INFO] sends: src=10.244.0.28:4560 target=10.244.0.8:38000 open=0
+```
+
+#### 2. Network Verification (Passed):
+We performed a manual port scan from inside the xApp container to verify the network path. The port is definitely open.
+
+```
+timeout 2 bash -c '</dev/tcp/10.244.0.8/38000' && echo "OPEN"
+# Output: OPEN
+```
+
+#### 3. Root Cause Analysis (E2 Terminator Logs):
+Inspection of the E2 Terminator logs (kubectl logs -n ricplt -l app=ricplt-e2term-alpha) reveals that the E2Term is routing messages to itself on non-existent ports, indicating a corrupted internal routing table or platform-level bug.
+
+```
+# E2Term sending messages to its own IP (10.244.0.8) on random ports:
+sends: src=...:38000 target=10.244.0.8:43441 open=0
+sends: src=...:38000 target=10.244.0.8:43774 open=0
+```
