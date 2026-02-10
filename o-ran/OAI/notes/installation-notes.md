@@ -2054,6 +2054,9 @@ rte|12010|10.244.0.44:38000  # <--- HARDCODED E2TERM IP
 newrt|end
 ```
 
+- **STATUS: VERIFIED.** `RMR is ready now ...`
+- Evidence: The file /opt/route/kpimon.rt inside the pod contains injected code
+
 #### Step 3: Fix Database Connection (DBaaS Side)
 bypassed DNS lookup for the database by hardcoding the target IP directly into the deployment.
 - Retrieved the dbaas Pod IP (`10.244.0.15`) and injected it into the environment variables.
@@ -2064,3 +2067,11 @@ bypassed DNS lookup for the database by hardcoding the target IP directly into t
 - name: DBAAS_SERVICE_PORT
   value: "6379"
 ```
+
+- Status: PARTIALLY VERIFIED (Environment Injected, but Connection Failed).
+- Evidence A (Success): The environment variables are correctly set inside the container:
+```
+DBAAS_SERVICE_HOST=10.244.0.15
+DBAAS_SERVICE_PORT=6379
+```
+- Evidence B (Failure): The logs DO NOT show `Connection to database established`.
