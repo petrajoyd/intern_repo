@@ -2044,7 +2044,7 @@ We forced the xApp to identify itself by its Physical Pod IP instead of its host
       fieldPath: status.podIP  # Forces Identity = 10.244.x.x
 ```
 
-##### Step 2: Fix E2 Routing (E2Term Side)
+#### Step 2: Fix E2 Routing (E2Term Side)
 ignored the dynamic Routing Manager (rtmgr) and injected a Static Route Table.
 - Action: Created kpimon.rt with the hardcoded E2Term IP.
 
@@ -2054,7 +2054,7 @@ rte|12010|10.244.0.44:38000  # <--- HARDCODED E2TERM IP
 newrt|end
 ```
 
-##### Step 3: Fix Database Connection (DBaaS Side)
+#### Step 3: Fix Database Connection (DBaaS Side)
 bypassed DNS lookup for the database by hardcoding the target IP directly into the deployment.
 - Retrieved the dbaas Pod IP (`10.244.0.15`) and injected it into the environment variables.
 
