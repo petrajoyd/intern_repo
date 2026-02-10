@@ -1946,82 +1946,9 @@ readinessProbe:
   port: 8080
 ```
 
-### Issue 1: E2 Terminator "Loopback" Failure
-
->[!Note]
-> Status: FIXED
-
-Despite applying the "Golden Chart" configuration above, the xApp fails to establish an RMR connection with the E2 Terminator.
-
-#### 1. Symptom:
-The xApp logs consistently show `open=0` (Connection Refused), even though we are targeting the correct IP and Port.
-
-```bash
-[INFO] sends: src=10.244.0.28:4560 target=10.244.0.8:38000 open=0
-```
-
-#### 2. Network Verification (Passed):
-We performed a manual port scan from inside the xApp container to verify the network path. The port is definitely open.
-
-```bash
-timeout 2 bash -c '</dev/tcp/10.244.0.8/38000' && echo "OPEN"
-# Output: OPEN
-```
-
-#### 3. Root Cause Analysis (E2 Terminator Logs):
-Inspection of the E2 Terminator logs (kubectl logs -n ricplt -l app=ricplt-e2term-alpha) reveals that the E2Term is routing messages to itself on non-existent ports, indicating a corrupted internal routing table or platform-level bug.
-
-```bash
-# E2Term sending messages to its own IP (10.244.0.8) on random ports:
-sends: src=...:38000 target=10.244.0.8:43441 open=0
-sends: src=...:38000 target=10.244.0.8:43774 open=0
-```
-
-### Issue 2: Database (`dbaas`) connection failure.
-
->[!Note]
-> Status: FIXED
-
-#### Symptoms
-The xApp starts but enters an infinite loop, refusing to initialize fully.
-```bash
-{"msg":"Database connection not ready, waiting ..."}
-{"msg":"Database connection not ready, waiting ..."}
-```
-
-#### Root Cause Analysis (DNS Failure)
-The xApp relies on the environment variable `DBAAS_SERVICE_HOST` which defaults to the hostname `service-ricplt-dbaas-tcp.ricplt`. Due to the unstable Cluster DNS (`CoreDNS`), the xApp could not resolve this hostname to an IP address, causing the SDL (`Shared Data Layer`) initialization to hang indefinitely.
-
-### Issue 3: App Manager Registration Failure & Redis Protocol Error
+### Issue 1: The "Zombie" E2 Terminator (RMR Handshake Fails)
 >[!Note]
 > Status: CRITICAL / BLOCKED
-
-#### Symptom:
-The xApp initializes but gets stuck in a registration loop, unable to register with the App Manager (`appmgr`).
-- xApp Logs:
-```json
-{"msg":"App registration is not done yet, sleep 5s and check again"}
-{"msg":"Create database failed!"}
-redis: got 7 elements in COMMAND reply, wanted 6
-```
-- App Manager Logs:
-```
-redis: got 7 elements in COMMAND reply, wanted 6
-```
-
-#### Root Cause Analysis (Protocol Mismatch):
-The log `redis: got 7 elements in COMMAND reply, wanted 6` is a definitive indicator of a driver incompatibility.
-- The Go Redis client library used in both the `kpimon-go` xApp (v1.0.1) and the `appmgr` is outdated or incompatible with the version of Redis (DBaaS) running in the cluster.
-- When either component tries to WRITE to the database (e.g., to store registration details), the Redis server returns a protocol response that the Go client cannot parse, causing a crash or a rejected request.
-
-#### Next Steps / Action Plan
-The standard infrastructure troubleshooting (network, DNS, config) is exhausted. The issue is internal to the container images/code.
-
-- Verify Compatibility: Confirm if `kpimon-go:1.0.1` is compatible with the deployed version of the RIC platform and Redis.
-- Rebuild/Update: The xApp (and likely the App Manager) needs to be recompiled with a newer Go Redis client library to support the current DBaaS version.
-- Check Fail-Fast Logic: Determine if the xApp can be configured to ignore SDL/DB errors on startup to at least allow RMR initialization to proceed.
-
-### Issue 4: The "Zombie" E2 Terminator (RMR Handshake Fails)
 
 #### Symptom
 xApp logs show `target=10.244.0.100:38000 open=0` (Connection Refused) indefinitely.
@@ -2029,18 +1956,7 @@ xApp logs show `target=10.244.0.100:38000 open=0` (Connection Refused) indefinit
 #### Root Causes Analysis
 Stale Route Table ("Ghost IP") The xApp uses a static route table file (`kpimon.rt`) to locate the E2 Terminator. When the E2 Terminator pod crashed (due to the Redis issue) and restarted, it was assigned a new IP address (`10.244.0.100`). The xApp, unaware of this change, continued trying to connect to the dead IP (10.244.0.44), resulting in lost packets.
 
-
-### Debugging Tries
-#### Issue 3 Debugging
->[!Caution]
-> This are all **Failed** Attempted fixes
-
-- Network Bypass: Configured xApp to talk directly to `appmgr` Pod IP. Result: Failed (AppMgr rejected request).
-- Manual Curl: Manually sent registration JSON via `curl`. Result: `400 Bad Request` (AppMgr failed to write to DB).
-- Mock Server Bypass: Deployed a "Fake AppMgr" (Mock) that replies `200 OK` and hijacked the Service DNS (`service-ricplt-appmgr-http`) to point to it. Result: Failed.
-  - Reason: The xApp itself is also suffering from the Redis error (`Create database failed!`). It likely fails to initialize its local SDL context before it even attempts the HTTP registration, or the registration thread crashes silently due to the DB error.
-
-#### Issue 4 Debugging
+#### Debugging Attempts
 >[!Caution]
 > This are all **Failed** Attempted fixes
 
@@ -2078,52 +1994,20 @@ round-trip min/avg/max = 0.077/0.152/0.296 ms
 If the Server is Listening and the Network is Healthy (for neighbors), but the Client (xApp) is Blocked, the root cause is a Kubernetes Network Policy or Firewall rule.
 - The cluster is blocking traffic crossing from the `ricxapp` namespace to the `ricplt` namespace on port 38000.
 
+### Issue 2: Database (`dbaas`) connection failure.
 
-### The fix "Identity & Routing Bypass"
-bypassed the broken DNS/Service discovery layer entirely by forcing Raw IP-based communication for all critical interfaces.
+>[!Note]
+> Status: FIXED
 
-#### Step 1: Fix Identity (xApp Side)
-We forced the xApp to identify itself by its Physical Pod IP instead of its hostname. This prevents the E2 Terminator from trying (and failing) to verify a DNS name.
-- Action: Updated `deployment.yaml` to use the Kubernetes Downward API.
-
+#### Symptoms
+The xApp starts but enters an infinite loop, refusing to initialize fully.
 ```bash
-- name: RMR_SRC_ID
-  valueFrom:
-    fieldRef:
-      fieldPath: status.podIP  # Forces Identity = 10.244.x.x
+{"msg":"Database connection not ready, waiting ..."}
+{"msg":"Database connection not ready, waiting ..."}
 ```
 
-#### Step 2: Fix E2 Routing (E2Term Side)
-ignored the dynamic Routing Manager (rtmgr) and injected a Static Route Table.
-- Action: Created kpimon.rt with the hardcoded E2Term IP.
-
-```bash
-newrt|start
-rte|12010|10.244.0.44:38000  # <--- HARDCODED E2TERM IP
-newrt|end
-```
-
-- **STATUS: VERIFIED.** `RMR is ready now ...`
-- Evidence: The file /opt/route/kpimon.rt inside the pod contains injected code
-
-#### Step 3: Fix Database Connection (DBaaS Side)
-bypassed DNS lookup for the database by hardcoding the target IP directly into the deployment.
-- Retrieved the dbaas Pod IP (`10.244.0.15`) and injected it into the environment variables.
-
-```bash
-- name: DBAAS_SERVICE_HOST
-  value: "10.244.0.15"       # <--- HARDCODED DB IP
-- name: DBAAS_SERVICE_PORT
-  value: "6379"
-```
-
-- Status: PARTIALLY VERIFIED (Environment Injected, but Connection Failed).
-- Evidence A (Success): The environment variables are correctly set inside the container:
-```bash
-DBAAS_SERVICE_HOST=10.244.0.15
-DBAAS_SERVICE_PORT=6379
-```
-- Evidence B (Failure): The logs DO NOT show `Connection to database established`.
+#### Root Cause Analysis (DNS Failure)
+The xApp relies on the environment variable `DBAAS_SERVICE_HOST` which defaults to the hostname `service-ricplt-dbaas-tcp.ricplt`. Due to the unstable Cluster DNS (`CoreDNS`), the xApp could not resolve this hostname to an IP address, causing the SDL (`Shared Data Layer`) initialization to hang indefinitely.
 
 #### Solution: Downgrade the Database
 We need to downgrade the DBaaS to a version that runs Redis 5. The standard stable version for the release era of your App Manager is `ric-plt-dbaas:0.5.0` or 0.2.2.
@@ -2220,3 +2104,95 @@ kubectl delete pod -n ricxapp -l app=kpimon-go --kubeconfig ~/.kube/config
 ```json
 {"ts":1770710055408,..."msg":"App registration is not done yet, sleep 5s and check again"
 ```
+
+### Issue 3: App Manager Registration Failure 
+>[!Note]
+> Status: CRITICAL / BLOCKED
+
+#### Symptom:
+The xApp initializes but gets stuck in a registration loop, unable to register with the App Manager (`appmgr`).
+- xApp Logs:
+```json
+{"ts":..., "crit":"DEBUG", "id":"kpimon", "msg":"App registration is not done yet, sleep 5s and check again"}
+{"ts":..., "crit":"ERROR", "id":"kpimon", "msg":"Create database failed!"}
+```
+- App Manager Logs:
+```
+[ERROR] redis: got 7 elements in COMMAND reply, wanted 6
+```
+
+#### Root Cause Analysis
+The failure is caused by a Redis Protocol Mismatch (Driver Incompatibility).
+1. The Error: redis: got 7 elements in COMMAND reply, wanted 6.
+2. The consequences
+  - App Manager: Cannot write the new xApp registration to the database. It rejects the HTTP POST request (or crashes internally) because its backend storage is inaccessible.
+  - xApp: Fails to initialize its own local SDL connection (`Create database failed!`), which is a prerequisite for functioning, and gets stuck retrying registration indefinitely.
+
+#### Issue 3 Debugging
+>[!Caution]
+> This are all **Failed** Attempted fixes. The issue masqueraded as a network problem, leading to wasted effort on connectivity troubleshooting.
+
+##### Attempt 1: Direct IP Bypass (Failed)
+
+- Hypothesis: DNS is broken, preventing xApp from resolving `service-ricplt-appmgr-http`.
+- Action: Hardcoded the App Manager's Pod IP (`10.244.x.x`) into the `PLT_APPMGR_SERVICE` variable.
+- Result: Connection was established, but the registration still failed (AppMgr likely returned 500 Internal Server Error due to DB crash).
+
+##### Attempt 2: FQDN Configuration (Failed)
+
+- Hypothesis: The xApp requires the full FQDN to resolve the service.
+- Action: Updated env var to `service-ricplt-appmgr-http.ricplt:8080`.
+- Result: No change. The request reached the server but was not processed successfully.
+
+##### Attempt 3: Manual Curl Registration (Failed)
+
+- Hypothesis: The xApp code is malformed; let's test the server manually.
+- Action: Sent a `POST` request to the App Manager manually from a debug pod.
+- Result: The App Manager logged the same Redis error (`got 7 elements`), confirming the server-side database connection was the bottleneck, not the client network path.
+
+### The fix "Identity & Routing Bypass"
+bypassed the broken DNS/Service discovery layer entirely by forcing Raw IP-based communication for all critical interfaces.
+
+#### Step 1: Fix Identity (xApp Side)
+We forced the xApp to identify itself by its Physical Pod IP instead of its hostname. This prevents the E2 Terminator from trying (and failing) to verify a DNS name.
+- Action: Updated `deployment.yaml` to use the Kubernetes Downward API.
+
+```bash
+- name: RMR_SRC_ID
+  valueFrom:
+    fieldRef:
+      fieldPath: status.podIP  # Forces Identity = 10.244.x.x
+```
+
+#### Step 2: Fix E2 Routing (E2Term Side)
+ignored the dynamic Routing Manager (rtmgr) and injected a Static Route Table.
+- Action: Created kpimon.rt with the hardcoded E2Term IP.
+
+```bash
+newrt|start
+rte|12010|10.244.0.44:38000  # <--- HARDCODED E2TERM IP
+newrt|end
+```
+
+- **STATUS: VERIFIED.** `RMR is ready now ...`
+- Evidence: The file /opt/route/kpimon.rt inside the pod contains injected code
+
+#### Step 3: Fix Database Connection (DBaaS Side)
+bypassed DNS lookup for the database by hardcoding the target IP directly into the deployment.
+- Retrieved the dbaas Pod IP (`10.244.0.15`) and injected it into the environment variables.
+
+```bash
+- name: DBAAS_SERVICE_HOST
+  value: "10.244.0.15"       # <--- HARDCODED DB IP
+- name: DBAAS_SERVICE_PORT
+  value: "6379"
+```
+
+- Status: PARTIALLY VERIFIED (Environment Injected, but Connection Failed).
+- Evidence A (Success): The environment variables are correctly set inside the container:
+```bash
+DBAAS_SERVICE_HOST=10.244.0.15
+DBAAS_SERVICE_PORT=6379
+```
+- Evidence B (Failure): The logs DO NOT show `Connection to database established`.
+
