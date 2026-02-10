@@ -2014,7 +2014,24 @@ The log `redis: got 7 elements in COMMAND reply, wanted 6` is a definitive indic
 - The Go Redis client library used in both the `kpimon-go` xApp (v1.0.1) and the `appmgr` is outdated or incompatible with the version of Redis (DBaaS) running in the cluster.
 - When either component tries to WRITE to the database (e.g., to store registration details), the Redis server returns a protocol response that the Go client cannot parse, causing a crash or a rejected request.
 
-#### Attempted Fixes (Failed)
+#### Next Steps / Action Plan
+The standard infrastructure troubleshooting (network, DNS, config) is exhausted. The issue is internal to the container images/code.
+
+- Verify Compatibility: Confirm if `kpimon-go:1.0.1` is compatible with the deployed version of the RIC platform and Redis.
+- Rebuild/Update: The xApp (and likely the App Manager) needs to be recompiled with a newer Go Redis client library to support the current DBaaS version.
+- Check Fail-Fast Logic: Determine if the xApp can be configured to ignore SDL/DB errors on startup to at least allow RMR initialization to proceed.
+
+### Issue 4: The "Zombie" E2 Terminator (RMR Handshake Fails)
+
+#### Symptom
+xApp logs show `target=10.244.0.100:38000 open=0` (Connection Refused) indefinitely.
+
+#### Root Causes Analysis
+Stale Route Table ("Ghost IP") The xApp uses a static route table file (`kpimon.rt`) to locate the E2 Terminator. When the E2 Terminator pod crashed (due to the Redis issue) and restarted, it was assigned a new IP address (`10.244.0.100`). The xApp, unaware of this change, continued trying to connect to the dead IP (10.244.0.44), resulting in lost packets.
+
+
+### Debugging Tries
+#### Issue 3 Debugging
 >[!Caution]
 > This are all **Failed** Attempted fixes
 
@@ -2023,12 +2040,44 @@ The log `redis: got 7 elements in COMMAND reply, wanted 6` is a definitive indic
 - Mock Server Bypass: Deployed a "Fake AppMgr" (Mock) that replies `200 OK` and hijacked the Service DNS (`service-ricplt-appmgr-http`) to point to it. Result: Failed.
   - Reason: The xApp itself is also suffering from the Redis error (`Create database failed!`). It likely fails to initialize its local SDL context before it even attempts the HTTP registration, or the registration thread crashes silently due to the DB error.
 
-#### Next Steps / Action Plan
-The standard infrastructure troubleshooting (network, DNS, config) is exhausted. The issue is internal to the container images/code.
+#### Issue 4 Debugging
+>[!Caution]
+> This are all **Failed** Attempted fixes
 
-- Verify Compatibility: Confirm if `kpimon-go:1.0.1` is compatible with the deployed version of the RIC platform and Redis.
-- Rebuild/Update: The xApp (and likely the App Manager) needs to be recompiled with a newer Go Redis client library to support the current DBaaS version.
-- Check Fail-Fast Logic: Determine if the xApp can be configured to ignore SDL/DB errors on startup to at least allow RMR initialization to proceed.
+##### The "Ghost IP" Check (Failed)
+Suspected the xApp was targeting an old, dead IP address of a previous E2 Terminator pod.
+- Action: Forced a "Hard Reset" of the E2 Terminator (`kubectl delete pod ... --force`).
+- Result: The E2Term got a new IP (`10.244.0.100`). We updated the xApp route table.
+- Outcome: **FAILURE**. xApp still logged `target=10.244.0.100:38000 open=0`.
+
+#### The "Listening" Test (Passed)
+Suspected the E2 Terminator application inside the pod was frozen or dead, even though the Pod was "Running".
+- Action: Executed `netstat` inside the E2 Terminator pod.
+```bash
+joy@joy-virtual-machine:~$ kubectl exec -it -n ricplt $E2_POD --kubeconfig ~/.kube/config -- netstat -tuln | grep 38000
+tcp        0      0 0.0.0.0:38000           0.0.0.0:*               LISTEN
+```
+
+
+##### The "Neighbor" Ping Test (Passed)
+suspected the Cluster Network (CNI/Calico) was broken for that specific IP.
+- Action: Used a "Neighbor" pod (The Database in ricplt) to ping the E2 Terminator.
+```bash
+joy@joy-virtual-machine:~$ kubectl exec -it -n ricplt statefulset-ricplt-dbaas-server-0 --kubeconfig ~/.kube/config -- ping -c 3 $TARGET_IP
+PING 10.244.0.100 (10.244.0.100): 56 data bytes
+64 bytes from 10.244.0.100: seq=0 ttl=64 time=0.296 ms
+64 bytes from 10.244.0.100: seq=1 ttl=64 time=0.085 ms
+64 bytes from 10.244.0.100: seq=2 ttl=64 time=0.077 ms
+
+--- 10.244.0.100 ping statistics ---
+3 packets transmitted, 3 packets received, 0% packet loss
+round-trip min/avg/max = 0.077/0.152/0.296 ms
+```
+
+##### The Conclusion (Firewall/Policy Block)
+If the Server is Listening and the Network is Healthy (for neighbors), but the Client (xApp) is Blocked, the root cause is a Kubernetes Network Policy or Firewall rule.
+- The cluster is blocking traffic crossing from the `ricxapp` namespace to the `ricplt` namespace on port 38000.
+
 
 ### The fix "Identity & Routing Bypass"
 bypassed the broken DNS/Service discovery layer entirely by forcing Raw IP-based communication for all critical interfaces.
@@ -2070,8 +2119,104 @@ bypassed DNS lookup for the database by hardcoding the target IP directly into t
 
 - Status: PARTIALLY VERIFIED (Environment Injected, but Connection Failed).
 - Evidence A (Success): The environment variables are correctly set inside the container:
-```
+```bash
 DBAAS_SERVICE_HOST=10.244.0.15
 DBAAS_SERVICE_PORT=6379
 ```
 - Evidence B (Failure): The logs DO NOT show `Connection to database established`.
+
+#### Solution: Downgrade the Database
+We need to downgrade the DBaaS to a version that runs Redis 5. The standard stable version for the release era of your App Manager is `ric-plt-dbaas:0.5.0` or 0.2.2.
+
+```bash
+joy@joy-virtual-machine:~$ kubectl patch statefulset -n ricplt statefulset-ricplt-dbaas-server \
+>   --type='json' \
+>   -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "nexus3.o-ran-sc.org:10002/o-ran-sc/ric-plt-dbaas:0.5.0"}]' \
+>   --kubeconfig ~/.kube/config
+statefulset.apps/statefulset-ricplt-dbaas-server patched
+```
+
+- verify the result
+```bash
+joy@joy-virtual-machine:~$ kubectl get pod -n ricplt statefulset-ricplt-dbaas-server-0 -o jsonpath="{.spec.containers[*].image}" --kubeconfig ~/.kube/config
+nexus3.o-ran-sc.org:10002/o-ran-sc/ric-plt-dbaas:0.5.0j <--- THE DOWNGRADE VER.
+```
+
+- Get the New DBaaS IP, Update the xApp with the New DB IP, Apply And Restart
+```bash
+# --- REPLACE THIS WITH THE NEW DB IP ---
+export NEW_DB_IP="10.244.0.XX" 
+
+# Update deployment.yaml
+cat << EOF > ~/my-chart/kpimon-go/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kpimon-go
+  namespace: ricxapp
+  labels:
+    app: kpimon-go
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kpimon-go
+  template:
+    metadata:
+      labels:
+        app: kpimon-go
+    spec:
+      containers:
+      - name: kpimon-go
+        image: localhost:5001/kpimon-go:1.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4560
+          protocol: TCP
+        env:
+        # --- UPDATED DB IP ---
+        - name: DBAAS_SERVICE_HOST
+          value: "$NEW_DB_IP"
+        - name: DBAAS_SERVICE_PORT
+          value: "6379"
+          
+        # RMR / RIC Config
+        - name: RMR_BIND_IF
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: RMR_RTG_SVC
+          value: "4561"
+        - name: RMR_SRC_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: RMR_SEED_RT
+          value: "/opt/route/kpimon.rt"
+        - name: PLT_NAMESPACE
+          value: "ricplt"
+        volumeMounts:
+        - name: route-volume
+          mountPath: /opt/route
+      volumes:
+      - name: route-volume
+        configMap:
+          name: kpimon-routes
+EOF
+
+# Apply and Restart
+helm upgrade --install kpimon-go ~/my-chart/kpimon-go -n ricxapp --kubeconfig ~/.kube/config
+kubectl delete pod -n ricxapp -l app=kpimon-go --kubeconfig ~/.kube/config
+```
+
+- Database Connection: **FIXED**
+  
+```json
+{"ts":1770710035404,..."","time":"2026-02-10T07:53:55"},"msg":"Connection to database established!"}
+```
+
+- Registration: STILL WAITING.
+
+```json
+{"ts":1770710055408,..."msg":"App registration is not done yet, sleep 5s and check again"
+```
