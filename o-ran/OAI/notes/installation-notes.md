@@ -1635,20 +1635,20 @@ local/ric-common        3.3.2                           Common templates for inc
 ```bash
 joy@joy-virtual-machine:~/ric-dep/bin$ ls ../RECIPE_EXAMPLE
 
-example_recipe_latest_stable.yaml
-example_recipe_latest_unstable_with_refs_to_staging.yaml
-example_recipe_latest_unstable.yaml
-example_recipe_oran_cherry_release.yaml
-example_recipe_oran_dawn_release.yaml
-example_recipe_oran_e_release.yaml
-example_recipe_oran_f_release.yaml
-example_recipe_oran_g_release.yaml
-example_recipe_oran_h_release.yaml
-example_recipe_oran_i_release.yaml
-example_recipe_oran_j_release.yaml
-example_recipe_oran_k_release.yaml
-example_recipe_oran_l_release.yaml # Our Recipe File (Rel-L)
-example_recipe_oran_m_release.yaml
+# example_recipe_latest_stable.yaml
+# example_recipe_latest_unstable_with_refs_to_staging.yaml
+# example_recipe_latest_unstable.yaml
+# example_recipe_oran_cherry_release.yaml
+# example_recipe_oran_dawn_release.yaml
+# example_recipe_oran_e_release.yaml
+# example_recipe_oran_f_release.yaml
+# example_recipe_oran_g_release.yaml
+# example_recipe_oran_h_release.yaml
+# example_recipe_oran_i_release.yaml
+# example_recipe_oran_j_release.yaml
+# example_recipe_oran_k_release.yaml
+# example_recipe_oran_l_release.yaml # Our Recipe File (Rel-L)
+# example_recipe_oran_m_release.yaml
 ```
 
 ### 3.2.2 Copy And Configure The Recipe File
@@ -1723,20 +1723,20 @@ Make sure all Pods are running (or atleast the crucial ones)
 ```bash
 joy@joy-virtual-machine:~/ric-app-hw-go$ kubectl get pods -n ricplt
 
-NAME                                                         READY   STATUS    RESTARTS      AGE
-deployment-ricplt-a1mediator-64fd4bf64-pfsrz                 1/1     Running   3 (23h ago)   23h
-deployment-ricplt-alarmmanager-7d47d8f4d4-lcww7              1/1     Running   0             23h
-deployment-ricplt-appmgr-79848f94c-4fgv7                     1/1     Running   0             23h
-deployment-ricplt-e2mgr-856f655b4-pk8mc                      1/1     Running   5 (23h ago)   23h
-deployment-ricplt-e2term-alpha-d5fd5d9c6-7qn99               1/1     Running   1 (23h ago)   23h
-deployment-ricplt-o1mediator-76c4646878-gjxwc                1/1     Running   0             23h
-deployment-ricplt-rtmgr-6556c5bc7b-nftbj                     1/1     Running   2 (23h ago)   23h
-deployment-ricplt-submgr-66485ccc6c-x975w                    1/1     Running   4 (23h ago)   23h
-deployment-ricplt-vespamgr-786666549b-zxp8j                  1/1     Running   0             23h
-r4-infrastructure-kong-5986fc7965-kp7tl                      2/2     Running   0             23h
-r4-infrastructure-prometheus-alertmanager-64f9876d6d-cln8g   2/2     Running   0             23h
-r4-infrastructure-prometheus-server-bcc8cc897-nk544          1/1     Running   0             23h
-statefulset-ricplt-dbaas-server-0                            1/1     Running   0             23h
+# NAME                                                         READY   STATUS    RESTARTS      AGE
+# deployment-ricplt-a1mediator-64fd4bf64-pfsrz                 1/1     Running   3 (23h ago)   23h
+# deployment-ricplt-alarmmanager-7d47d8f4d4-lcww7              1/1     Running   0             23h
+# deployment-ricplt-appmgr-79848f94c-4fgv7                     1/1     Running   0             23h
+# deployment-ricplt-e2mgr-856f655b4-pk8mc                      1/1     Running   5 (23h ago)   23h
+# deployment-ricplt-e2term-alpha-d5fd5d9c6-7qn99               1/1     Running   1 (23h ago)   23h
+# deployment-ricplt-o1mediator-76c4646878-gjxwc                1/1     Running   0             23h
+# deployment-ricplt-rtmgr-6556c5bc7b-nftbj                     1/1     Running   2 (23h ago)   23h
+# deployment-ricplt-submgr-66485ccc6c-x975w                    1/1     Running   4 (23h ago)   23h
+# deployment-ricplt-vespamgr-786666549b-zxp8j                  1/1     Running   0             23h
+# r4-infrastructure-kong-5986fc7965-kp7tl                      2/2     Running   0             23h
+# r4-infrastructure-prometheus-alertmanager-64f9876d6d-cln8g   2/2     Running   0             23h
+# r4-infrastructure-prometheus-server-bcc8cc897-nk544          1/1     Running   0             23h
+# statefulset-ricplt-dbaas-server-0                            1/1     Running   0             23h
 ```
 #### Success Criteria:
 - `deployment-ricplt-e2term-alpha`: Running (Crucial for gNB connection)
@@ -1747,32 +1747,33 @@ statefulset-ricplt-dbaas-server-0                            1/1     Running   0
 Ensure the internal Kubernetes services are available for the xApp to target.
 ```bash
 joy@joy-virtual-machine:~/kpimon-go$ kubectl get svc -n ricplt
-NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
-aux-entry                                   ClusterIP      10.101.137.136   <none>        80/TCP,443/TCP                  23h
-r4-infrastructure-kong-manager              NodePort       10.111.74.8      <none>        8002:31833/TCP,8445:32481/TCP   23h
-r4-infrastructure-kong-proxy                LoadBalancer   10.109.211.174   <pending>     80:32080/TCP,443:32443/TCP      23h
-r4-infrastructure-kong-validation-webhook   ClusterIP      10.110.121.26    <none>        443/TCP                         23h
-r4-infrastructure-prometheus-alertmanager   ClusterIP      10.98.235.220    <none>        80/TCP                          23h
-r4-infrastructure-prometheus-server         ClusterIP      10.109.240.64    <none>        80/TCP                          23h
-service-ricplt-a1mediator-http              ClusterIP      10.105.171.226   <none>        10000/TCP                       23h
-service-ricplt-a1mediator-rmr               ClusterIP      10.105.63.15     <none>        4561/TCP,4562/TCP               23h
-service-ricplt-alarmmanager-http            ClusterIP      10.103.19.96     <none>        8080/TCP                        23h
-service-ricplt-alarmmanager-rmr             ClusterIP      10.103.101.172   <none>        4560/TCP,4561/TCP               23h
-service-ricplt-appmgr-http                  ClusterIP      10.96.219.22     <none>        8080/TCP                        23h
-service-ricplt-appmgr-rmr                   ClusterIP      10.107.37.239    <none>        4561/TCP,4560/TCP               23h
-service-ricplt-dbaas-tcp                    ClusterIP      None             <none>        6379/TCP                        23h
-service-ricplt-e2mgr-http                   ClusterIP      10.108.140.35    <none>        3800/TCP                        23h
-service-ricplt-e2mgr-rmr                    ClusterIP      10.105.21.183    <none>        4561/TCP,3801/TCP               23h
-service-ricplt-e2term-prometheus-alpha      ClusterIP      10.110.148.38    <none>        8088/TCP                        23h
-service-ricplt-e2term-rmr-alpha             ClusterIP      10.106.64.145    <none>        4561/TCP,38000/TCP              23h
-service-ricplt-e2term-sctp-alpha            NodePort       10.103.8.27      <none>        36422:32222/SCTP                23h
-service-ricplt-o1mediator-http              ClusterIP      10.108.154.58    <none>        9001/TCP,8080/TCP,3000/TCP      23h
-service-ricplt-o1mediator-tcp-netconf       NodePort       10.100.112.109   <none>        830:30830/TCP                   23h
-service-ricplt-rtmgr-http                   ClusterIP      10.111.22.179    <none>        3800/TCP                        23h
-service-ricplt-rtmgr-rmr                    ClusterIP      10.98.75.39      <none>        4561/TCP,4560/TCP               23h
-service-ricplt-submgr-http                  ClusterIP      None             <none>        3800/TCP                        23h
-service-ricplt-submgr-rmr                   ClusterIP      None             <none>        4560/TCP,4561/TCP               23h
-service-ricplt-vespamgr-http                ClusterIP      10.103.154.193   <none>        8080/TCP,9095/TCP               23h
+
+# NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+# aux-entry                                   ClusterIP      10.101.137.136   <none>        80/TCP,443/TCP                  23h
+# r4-infrastructure-kong-manager              NodePort       10.111.74.8      <none>        8002:31833/TCP,8445:32481/TCP   23h
+# r4-infrastructure-kong-proxy                LoadBalancer   10.109.211.174   <pending>     80:32080/TCP,443:32443/TCP      23h
+# r4-infrastructure-kong-validation-webhook   ClusterIP      10.110.121.26    <none>        443/TCP                         23h
+# r4-infrastructure-prometheus-alertmanager   ClusterIP      10.98.235.220    <none>        80/TCP                          23h
+# r4-infrastructure-prometheus-server         ClusterIP      10.109.240.64    <none>        80/TCP                          23h
+# service-ricplt-a1mediator-http              ClusterIP      10.105.171.226   <none>        10000/TCP                       23h
+# service-ricplt-a1mediator-rmr               ClusterIP      10.105.63.15     <none>        4561/TCP,4562/TCP               23h
+# service-ricplt-alarmmanager-http            ClusterIP      10.103.19.96     <none>        8080/TCP                        23h
+# service-ricplt-alarmmanager-rmr             ClusterIP      10.103.101.172   <none>        4560/TCP,4561/TCP               23h
+# service-ricplt-appmgr-http                  ClusterIP      10.96.219.22     <none>        8080/TCP                        23h
+# service-ricplt-appmgr-rmr                   ClusterIP      10.107.37.239    <none>        4561/TCP,4560/TCP               23h
+# service-ricplt-dbaas-tcp                    ClusterIP      None             <none>        6379/TCP                        23h
+# service-ricplt-e2mgr-http                   ClusterIP      10.108.140.35    <none>        3800/TCP                        23h
+# service-ricplt-e2mgr-rmr                    ClusterIP      10.105.21.183    <none>        4561/TCP,3801/TCP               23h
+# service-ricplt-e2term-prometheus-alpha      ClusterIP      10.110.148.38    <none>        8088/TCP                        23h
+# service-ricplt-e2term-rmr-alpha             ClusterIP      10.106.64.145    <none>        4561/TCP,38000/TCP              23h
+# service-ricplt-e2term-sctp-alpha            NodePort       10.103.8.27      <none>        36422:32222/SCTP                23h
+# service-ricplt-o1mediator-http              ClusterIP      10.108.154.58    <none>        9001/TCP,8080/TCP,3000/TCP      23h
+# service-ricplt-o1mediator-tcp-netconf       NodePort       10.100.112.109   <none>        830:30830/TCP                   23h
+# service-ricplt-rtmgr-http                   ClusterIP      10.111.22.179    <none>        3800/TCP                        23h
+# service-ricplt-rtmgr-rmr                    ClusterIP      10.98.75.39      <none>        4561/TCP,4560/TCP               23h
+# service-ricplt-submgr-http                  ClusterIP      None             <none>        3800/TCP                        23h
+# service-ricplt-submgr-rmr                   ClusterIP      None             <none>        4560/TCP,4561/TCP               23h
+# service-ricplt-vespamgr-http                ClusterIP      10.103.154.193   <none>        8080/TCP,9095/TCP               23h
 ```
 #### Critical Services to Check:
 - service-ricplt-e2term-rmr-alpha (Target for Subscription Requests)
@@ -1783,11 +1784,12 @@ service-ricplt-vespamgr-http                ClusterIP      10.103.154.193   <non
 
 ```bash
 joy@joy-virtual-machine:~$ git clone "https://gerrit.o-ran-sc.org/r/ric-app/kpimon-go"
-Cloning into 'kpimon-go'...
-remote: Counting objects: 1, done
-remote: Total 1635 (delta 0), reused 1635 (delta 0)
-Receiving objects: 100% (1635/1635), 6.33 MiB | 3.56 MiB/s, done.
-Resolving deltas: 100% (1143/1143), done.
+
+# Cloning into 'kpimon-go'...
+# remote: Counting objects: 1, done
+# remote: Total 1635 (delta 0), reused 1635 (delta 0)
+# Receiving objects: 100% (1635/1635), 6.33 MiB | 3.56 MiB/s, done.
+# Resolving deltas: 100% (1143/1143), done.
 ```
 
 ### 3.4.3 Build The Docker Image Locally
@@ -1796,22 +1798,23 @@ We will build the image and tag it as `local` to distinguish it from remote vers
 ```bash
 joy@joy-virtual-machine:~/kpimon-go$ sudo docker build -t kpimon-go:local .
 
-Step 37/38 : COPY entripoint.sh entripoint.sh
- ---> 6bc4d202caea
-Step 38/38 : ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","./entripoint.sh"]
- ---> Running in a08900cc6ab4
-Removing intermediate container a08900cc6ab4
- ---> a0bde5614880
-Successfully built a0bde5614880
-Successfully tagged kpimon-go:local
+# Step 37/38 : COPY entripoint.sh entripoint.sh
+#  ---> 6bc4d202caea
+# Step 38/38 : ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","./entripoint.sh"]
+#  ---> Running in a08900cc6ab4
+# Removing intermediate container a08900cc6ab4
+#  ---> a0bde5614880
+# Successfully built a0bde5614880
+# Successfully tagged kpimon-go:local
 ```
 
 #### Verification: 
 Run `sudo docker images | grep kpimon`. You should see `kpimon-go:local`.
 ```bash
 joy@joy-virtual-machine:~/kpimon-go$ sudo docker images | grep kpimon
-[sudo] password for joy:
-kpimon-go                                               local     a0bde5614880   8 minutes ago   3.03GB
+
+# [sudo] password for joy:
+# kpimon-go                                               local     a0bde5614880   8 minutes ago   3.03GB
 ```
 
 
@@ -1822,16 +1825,13 @@ You must manually export the image from Docker and import it into the Kubernetes
 # 1. Save to tarball
 joy@joy-virtual-machine:~/kpimon-go$ sudo docker save kpimon-go:local -o kpimon-go.tar
 
-
-
-
 # 2. Import To Kubernetes
 joy@joy-virtual-machine:~/kpimon-go$ sudo ctr -n k8s.io images import kpimon-go.tar
-unpacking docker.io/library/kpimon-go:local (sha256:136c2b663d45b7df10b36060c69be5306634f58811258716129b279832998700)...done
+# unpacking docker.io/library/kpimon-go:local (sha256:136c2b663d45b7df10b36060c69be5306634f58811258716129b279832998700)...done
 
 # 3. Verify Availability
 joy@joy-virtual-machine:~/kpimon-go$ sudo crictl images | grep kpimon
-docker.io/library/kpimon-go                               local               a0bde56148807       3.06GB
+# docker.io/library/kpimon-go                               local               a0bde56148807       3.06GB
 ```
 
 ### 3.4.5 Constructing the "Golden" Helm Chart
@@ -1971,7 +1971,7 @@ Suspected the E2 Terminator application inside the pod was frozen or dead, even 
 - Action: Executed `netstat` inside the E2 Terminator pod.
 ```bash
 joy@joy-virtual-machine:~$ kubectl exec -it -n ricplt $E2_POD --kubeconfig ~/.kube/config -- netstat -tuln | grep 38000
-tcp        0      0 0.0.0.0:38000           0.0.0.0:*               LISTEN
+# tcp        0      0 0.0.0.0:38000           0.0.0.0:*               LISTEN
 ```
 
 
@@ -1980,14 +1980,15 @@ suspected the Cluster Network (CNI/Calico) was broken for that specific IP.
 - Action: Used a "Neighbor" pod (The Database in ricplt) to ping the E2 Terminator.
 ```bash
 joy@joy-virtual-machine:~$ kubectl exec -it -n ricplt statefulset-ricplt-dbaas-server-0 --kubeconfig ~/.kube/config -- ping -c 3 $TARGET_IP
-PING 10.244.0.100 (10.244.0.100): 56 data bytes
-64 bytes from 10.244.0.100: seq=0 ttl=64 time=0.296 ms
-64 bytes from 10.244.0.100: seq=1 ttl=64 time=0.085 ms
-64 bytes from 10.244.0.100: seq=2 ttl=64 time=0.077 ms
 
---- 10.244.0.100 ping statistics ---
-3 packets transmitted, 3 packets received, 0% packet loss
-round-trip min/avg/max = 0.077/0.152/0.296 ms
+# PING 10.244.0.100 (10.244.0.100): 56 data bytes
+# 64 bytes from 10.244.0.100: seq=0 ttl=64 time=0.296 ms
+# 64 bytes from 10.244.0.100: seq=1 ttl=64 time=0.085 ms
+# 64 bytes from 10.244.0.100: seq=2 ttl=64 time=0.077 ms
+
+# --- 10.244.0.100 ping statistics ---
+# 3 packets transmitted, 3 packets received, 0% packet loss
+# round-trip min/avg/max = 0.077/0.152/0.296 ms
 ```
 
 ##### The Conclusion (Firewall/Policy Block)
@@ -2017,13 +2018,13 @@ joy@joy-virtual-machine:~$ kubectl patch statefulset -n ricplt statefulset-ricpl
 >   --type='json' \
 >   -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/image", "value": "nexus3.o-ran-sc.org:10002/o-ran-sc/ric-plt-dbaas:0.5.0"}]' \
 >   --kubeconfig ~/.kube/config
-statefulset.apps/statefulset-ricplt-dbaas-server patched
+# statefulset.apps/statefulset-ricplt-dbaas-server patched
 ```
 
 - verify the result
 ```bash
 joy@joy-virtual-machine:~$ kubectl get pod -n ricplt statefulset-ricplt-dbaas-server-0 -o jsonpath="{.spec.containers[*].image}" --kubeconfig ~/.kube/config
-nexus3.o-ran-sc.org:10002/o-ran-sc/ric-plt-dbaas:0.5.0j <--- THE DOWNGRADE VER.
+# nexus3.o-ran-sc.org:10002/o-ran-sc/ric-plt-dbaas:0.5.0j <--- THE DOWNGRADE VER.
 ```
 
 - Get the New DBaaS IP, Update the xApp with the New DB IP, Apply And Restart
@@ -2157,7 +2158,7 @@ bypassed the broken DNS/Service discovery layer entirely by forcing Raw IP-based
 We forced the xApp to identify itself by its Physical Pod IP instead of its hostname. This prevents the E2 Terminator from trying (and failing) to verify a DNS name.
 - Action: Updated `deployment.yaml` to use the Kubernetes Downward API.
 
-```bash
+```yaml
 - name: RMR_SRC_ID
   valueFrom:
     fieldRef:
@@ -2168,7 +2169,7 @@ We forced the xApp to identify itself by its Physical Pod IP instead of its host
 ignored the dynamic Routing Manager (rtmgr) and injected a Static Route Table.
 - Action: Created kpimon.rt with the hardcoded E2Term IP.
 
-```bash
+```yaml
 newrt|start
 rte|12010|10.244.0.44:38000  # <--- HARDCODED E2TERM IP
 newrt|end
@@ -2181,7 +2182,7 @@ newrt|end
 bypassed DNS lookup for the database by hardcoding the target IP directly into the deployment.
 - Retrieved the dbaas Pod IP (`10.244.0.15`) and injected it into the environment variables.
 
-```bash
+```yaml
 - name: DBAAS_SERVICE_HOST
   value: "10.244.0.15"       # <--- HARDCODED DB IP
 - name: DBAAS_SERVICE_PORT
@@ -2190,9 +2191,510 @@ bypassed DNS lookup for the database by hardcoding the target IP directly into t
 
 - Status: PARTIALLY VERIFIED (Environment Injected, but Connection Failed).
 - Evidence A (Success): The environment variables are correctly set inside the container:
-```bash
+```yaml
 DBAAS_SERVICE_HOST=10.244.0.15
 DBAAS_SERVICE_PORT=6379
 ```
 - Evidence B (Failure): The logs DO NOT show `Connection to database established`.
 
+>[!Caution]
+> KPIMON-GO continues to fail on internal handshake and Redis protocol errors
+
+### Executive Summary
+We are trying to deploy the `kpimon-go` xApp on the O-RAN RIC. We faced crashes, fixed them, and are now blocked by Software Incompatibility, not network issues.
+
+- The Crash (Fixed): The Database (`dbaas`) was crashing. We fixed this by downgrading it to Redis 5.
+- The Zombie E2Term (Diagnosed): The xApp could not talk to the E2 Terminator (open=0).
+  - We proved the Network is Perfect (Ping works, Ports are Open, Reverse connection works).
+  - We proved the E2Term is Healthy (SCTP port 36422 is listening).
+  - Conclusion: The E2 Terminator is choosing to reject the xApp's handshake, likely because the xApp's RMR version is too old or incompatible.
+- The AppMgr Loop (Diagnosed): The xApp cannot register.
+  - Error: redis: got 7 elements... wanted 6.
+  - Conclusion: The App Manager code is too old for the Database. It speaks "Redis 5" but the DB is replying with "Redis 6" format.
+
+
+>[!Note]
+> We switch into `helloworld-xapp`
+
+## 3.5 helloworld-xApp Onboarding
+
+### 3.5.1 Backup KPIMON-GO Works
+We fixed the DB IP, the Route Table, and the RMR binding in `kpimon-go`. We might need to copy those exact values to `helloworld`.
+
+```bash
+mkdir -p ~/backups/kpimon-network-fixed
+cp -r ~/my-chart/kpimon-go/* ~/backups/kpimon-network-fixed/
+echo "Backup secure."
+
+# Backup secure.
+```
+
+### 3.5.2 Create the `helloworld` Directory
+
+- Create the folder structure
+
+```bash 
+joy@joy-virtual-machine:~$ mkdir -p ~/my-chart/helloworld-xapp/templates
+```
+
+- Create the Chart.yaml
+
+```yaml
+cat << EOF > ~/my-chart/helloworld-xapp/Chart.yaml
+apiVersion: v1
+name: helloworld-xapp
+version: 0.0.1
+description: A simple xApp to verify RIC connectivity
+EOF
+```
+
+- Create the values.yaml
+
+```yaml
+cat << EOF > ~/my-chart/helloworld-xapp/values.yaml
+image:
+  repository: nexus3.o-ran-sc.org:10002/o-ran-sc/ric-app-hw-go
+  tag: 1.0.1  
+  pullPolicy: IfNotPresent
+
+ricplt:
+  # We will use the SAME DB and E2Term IPs
+  dbaasServiceHost: 10.244.0.15
+  dbaasServicePort: 6379
+  e2termServiceHost: 10.244.0.100   
+  e2termServicePort: 38000
+EOF
+```
+
+- Create the Route Table (ConfigMap)
+>[!Warning]
+> Change `namespace=ricxapp`
+
+```yaml
+cat << EOF > ~/my-chart/helloworld-xapp/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: helloworld-routes
+  namespace: ricplt # <-- To prove KPIMON-GO broken (Later change to ricxapp)
+data:
+  # We use the E2Term IP we just verified: 10.244.0.100
+  helloworld.rt: |
+    newrt|start
+    rte|12010|10.244.0.100:38000
+    rte|10090|10.244.0.100:38000
+    newrt|end
+EOF
+```
+
+### 3.5.3 Deploy The App
+Using the public `ric-app-hw-go` image for now
+
+```bash
+### Saving DB's IP
+joy@joy-virtual-machine:~$ export DB_IP=$(kubectl get pod -n ricplt statefulset-ricplt-dbaas-server-0 -o jsonpath='{.status.podIP}' --kubeconfig ~/.kube/config)
+```
+
+update deployment.yaml (applying `RMR_BIND_IF=0.0.0.0` fix)
+
+>[!Warning]
+> Change `namespace=ricxapp`
+
+```yaml
+cat << EOF > ~/my-chart/helloworld-xapp/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-xapp
+  namespace: ricplt # <-- Change this
+  labels:
+    app: helloworld-xapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworld-xapp
+  template:
+    metadata:
+      labels:
+        app: helloworld-xapp
+    spec:
+      containers:
+      - name: helloworld-xapp
+        image: nexus3.o-ran-sc.org:10002/o-ran-sc/ric-app-hw-go:1.0.1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 4560
+          protocol: TCP
+        env:
+        # --- DATABASE CONNECTION ---
+        - name: DBAAS_SERVICE_HOST
+          value: "$DB_IP"
+        - name: DBAAS_SERVICE_PORT
+          value: "6379"
+          
+        # --- RMR CONFIGURATION (THE FIXES) ---
+        - name: RMR_BIND_IF
+          value: "0.0.0.0"       # <--- The "Universal Bind" Fix
+        - name: RMR_RTG_SVC
+          value: "4561"
+        - name: RMR_SRC_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: RMR_SEED_RT
+          value: "/opt/route/helloworld.rt"
+        - name: PLT_NAMESPACE
+          value: "ricplt"
+          
+        volumeMounts:
+        - name: route-volume
+          mountPath: /opt/route
+      volumes:
+      - name: route-volume
+        configMap:
+          name: helloworld-routes
+EOF
+```
+
+Deploy the xApp
+
+```bash
+joy@joy-virtual-machine:~$ helm install helloworld-xapp ~/my-chart/helloworld-xapp -n ricplt --kubeconfig ~/.kube/config
+
+# NAME: helloworld-xapp
+# LAST DEPLOYED: Wed Feb 11 18:13:09 2026
+# NAMESPACE: ricplt
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None 
+```
+
+Check the "Events" to see exactly what it is doing (bonus move)
+
+```bash
+joy@joy-virtual-machine:~$ kubectl describe pod -n ricplt -l app=helloworld-xapp --kubeconfig ~/.kube/config
+
+# --- Expected Output --- 
+# Name:             helloworld-xapp-dd5f8666d-ch9l5
+# Namespace:        ricplt
+# Priority:         0
+# Service Account:  default
+# Node:             joy-virtual-machine/192.168.8.38
+# Start Time:       Wed, 11 Feb 2026 18:15:02 +0800
+# Labels:           app=helloworld-xapp
+
+# Events:
+#   Type    Reason     Age   From               Message
+#   ----    ------     ----  ----               -------
+#   Normal  Scheduled  72s   default-scheduler  Successfully assigned ricplt/helloworld-xapp-dd5f8666d-ch9l5 to joy-virtual-machine
+#   Normal  Pulling    71s   kubelet            Pulling image "nexus3.o-ran-sc.org:10002/o-ran-sc/ric-app-hw-go:1.0.1"
+#   Normal  Pulled     10s   kubelet            Successfully pulled image "nexus3.o-ran-sc.org:10002/o-ran-sc/ric-app-hw-go:1.0.1" in 1m1.475s (1m1.475s including waiting)
+#   Normal  Created    9s    kubelet            Created container helloworld-xapp
+#   Normal  Started    9s    kubelet            Started container helloworld-xapp
+```
+
+verify log
+
+```bash
+joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=helloworld-xapp --follow --tail=50 --kubeconfig ~/.kube/config
+
+# --- Expected Output ---
+# joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=helloworld-xapp --follow --tail=50 --kubeconfig ~/.kube/config
+# {"ts":1770804965182,"crit":"INFO","id":"hw-app","mdc":{"time":"2026-02-11T10:16:05"},"msg":"Using config file: config/config-file.json"}
+# 1770804965 7/RMR [INFO] ric message routing library on SI95 p=4560 mv=3 flg=00 (fd4477a 4.5.2 built: Jan 21 2021)
+# 1770804966 7/RMR [INFO] sends: ts=1770804966 src=10.244.0.111:4560 target=localhost:4591 open=0 succ=0 fail=0 (hard=0 soft=0)
+# 1770804966 7/RMR [INFO] sends: ts=1770804966 src=10.244.0.111:4560 target=localhost:4560 open=0 succ=0 fail=0 (hard=0 soft=0)
+# 1770804966 7/RMR [INFO] sends: ts=1770804966 src=10.244.0.111:4560 target=service-ricplt-a1mediator-rmr.ricplt:4562 open=0 succ=0 fail=0 (hard=0 soft=0)
+# RMR is ready now ...
+```
+
+These logs confirms:
+1. The xApp started, stayed running, and initialized RMR (`RMR is ready now ...`).
+2. This proves the "Crash Loop" was specific to the `kpimon-go` code/driver
+3. `target=localhost:4591:` It's looking for a Route Manager sidecar (which we didn't install).
+4. `target=a1mediator:` It's trying to talk to the Policy component.
+5. It is not trying to connect to E2Term yet.
+
+## 3.6  E2 Simulator Deployment Guide
+
+### 3.6.1 Clone the E2 Simulator Repo
+
+```bash
+joy@joy-virtual-machine:~$ git clone "https://gerrit.o-ran-sc.org/r/sim/e2-interface"
+
+# Cloning into 'e2-interface'...
+# remote: Total 5006 (delta 0), reused 5006 (delta 0)
+# Receiving objects: 100% (5006/5006), 4.52 MiB | 3.13 MiB/s, done.
+# Resolving deltas: 100% (3920/3920), done.
+```
+
+### 3.6.2 Build the Docker Image
+- Execute the Build
+```bash
+#Move to the e2sim root
+joy@joy-virtual-machine:~$ cd ~/e2-interface/e2sim
+
+# Build from here, pointing to the KPM example Dockerfile
+joy@joy-virtual-machine:~$ sudo docker build -t e2sim:latest -f docker/Dockerfile .
+```
+
+expected output
+
+```sh
+[100%] Built target asn1_objects
+...
+-- Configuring done
+-- Generating done
+...
+Step 8/8 : CMD [ "make package" ]
+...
+Successfully built 09adb8e6b2ae
+Successfully tagged e2sim:latest
+```
+
+- Save the image to a file 
+
+```bash
+joy@joy-virtual-machine:~/e2-interface/e2sim$ sudo docker save e2sim:latest > e2sim.tar
+```
+
+- Import it into the Kubernetes (containerd) namespace
+
+```bash
+joy@joy-virtual-machine:~/e2-interface/e2sim$ sudo ctr -n k8s.io images import e2sim.tar
+
+# unpacking docker.io/library/e2sim:latest (sha256:e1625dd4258e03f26e1288472daf6ae7a30ca8b5f52b5cd7ba36254a4dd95b02)...done
+```
+
+- Check if it's there
+```bash
+joy@joy-virtual-machine:~/e2-interface/e2sim$ sudo ctr -n k8s.io images ls | grep e2sim
+
+# docker.io/library/e2sim:latest      application/vnd.docker.distribution.manifest.v2+json      sha256:e1625dd4258e03f26e1288472daf6ae7a30ca8b5f52b5cd7ba36254a4dd95b02 2.5 GiB   linux/amd64                                                                                            io.cri-containerd.image=managed                        
+
+```
+
+
+### 3.6.3 Modify Deployment Script
+We need to tell the E2SIM exactly where to find the E2 Terminator. Since we verified the E2Term IP is `10.244.0.100`, we will hardcode that into our environment variables. We need to create the Helm values file
+
+```yaml
+cat << EOF > ~/e2sim-values.yaml
+image:
+  repository: docker.io/library/e2sim
+  tag: latest
+  pullPolicy: Never
+
+# Manually pointing to the simulator binary we built
+# If this path fails, we will search the container, but this is the standard O-RAN-SC path
+command: ["/playpen/bin/kpm_sim"]
+args: ["10.244.0.100", "36422"]
+
+env:
+  E2TERM_IP: "10.244.0.100"
+  E2TERM_SCTP_PORT: "36422"
+EOF
+```
+
+Deploy using the KPM Helm chart path
+
+```bash
+joy@joy-virtual-machine:~/e2-interface/e2sim$ helm install e2sim ~/e2-interface/e2sim/e2sm_examples/kpm_e2sm/helm/ \
+>   -n ricplt \
+>   -f ~/e2sim-values.yaml \
+>   --kubeconfig ~/.kube/config
+
+# NAME: e2sim
+# LAST DEPLOYED: Wed Feb 11 19:12:13 2026
+# NAMESPACE: ricplt
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+```
+
+expected
+```bash
+[ 99%] Built target asn1_objects
+[100%] Linking CXX executable kpm_sim
+[100%] Built target kpm_sim
+```
+
+>[!Caution]
+> Do 3.6.4 if you have problem with your `kpm_sim` executable.
+
+### 3.6.4 Troubleshooting: Building the Binary Inside the Pod
+
+During deployment, we discovered the `e2sim:latest` image contained the source code but not the final kpm_sim executable. We performed an "in-place" build to solve pathing and dependency issues.
+
+#### Step 1: Fix Include Pathing and Missing Dependencies
+ The KPM example requires core E2Sim headers and a JSON library not present in the local directory.
+
+```bash
+# Define the Pod variable
+joy@joy-virtual-machine:~/e2-interface/e2sim$ export E2_POD=$(kubectl get pods -n ricplt -l app=ricp-e2sim -o jsonpath='{.items[0].metadata.name}')
+
+
+# Download the missing JSON library (nlohmann/json)
+joy@joy-virtual-machine:~/e2-interface/e2sim$ kubectl exec -it $E2_POD -n ricplt -- sh -c "mkdir -p /playpen/e2sm_examples/kpm_e2sm/src/kpm/nlohmann && wget https://github.com/nlohmann/json/releases/download/v3.11.2/json.hpp -O /playpen/e2sm_examples/kpm_e2sm/src/kpm/nlohmann/json.hpp"
+# 2026-02-11 11:47:51 (5.89 MB/s) - '/playpen/e2sm_examples/kpm_e2sm/src/kpm/nlohmann/json.hpp' saved [907858/907858]
+```
+
+#### Step 2: Execute the Final Link and Build
+```bash
+# The build script expects 'asn1c' in the local folder, but it is in /playpen
+joy@joy-virtual-machine:~/e2-interface/e2sim$ kubectl exec -it $E2_POD -n ricplt -- sh -c "ln -sf /playpen/asn1c /playpen/e2sm_examples/kpm_e2sm/asn1c"
+
+# Build the core e2sim library
+joy@joy-virtual-machine:~/e2-interface/e2sim$ kubectl exec -it $E2_POD -n ricplt -- sh -c "cd /playpen/build && cmake .. && make -j$(nproc)"
+
+# Build the KPM Simulator binary with explicit include paths
+joy@joy-virtual-machine:~/e2-interface/e2sim$ kubectl exec -it $E2_POD -n ricplt -- sh -c "cd /playpen/e2sm_examples/kpm_e2sm/build && \
+cmake -DCMAKE_CXX_FLAGS='-I/playpen/src/base -I/playpen/src/DEF -I/playpen/src/encoding -I/playpen/src/messagerouting' \
+-DCMAKE_EXE_LINKER_FLAGS='-L/playpen/build' .. && make -j$(nproc)"
+
+# --- Output ---
+# [ 99%] Built target asn1_objects
+# [100%] Linking CXX executable kpm_sim
+# [100%] Built target kpm_sim
+```
+
+### 3.6.5 Running the Simulator and Verifying Connection
+Once built, we launch the simulator using LD_LIBRARY_PATH to ensure it can load the shared libraries.
+
+```bash
+joy@joy-virtual-machine:~/e2-interface/e2sim$ kubectl exec -it $E2_POD -n ricplt -- sh -c "export LD_LIBRARY_PATH=/playpen/build:\$LD_LIBRARY_PATH && /playpen/e2sm_examples/kpm_e2sm/build/src/kpm/kpm_sim 10.244.0.100 36422"
+```
+
+```
+[kpm_callbacks.cpp:65] [INFO] Starting KPM simulator
+[encode_kpm.cpp:49] [INFO] short_name: ORAN-E2SM-KPM, func_desc: KPM Monitor, e2sm_odi: OID123
+[encode_kpm.cpp:72] [INFO] Initialize event trigger style list structure
+[encode_kpm.cpp:91] [INFO] Initialize report style structure
+[e2sim.cpp:65] [INFO] About to register E2SM RAN function description with ID 0
+[e2sim.cpp:43] [INFO] About to register callback for subscription for RAN function with ID 0
+[e2sim.cpp:104] [INFO] Start E2 Agent (E2 Simulator)
+[e2sim.cpp:125] [INFO] After reading input options
+[e2sim_sctp.cpp:180] [INFO] [SCTP] Binding client socket to source port 36422
+[e2sim_sctp.cpp:187] [INFO] [SCTP] Connecting to server at 10.244.0.100:36422 ...
+[e2sim_sctp.cpp:194] [INFO] [SCTP] Connection established
+[e2sim.cpp:133] [INFO] SCTP client has been started
+[e2sim.cpp:143] [INFO] Constructing a list of RAN functions based on registered information
+[e2sim.cpp:149] [INFO] Adding RAN function ID 0, description: h0ORAN-E2SM-KPM to the list
+[e2sim.cpp:161] [INFO] Generate E2AP v1 setup request for all registered RAN functions
+<E2AP-PDU>
+    <initiatingMessage>
+        <procedureCode>1</procedureCode>
+        <criticality><reject/></criticality>
+        <value>
+            <E2setupRequest>
+                <protocolIEs>
+                    <E2setupRequestIEs>
+                        <id>49</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <TransactionID>1</TransactionID>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>3</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <GlobalE2node-ID>
+                                <gNB>
+                                    <global-gNB-ID>
+                                        <plmn-id>37 34 37</plmn-id>
+                                        <gnb-id>
+                                            <gnb-ID>
+                                                10110101110001100111011110001
+                                            </gnb-ID>
+                                        </gnb-id>
+                                    </global-gNB-ID>
+                                </gNB>
+                            </GlobalE2node-ID>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>10</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <RANfunctions-List>
+                                <ProtocolIE-SingleContainer>
+                                    <id>8</id>
+                                    <criticality><reject/></criticality>
+                                    <value>
+                                        <RANfunction-Item>
+                                            <ranFunctionID>0</ranFunctionID>
+                                            <ranFunctionDefinition>
+                                                68 30 4F 52 41 4E 2D 45 32 
+                                                ...
+                                                2D 53 52 53 2D 52 53 52 50 00 00 08 01 01 01 03
+                                            </ranFunctionDefinition>
+                                            <ranFunctionRevision>2</ranFunctionRevision>
+                                            <ranFunctionOID>OID123</ranFunctionOID>
+                                        </RANfunction-Item>
+                                    </value>
+                                </ProtocolIE-SingleContainer>
+                            </RANfunctions-List>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>50</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <E2nodeComponentConfigAddition-List>
+                                <ProtocolIE-SingleContainer>
+                                    <id>51</id>
+                                    <criticality><reject/></criticality>
+                                    <value>
+                                        <E2nodeComponentConfigAddition-Item>
+                                            <e2nodeComponentInterfaceType><ng/></e2nodeComponentInterfaceType>
+                                            <e2nodeComponentID>
+                                                <e2nodeComponentInterfaceTypeNG>
+                                                    <amf-name>nginterf</amf-name>
+                                                </e2nodeComponentInterfaceTypeNG>
+                                            </e2nodeComponentID>
+                                            <e2nodeComponentConfiguration>
+                                                <e2nodeComponentRequestPart>72 65 71 70 61 72 74</e2nodeComponentRequestPart>
+                                                <e2nodeComponentResponsePart>72 65 73 70 61 72 74</e2nodeComponentResponsePart>
+                                            </e2nodeComponentConfiguration>
+                                        </E2nodeComponentConfigAddition-Item>
+                                    </value>
+                                </ProtocolIE-SingleContainer>
+                            </E2nodeComponentConfigAddition-List>
+                        </value>
+                    </E2setupRequestIEs>
+                </protocolIEs>
+            </E2setupRequest>
+        </value>
+    </initiatingMessage>
+</E2AP-PDU>
+[e2sim.cpp:175] [INFO] Error length 0, error buf
+[e2sim.cpp:181] [INFO] Error encoded 1692
+[e2sim.cpp:186] [INFO] Sent E2-SETUP-REQUEST as E2AP message
+[e2sim.cpp:196] [INFO] Waiting for SCTP data
+[e2sim.cpp:203] [INFO] Received new data of size 60
+[e2ap_message_handler.cpp:52] [DEBUG] Unpacked E2AP-PDU: index = 2, procedureCode = 1
+[e2ap_message_handler.cpp:56] [INFO] Received a message of E2 setup procedure
+[e2ap_message_handler.cpp:64] [INFO] Received SETUP-RESPONSE-SUCCESS
+```
+>[!Note]
+> STATUS: **PASSED**. Here is the breakdown of the logs
+
+The logs confirm a successful O-RAN E2AP handshake. The simulator successfully identified itself as a gNodeB and registered the ORAN-E2SM-KPM service model.
+- SCTP Layer Establishment: `[e2sim_sctp.cpp:194] [INFO] [SCTP] Connection established`
+- RAN Function Registration: `[encode_kpm.cpp:49] [INFO] short_name: ORAN-E2SM-KPM, func_desc: KPM Monitor, e2sm_odi: OID123`
+- E2AP Handshake Initiation: The simulator generated and sent an `E2setupRequest` containing the Global gNB ID (`37 34 37`) and the RAN Function list in ASN.1 XML format.
+- Handshake Completion: `[e2ap_message_handler.cpp:64] [INFO] Received SETUP-RESPONSE-SUCCESS`
+
+### 3.6.6 RIC-Side Validation Proof
+
+#### `E2Mgr`
+To verify that the Near-RT RIC has officially onboarded the simulator, we audited the E2 Manager (E2Mgr) logs. The following log entry confirms the state transition:
+
+```bash
+joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=ricplt-e2mgr --kubeconfig ~/.kube/config --tail=20 | grep -i "gnb_734_373_16b8cef1"
+
+# {"ts":1770812400093,....},"msg":"...RAN name: gnb_734_373_16b8cef1 - Connectivity state was changed to CONNECTED"}
+# {"ts":1770812400093,....},"msg":...ran_name:\"gnb_734_373_16b8cef1\" connection_status:CONNECTED global_nb_id:{plmn_id:\"373437\" nb_id:
+```
