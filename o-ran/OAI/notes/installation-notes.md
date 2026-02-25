@@ -2698,3 +2698,4 @@ joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=ricplt-e2mgr --kubeconf
 # {"ts":1770812400093,....},"msg":"...RAN name: gnb_734_373_16b8cef1 - Connectivity state was changed to CONNECTED"}
 # {"ts":1770812400093,....},"msg":...ran_name:\"gnb_734_373_16b8cef1\" connection_status:CONNECTED global_nb_id:{plmn_id:\"373437\" nb_id:
 ```
+
