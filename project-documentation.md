@@ -316,35 +316,20 @@ graph TB
 
 ### Software Requirements and Versions
 
-**Example**
+| Component      | Implementation | Version   | Purpose                    |
+| -------------- | -------------- | --------- | --------------------------------- |
+| Near-RT RIC    | O-RAN SC       | L Release | xApp platform + E2T compatibility |
+| E2 Termination | O-RAN SC       | L Release | E2AP version alignment            |
+| DRL RRM xApp             | Python / C++   | 1.0.0   | Implements the AI-driven radio resource management logic as a Near-RT RIC xApp. 
+| NTN E2 Node Emulator     | Custom         | 1.0.0   | Emulates an O-RAN-compliant E2 Node for the NTN digital twin by terminating E2AP messages from the Near-RT RIC and translating them into simulator-compatible control commands, while converting ns-3 runtime measurements into E2SM-KPM reports. 
+| ns-3 RRM Control Adapter | Custom         | 1.0.0   | Provides the internal control interface between the E2 emulator and the ns-3 LEO constellation model. It exposes programmable hooks to modify MAC/RRM parameters (e.g., scheduler configuration, resource block allocation, beam-level resource distribution) and extracts real-time simulation KPIs for AI training and inference.
+| NTN Simulator | ns-3             | (e.g. 3.39) | core evaluation platform   |
+| NTN module    | 5G-LENA / custom | commit ID   | PHY/MAC behavior           |
+| Operating System    | Ubuntu | 22.04   |
+| Docker    | Docker Engine | 24.x    |
 
-| Component        | Implementation    | Version/Release                                                              | Purpose                              |
-| ---------------- | ----------------- | ---------------------------------------------------------------------------- | ------------------------------------ |
-| SMO              | O-RAN SC          | [L Release (2024.06)](https://wiki.o-ran-sc.org/display/ORAN/L+Release)      | Service Management and Orchestration |
-| Non-RT RIC       | O-RAN SC          | [L Release (2024.06)](https://wiki.o-ran-sc.org/display/ORAN/L+Release)      | Non-Real-Time RIC (inside SMO)       |
-| VES Collector    | ONAP VES          | [1.12.5](https://github.com/onap/vnfsdk-validation/releases/tag/1.12.5)      | Event collection and normalization   |
-| NETCONF Server   | Netopeer2         | [2.1.71](https://github.com/CESNET/netopeer2/releases/tag/v2.1.71)           | Configuration management protocol    |
-| TEIV             | O-RAN SC          | [L Release (2024.06)](https://wiki.o-ran-sc.org/display/ORAN/L+Release)      | Topology & Inventory                 |
-| Kafka            | Apache Kafka      | [3.6.2](https://archive.apache.org/dist/kafka/3.6.2/)                        | Message broker for event streaming   |
-| Grafana          | Grafana           | [10.0.13](https://github.com/grafana/grafana/releases/tag/v10.0.13)          | Monitoring dashboard                 |
-| InfluxDB         | InfluxDB          | [2.7.10](https://github.com/influxdata/influxdb/releases/tag/v2.7.10)        | Time-series metrics storage          |
-| ES rApp          | Custom Python     | 1.0.0                                                                        | Energy Saving rApp                   |
-| PM rApp          | Custom Python     | 1.0.0                                                                        | Performance Monitoring rApp          |
-| Near-RT RIC      | O-RAN SC          | [L Release (2024.06)](https://wiki.o-ran-sc.org/display/ORAN/L+Release)      | Real-time RAN Intelligent Controller |
-| ES xApp          | Custom C++        | 1.0.0                                                                        | Energy Saving xApp                   |
-| HO xApp          | Custom C++        | 1.0.0                                                                        | Handover xApp                        |
-| E2 Termination   | O-RAN SC          | [L Release (2024.06)](https://gerrit.o-ran-sc.org/r/gitweb?p=ric-plt/e2.git) | E2 interface termination             |
-| CU-CP            | OAI               | [2024.w40](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tags/2024.w40) | Central Unit Control Plane           |
-| CU-UP            | OAI               | [2024.w40](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tags/2024.w40) | Central Unit User Plane              |
-| DU               | OAI               | [2024.w40](https://gitlab.eurecom.fr/oai/openairinterface5g/-/tags/2024.w40) | Distributed Unit                     |
-| E2 Agent (DU)    | FlexRIC           | [v1.0.0](https://github.com/OpenCellular/FlexRIC/releases/tag/v1.0.0)        | E2 agent for DU                      |
-| VES Agent (DU)   | ONAP              | [1.12.5](https://github.com/onap/vnfsdk-validation/releases/tag/1.12.5)      | VES agent for O1 interface           |
-| NETCONF Client   | Netopeer2         | [2.1.71](https://github.com/CESNET/netopeer2/releases/tag/v2.1.71)           | NETCONF client for O1 interface      |
-| RU (SDR)         | USRP B210         | [UHD 4.6.0](https://github.com/EttusResearch/uhd/releases/tag/v4.6.0.0)      | Radio Unit (RF frontend)             |
-| UE Module        | Quectel RM500Q-GL | [RM500QGLABR11A06M4G](https://www.quectel.com/product/5g-rm500q-gl)          | User Equipment (5G modem)            |
-| Operating System | Ubuntu            | [22.04.5 LTS](https://releases.ubuntu.com/jammy/)                            | Base system platform                 |
-| Docker           | Docker Engine     | [24.0.9](https://docs.docker.com/engine/release-notes/24.0/#2409)            | Container runtime                    |
-| Kubernetes       | K8s               | [1.28.15](https://github.com/kubernetes/kubernetes/releases/tag/v1.28.15)    | Container orchestration              |
+
+
 
 > [!NOTE]
 > **O-RAN Version Naming Convention:**
