@@ -2699,3 +2699,585 @@ joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=ricplt-e2mgr --kubeconf
 # {"ts":1770812400093,....},"msg":...ran_name:\"gnb_734_373_16b8cef1\" connection_status:CONNECTED global_nb_id:{plmn_id:\"373437\" nb_id:
 ```
 
+
+
+
+
+
+
+# OSC Near-RT RIC, xApp (KPIMON-GO), E2 Simulator (By Docker) Deployment Guide
+
+## 1. Near-RT RIC Deployment
+
+
+### 1.1 Clone Repository 
+Clone the O-RAN RIC Deployment Repository
+
+```bash
+root@joy-virtual-machine:/home/joy/ric-dep/bin# git clone "https://gerrit.o-ran-sc.org/r/ric-plt/ric-dep"
+```
+
+### 1.2 Install Kubernetes, Docker, and Helm automatically.
+This step sets up the Chart Manager and common templates for helm:
+
+```bash
+root@joy-virtual-machine:/home/joy*# cd ric-dep/bin
+
+root@joy-virtual-machine:/home/joy/ric-dep/bin# ./install_k8s_and_helm.sh
+
+root@joy-virtual-machine:/home/joy/ric-dep/bin# ./install_common_templates_to_helm.sh
+root@joy-virtual-machine:/home/joy/ric-dep/bin# ./setup-ric-common-template
+```
+
+Expected output:
+```bash
+Installing servecm (Chart Manager) and common templates to helm3
+Installed plugin: servecm
+---
+servcm up and running
+---
+checking that ric-common templates were added
+NAME                    CHART VERSION   APP VERSION     DESCRIPTION               
+local/ric-common        3.3.2                           Common templates for inclusion in other charts
+```
+
+### 1.3 Locate Recipe File
+
+```bash
+root@joy-virtual-machine:/home/joy/ric-dep/bin# ls ../RECIPE_EXAMPLE
+
+# example_recipe_latest_stable.yaml
+# example_recipe_latest_unstable_with_refs_to_staging.yaml
+# example_recipe_latest_unstable.yaml
+# example_recipe_oran_cherry_release.yaml
+# example_recipe_oran_dawn_release.yaml
+# example_recipe_oran_e_release.yaml
+# example_recipe_oran_f_release.yaml
+# example_recipe_oran_g_release.yaml
+# example_recipe_oran_h_release.yaml
+# example_recipe_oran_i_release.yaml
+# example_recipe_oran_j_release.yaml
+# example_recipe_oran_k_release.yaml
+# example_recipe_oran_l_release.yaml # Our Recipe File (Rel-L)
+# example_recipe_oran_m_release.yaml
+```
+
+### 1.4 Copy And Configure The Recipe File
+Change those `10.0.0.1` addresses to the actual VM address (`192.168.106.166`).
+```bash
+# Step 1: Inject Your IP Address
+sed -i 's/10.0.0.1/192.168.8.38/g' recipe.yaml
+
+# Step 2: Verify the Change
+cat recipe.yaml | grep "192.168.8.38"
+```
+The output should be
+```bash
+# ricip should be the ingress controller listening IP for the platform cluster
+  ricip: "192.168.8.38"
+```
+
+### 1.5 Run the Installer
+Launch the installation. This script will pull all the O-RAN containers (E2Term, E2Mgr, etc.) and deploy them to the Kubernetes cluster.
+```bash
+root@joy-virtual-machine:/home/joy/ric-dep/bin# sudo ./install -f [RECIPE_FILE_NAME].yaml
+```
+#### Expected output for each component:
+```bash
+namespace/ricplt created
+namespace/ricinfra created
+namespace/ricxapp created
+---
+Deploying RIC infra components [infrastructure dbaas appmgr rtmgr e2mgr e2term a1mediator submgr vespamgr o1mediator alarmmanager ]
+---
+NAME: r4-infrastructure
+LAST DEPLOYED: Tue Feb  3 13:37:13 2026
+NAMESPACE: ricplt
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+---
+NAME: r4-dbaas
+LAST DEPLOYED: Tue Feb  3 13:37:25 2026
+NAMESPACE: ricplt
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+```
+
+### 3.2.4 Check The Pods
+```bash
+root@joy-virtual-machine:/home/joy# kubectl get pods -n ricplt
+
+NAME                                                         READY   STATUS    RESTARTS      AGE
+deployment-ricplt-a1mediator-64fd4bf64-lrgmr                 1/1     Running   0             16h
+deployment-ricplt-alarmmanager-7d47d8f4d4-47m47              1/1     Running   0             16h
+deployment-ricplt-appmgr-79848f94c-v9cxw                     1/1     Running   0             16h
+deployment-ricplt-e2mgr-856f655b4-vp92z                      1/1     Running   0             16h
+deployment-ricplt-e2term-alpha-d5fd5d9c6-l5shm               1/1     Running   0             16h
+deployment-ricplt-o1mediator-76c4646878-7mr9j                1/1     Running   0             16h
+deployment-ricplt-rtmgr-6556c5bc7b-5sdrr                     1/1     Running   2 (16h ago)   16h
+deployment-ricplt-submgr-66485ccc6c-jj9bm                    1/1     Running   0             16h
+deployment-ricplt-vespamgr-786666549b-qfc7m                  1/1     Running   0             16h
+r4-infrastructure-kong-5986fc7965-qqtkv                      2/2     Running   0             16h
+r4-infrastructure-prometheus-alertmanager-64f9876d6d-2zzb8   2/2     Running   0             16h
+r4-infrastructure-prometheus-server-bcc8cc897-6d26k          1/1     Running   0             16h
+statefulset-ricplt-dbaas-server-0                            1/1     Running   0             16h
+
+```
+
+You can also check the plt services with this code
+```bash
+root@joy-virtual-machine:/home/joy# kubectl get svc -n ricplt
+
+NAME                                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+aux-entry                                   ClusterIP      10.101.78.174    <none>        80/TCP,443/TCP                  16h
+r4-infrastructure-kong-manager              NodePort       10.106.33.206    <none>        8002:31202/TCP,8445:30440/TCP   16h
+r4-infrastructure-kong-proxy                LoadBalancer   10.105.94.170    <pending>     80:32080/TCP,443:32443/TCP      16h
+r4-infrastructure-kong-validation-webhook   ClusterIP      10.96.166.46     <none>        443/TCP                         16h
+r4-infrastructure-prometheus-alertmanager   ClusterIP      10.107.252.140   <none>        80/TCP                          16h
+r4-infrastructure-prometheus-server         ClusterIP      10.109.127.52    <none>        80/TCP                          16h
+service-ricplt-a1mediator-http              ClusterIP      10.101.47.40     <none>        10000/TCP                       16h
+service-ricplt-a1mediator-rmr               ClusterIP      10.99.175.174    <none>        4561/TCP,4562/TCP               16h
+service-ricplt-alarmmanager-http            ClusterIP      10.109.108.146   <none>        8080/TCP                        16h
+service-ricplt-alarmmanager-rmr             ClusterIP      10.102.63.248    <none>        4560/TCP,4561/TCP               16h
+service-ricplt-appmgr-http                  ClusterIP      10.107.69.37     <none>        8080/TCP                        16h
+service-ricplt-appmgr-rmr                   ClusterIP      10.106.1.136     <none>        4561/TCP,4560/TCP               16h
+service-ricplt-dbaas-tcp                    ClusterIP      None             <none>        6379/TCP                        16h
+service-ricplt-e2mgr-http                   ClusterIP      10.96.71.95      <none>        3800/TCP                        16h
+service-ricplt-e2mgr-rmr                    ClusterIP      10.101.189.90    <none>        4561/TCP,3801/TCP               16h
+service-ricplt-e2term-prometheus-alpha      ClusterIP      10.96.230.19     <none>        8088/TCP                        16h
+service-ricplt-e2term-rmr-alpha             ClusterIP      10.104.89.202    <none>        4561/TCP,38000/TCP              16h
+service-ricplt-e2term-sctp-alpha            NodePort       10.110.129.30    <none>        36422:32222/SCTP                16h
+service-ricplt-o1mediator-http              ClusterIP      10.99.217.106    <none>        9001/TCP,8080/TCP,3000/TCP      16h
+service-ricplt-o1mediator-tcp-netconf       NodePort       10.106.147.204   <none>        830:30830/TCP                   16h
+service-ricplt-rtmgr-http                   ClusterIP      10.110.49.145    <none>        3800/TCP                        16h
+service-ricplt-rtmgr-rmr                    ClusterIP      10.99.242.18     <none>        4561/TCP,4560/TCP               16h
+service-ricplt-submgr-http                  ClusterIP      None             <none>        3800/TCP                        16h
+service-ricplt-submgr-rmr                   ClusterIP      None             <none>        4560/TCP,4561/TCP               16h
+service-ricplt-vespamgr-http                ClusterIP      10.96.240.11     <none>        8080/TCP,9095/TCP               16h
+
+```
+
+
+## 2. E2 Simulator Deployment 
+
+### 2.1 Build the E2 Simulator Deb Packages
+You need to compile the source code and generate the installation packages.
+
+```bash
+# Clone the repository
+
+git clone "https://gerrit.o-ran-sc.org/r/sim/e2-interface"
+cd e2-interface/e2sim
+
+# Install Dependencies 
+sudo apt-get update
+sudo apt-get install -y cmake build-essential libsctp-dev autoconf automake libtool bison flex libboost-all-dev
+
+# Build and Package
+cd e2-interface/e2sim
+mkdir build
+cd build
+cmake .. && make package && cmake .. -DDEV_PKG=1 && make package
+cp *.deb ../e2sm_examples/kpm_e2sm/
+
+# Install Docker Compose 
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update && sudo apt-get install docker-compose-plugin
+```
+
+### 2.2 Identify the RIC Endpoint
+The simulator needs to know where to connect. Since the Near-RT RIC is likely running in Kubernetes, you need to find the Node IP and Port of the E2 Termination (E2Term) service.
+
+```bash
+# Create The Helper Script
+mkdir -p /home/joy/ric-dep/bin/e2-sim
+nano e2sim-infra.sh
+
+# Paste this logic into the file
+#!/bin/bash
+NODE_IP=$(kubectl get pod -n=ricplt -l app=ricplt-e2term-alpha -o jsonpath="{.items[0].status.hostIP}")
+NODE_PORT=$(kubectl get svc -n=ricplt service-ricplt-e2term-sctp-alpha -o jsonpath="{.spec.ports[0].nodePort}")
+echo "E2 term IP address: ${NODE_IP}"
+echo "E2 term port: ${NODE_PORT}"
+
+# Run it
+chmod +x e2sim-infra.sh
+./e2sim-infra.sh
+```
+Expected output
+
+```bash
+# E2 term IP address: 192.168.106.166
+# E2 term port: 32222
+```
+
+### 2.3 Configure and Deploy with Docker
+Package the container and point them at the RIC
+```bash
+# Prepare the Docker Compose file
+nano docker-compose.yml
+
+# Paste this configuration
+services:
+  e2-simulator:
+    image: "o-ran-sc/ntsim-e2-simulator:2.0.0"
+    build:
+      context: /home/joy/workspace/e2-interface/e2sim
+      dockerfile: Dockerfile_kpm
+    container_name: e2-simulator
+    entrypoint: ["kpm_sim", "192.168.106.166", "32222"]
+
+# Launch The Simulator
+sudo docker compose build
+sudo docker compose up -d
+```
+Expected output
+```bash
+#  => [e2-simulator 17/18] RUN wc -l /playpen/src/reports.json                                                                                 0.3s
+#  => [e2-simulator 18/18] RUN cd /playpen/src &&    rm -fr .build &&  mkdir  .build &&   cd .build &&   cmake .. &&   make install           36.1s
+#  => [e2-simulator] exporting to image                                                                                                        1.6s
+#  => => exporting layers                                                                                                                      1.6s
+#  => => writing image sha256:7962e96252432241031a3152c9c1396942595a5484f44f77ac0d103312cb8a34                                                 0.0s
+#  => => naming to docker.io/o-ran-sc/ntsim-e2-simulator:2.0.0                                                                                 0.0s
+# [+] Building 1/1
+#  ✔ e2-simulator  Built                                                                                                                       0.0s
+# root@joy-virtual-machine:/home/joy/workspace/e2-sim#
+# root@joy-virtual-machine:/home/joy/workspace/e2-sim#
+# root@joy-virtual-machine:/home/joy/workspace/e2-sim#
+# root@joy-virtual-machine:/home/joy/workspace/e2-sim# sudo docker compose up -d
+# [+] Running 2/2
+#  ✔ Network e2-sim_default  Created                                                                                                           0.1s
+#  ✔ Container e2-simulator  Started         
+```
+
+### 2.4 Verify Log
+
+```bash
+# Run this to see the E2 Simulator Log
+sudo docker logs -f e2-simulator
+
+# Output
+[kpm_callbacks.cpp:65] [INFO] Starting KPM simulator
+[encode_kpm.cpp:49] [INFO] short_name: ORAN-E2SM-KPM, func_desc: KPM Monitor, e2sm_odi: OID123
+[encode_kpm.cpp:72] [INFO] Initialize event trigger style list structure
+[encode_kpm.cpp:91] [INFO] Initialize report style structure
+[e2sim.cpp:65] [INFO] About to register E2SM RAN function description with ID 0
+[e2sim.cpp:43] [INFO] About to register callback for subscription for RAN function with ID 0
+[e2sim.cpp:104] [INFO] Start E2 Agent (E2 Simulator)
+[e2sim.cpp:125] [INFO] After reading input options
+[e2sim_sctp.cpp:180] [INFO] [SCTP] Binding client socket to source port 36422
+[e2sim_sctp.cpp:187] [INFO] [SCTP] Connecting to server at 192.168.106.166:32222 ...
+[e2sim_sctp.cpp:194] [INFO] [SCTP] Connection established
+[e2sim.cpp:133] [INFO] SCTP client has been started
+[e2sim.cpp:143] [INFO] Constructing a list of RAN functions based on registered information
+[e2sim.cpp:149] [INFO] Adding RAN function ID 0, description: h0ORAN-E2SM-KPM to the list
+[e2sim.cpp:161] [INFO] Generate E2AP v1 setup request for all registered RAN functions
+<E2AP-PDU>
+    <initiatingMessage>
+        <procedureCode>1</procedureCode>
+        <criticality><reject/></criticality>
+        <value>
+            <E2setupRequest>
+                <protocolIEs>
+                    <E2setupRequestIEs>
+                        <id>49</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <TransactionID>1</TransactionID>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>3</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <GlobalE2node-ID>
+                                <gNB>
+                                    <global-gNB-ID>
+                                        <plmn-id>37 34 37</plmn-id>
+                                        <gnb-id>
+                                            <gnb-ID>
+                                                10110101110001100111011110001
+                                            </gnb-ID>
+                                        </gnb-id>
+                                    </global-gNB-ID>
+                                </gNB>
+                            </GlobalE2node-ID>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>10</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <RANfunctions-List>
+                                <ProtocolIE-SingleContainer>
+                                    <id>8</id>
+                                    <criticality><reject/></criticality>
+                                    <value>
+                                        <RANfunction-Item>
+                                            <ranFunctionID>0</ranFunctionID>
+                                            <ranFunctionDefinition>
+
+                                            </ranFunctionDefinition>
+                                            <ranFunctionRevision>2</ranFunctionRevision>
+                                            <ranFunctionOID>OID123</ranFunctionOID>
+                                        </RANfunction-Item>
+                                    </value>
+                                </ProtocolIE-SingleContainer>
+                            </RANfunctions-List>
+                        </value>
+                    </E2setupRequestIEs>
+                    <E2setupRequestIEs>
+                        <id>50</id>
+                        <criticality><reject/></criticality>
+                        <value>
+                            <E2nodeComponentConfigAddition-List>
+                                <ProtocolIE-SingleContainer>
+                                    <id>51</id>
+                                    <criticality><reject/></criticality>
+                                    <value>
+                                        <E2nodeComponentConfigAddition-Item>
+                                            <e2nodeComponentInterfaceType><ng/></e2nodeComponentInterfaceType>
+                                            <e2nodeComponentID>
+                                                <e2nodeComponentInterfaceTypeNG>
+                                                    <amf-name>nginterf</amf-name>
+                                                </e2nodeComponentInterfaceTypeNG>
+                                            </e2nodeComponentID>
+                                            <e2nodeComponentConfiguration>
+                                                <e2nodeComponentRequestPart>72 65 71 70 61 72 74</e2nodeComponentRequestPart>
+                                                <e2nodeComponentResponsePart>72 65 73 70 61 72 74</e2nodeComponentResponsePart>
+                                            </e2nodeComponentConfiguration>
+                                        </E2nodeComponentConfigAddition-Item>
+                                    </value>
+                                </ProtocolIE-SingleContainer>
+                            </E2nodeComponentConfigAddition-List>
+                        </value>
+                    </E2setupRequestIEs>
+                </protocolIEs>
+            </E2setupRequest>
+        </value>
+    </initiatingMessage>
+</E2AP-PDU>
+[e2sim.cpp:175] [INFO] Error length 0, error buf
+[e2sim.cpp:181] [INFO] Error encoded 1692
+[e2sim.cpp:186] [INFO] Sent E2-SETUP-REQUEST as E2AP message
+[e2sim.cpp:196] [INFO] Waiting for SCTP data
+[e2sim.cpp:203] [INFO] Received new data of size 60
+[e2ap_message_handler.cpp:52] [DEBUG] Unpacked E2AP-PDU: index = 2, procedureCode = 1
+[e2ap_message_handler.cpp:56] [INFO] Received a message of E2 setup procedure
+[e2ap_message_handler.cpp:64] [INFO] Received SETUP-RESPONSE-SUCCESS
+```
+
+## 3. xApp (KPIMON-GO) Deployment
+
+### 3.1 Pre-requisites
+The xApp descriptor files (config.json) must be hosted on a webserver when we use the xapp-onboarder to deploy xApps. To host these files we use Nginx to create a web server.
+
+#### 3.1.1 Configuring the Nginx Web server
+First, we need to install Nginx and check if it is in active (running) state.
+
+```bash
+sudo apt-get install nginx
+sudo systemctl status nginx
+
+# Expected output
+# ● nginx.service - A high performance web server and a reverse proxy server
+#      Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+#      Active: active (running) since Thu 2026-02-26 14:40:13 CST; 11s ago
+```
+
+Unlink the default Configuration file and check if it is unlinked
+
+```bash
+cd /etc/nginx/sites-enabled
+sudo unlink default
+cd ../
+```
+
+Now we create some directories which can be accessed by the server and where the config files can be hosted
+
+```bash
+cd ../../var/www
+sudo mkdir xApp_config.local
+cd xApp_config.local/
+sudo mkdir config_files
+```
+
+Create a Custom Configuration File and define file locations
+
+```bash
+cd ../../../etc/nginx/conf.d
+sudo vim xApp_config.local.conf
+```
+
+Paste the following content in the conf file.
+
+```bash
+server {
+    listen 5010 default_server;
+    server_name xApp_config.local;
+    location /config_files/ {
+
+        root /var/www/xApp_config.local/;
+    }
+
+}
+```
+
+Save the configuration file and check if there are any errors in the configuration file.
+
+```bash
+sudo nginx -t
+
+## Expected Output
+
+# joy@joy-virtual-machine:/etc/nginx/conf.d$ sudo nginx -t
+# nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+# nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+
+#### 3.1.2 Hosting the config Files
+Copy the xApp config file to this directory. Reload Nginx once this has been done
+
+```bash
+sudo cp <path_to_config_file>/config-file.json /var/www/xApp_config.local/config_files/
+sudo systemctl reload nginx
+```
+
+Now, you can check if the config file can be accessed from the newly created server. Place all files you want to host in the config_files directory
+
+```bash
+curl http://<machine_ip_addr>:5010/config_files/config-file.json
+
+## Expected Output
+
+# {
+#   "xapp_name": "kpimon-go",
+#   "version": "2.0.2-alpha",
+#   "containers": [
+#     {
+# ...
+```
+
+Create the xapp image using the given Dockerfile within the xApp repository.
+
+```bash
+docker build . -t xApp-registry.local:5008/<xapp-image-name>:<version> (Example : xappkpimon:1.0.0).
+
+## Expected Outout
+
+# Step 36/38 : ENV C_INCLUDE_PATH=/usr/local/include
+#  ---> Running in 71b6eb9b68af
+# Removing intermediate container 71b6eb9b68af
+#  ---> 27a7c4bcbd10
+# Step 37/38 : COPY entripoint.sh entripoint.sh
+#  ---> b64716aabd6d
+# Step 38/38 : ENTRYPOINT ["env","LD_LIBRARY_PATH=/usr/local/lib","./entripoint.sh"]
+#  ---> Running in e0eb171bc0c1
+# Removing intermediate container e0eb171bc0c1
+#  ---> a9b801ee8637
+# Successfully built a9b801ee8637
+# Successfully tagged xApp-registry.local:5008/kpimon-go:1.0.0
+```
+
+### 3.2 xApp Onboarder Deployment
+Getting Variables ready
+
+```bash
+export KONG_PROXY=`sudo kubectl get svc -n ricplt -l app.kubernetes.io/name=kong -o jsonpath='{.items[0].spec.clusterIP}'`
+export APPMGR_HTTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-appmgr-http -o jsonpath='{.items[0].spec.clusterIP}'`
+export ONBOARDER_HTTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-xapp-onboarder-http -o jsonpath='{.items[0].spec.clusterIP}'`
+```
+
+Get helm charts and check if the current xApp is one of them. If there is no helm chart, then we are good to go. Otherwise, we have to use the existing chart or delete it and then proceed forward.
+
+```bash
+curl --location --request GET "http://$KONG_PROXY:32080/onboard/api/v1/charts"
+```
+
+Now, we need to indicate in the xapp descriptor `config-file.json` to use the image we built in the previous step. To do this, in the `image` section edit the `registry` field to `xApp-registry.local:5008`, name to `<xapp-image-name>` and tag to `<version>`. An example is given below
+
+```bash
+"image": {
+        "registry": "xApp-registry.local:5008",
+        "name": "<xApp-image-name>",
+        "tag": "<version>"
+}
+```
+
+Save the xApp descriptor file and host it in the Nginx server we previously created. Also, perform the check to see if the config-file is hosted on the server. </br>
+Next, we need to create a .url file to point the xApp-onboarder to the Ngnix server to get the xApp descriptor file and use it to create a helm chart and deploy the xApp.
+
+```bash
+vim <xApp-name>-onboard.url
+```
+
+Paste the following in the `onboard.url` file. Substitue the `<machine_ip_addr>` with the IP address of your machine. You can find this out through `ifconfig`.
+
+```bash
+{"config-file.json_url":"http://<machine_ip_addr>:5010/<xApp-name->config-file.json"}
+```
+
+Save the file. Now we are ready to deploy the xApp.
+
+```bash
+curl -L -X POST "http://$KONG_PROXY:32080/onboard/api/v1/onboard/download" --header 'Content-Type: application/json' --data-binary "@<xApp-name>-onboard.url"
+curl -L -X GET "http://$KONG_PROXY:32080/onboard/api/v1/charts"
+curl -L -X POST "http://$KONG_PROXY:32080/appmgr/ric/v1/xapps" --header 'Content-Type: application/json' --data-raw '{"xappName": "scp-kpimon"}'
+```
+
+Verify if the xApp is deployed. There should be a <xApp-name> pod in “ricxapp” namespace
+
+```bash
+sudo kubectl get pods -A
+
+# Expected Output
+# NAMESPACE      NAME                                                         READY   STATUS      RESTARTS      AGE
+# kube-flannel   kube-flannel-ds-t482q                                        1/1     Running     0             23h
+# kube-system    coredns-5dd5756b68-5xxr4                                     1/1     Running     0             23h
+# kube-system    coredns-5dd5756b68-j8h5d                                     1/1     Running     0             23h
+# kube-system    etcd-joy-virtual-machine                                     1/1     Running     1             23h
+# kube-system    kube-apiserver-joy-virtual-machine                           1/1     Running     1             23h
+# kube-system    kube-controller-manager-joy-virtual-machine                  1/1     Running     1             23h
+# kube-system    kube-proxy-lgljr                                             1/1     Running     0             23h
+# kube-system    kube-scheduler-joy-virtual-machine                           1/1     Running     1             23h
+# ricinfra       deployment-tiller-ricxapp-676dfd8664-5xc7p                   1/1     Running     0             23h
+# ricinfra       tiller-secret-generator-8jhzt                                0/1     Completed   0             23h
+# ricplt         deployment-ricplt-a1mediator-64fd4bf64-lrgmr                 1/1     Running     0             23h
+# ricplt         deployment-ricplt-alarmmanager-7d47d8f4d4-47m47              1/1     Running     0             23h
+# ricplt         deployment-ricplt-appmgr-79848f94c-v9cxw                     1/1     Running     0             23h
+# ricplt         deployment-ricplt-e2mgr-856f655b4-vp92z                      1/1     Running     0             23h
+# ricplt         deployment-ricplt-e2term-alpha-d5fd5d9c6-l5shm               1/1     Running     0             23h
+# ricplt         deployment-ricplt-o1mediator-76c4646878-7mr9j                1/1     Running     0             23h
+# ricplt         deployment-ricplt-rtmgr-6556c5bc7b-5sdrr                     1/1     Running     2 (23h ago)   23h
+# ricplt         deployment-ricplt-submgr-66485ccc6c-jj9bm                    1/1     Running     0             23h
+# ricplt         deployment-ricplt-vespamgr-786666549b-qfc7m                  1/1     Running     0             23h
+# ricplt         deployment-ricplt-xapp-onboarder-74c556896f-g5895            2/2     Running     0             103m
+# ricplt         r4-infrastructure-kong-5986fc7965-qqtkv                      2/2     Running     0             23h
+# ricplt         r4-infrastructure-prometheus-alertmanager-64f9876d6d-2zzb8   2/2     Running     0             23h
+# ricplt         r4-infrastructure-prometheus-server-bcc8cc897-6d26k          1/1     Running     0             23h
+# ricplt         statefulset-ricplt-dbaas-server-0                            1/1     Running     0             23h
+# ricxapp        ricxapp-kpimon-go-6497f9cd75-7wjk6                           1/1     Running     0             87m
+```
+
+We can check the xApp logs using
+
+```bash
+kubectl logs -f -n ricxapp -l app=<xApp-pod-name>
+
+# Expected Output
+
+# Using config file: /opt/config-file.yaml  
+# Xapp started, listening on :8080  
+# Connection to database established  
+# rmrClient: RMR is ready after 1 seconds waiting  
+# List of connected gNBs:
+# gnb_734_373_16b8cef1  
+# Sending subscription request for MEID: gnb_734_373_16b8cef1  
+# Successfully subscription done (gnb_734_373_16b8cef1)  
+# Subscription ID: 3ACLfbGHUWgQszAnJDIkfRqKakR  
+# Registration done, proceeding with startup
+```
