@@ -9,17 +9,16 @@
 
 | Phase | Status |
 |-------|--------|
-| Phase 0 — VM Specs | ✅ Done |
-| Phase 1 — Install Prerequisites | ✅ Done |
-| Phase 2 — Install Jenkins | ✅ Done |
-| Phase 3 — Configure Jenkins Agent | ⏳ Pending |
-| Phase 4 — Install Required Plugins | ⏳ Pending |
-| Phase 5 — Set Up Credentials | ⏳ Pending |
-| Phase 6 — Create Pipeline Job | ⏳ Pending |
+| Phase 0: VM Specs | ✅ Done |
+| Phase 1: Install Prerequisites | ✅ Done |
+| Phase 2: Install Jenkins | ✅ Done |
+| Phase 3: Configure Jenkins Agent | ⏳ Pending |
+| Phase 4: Install Required Plugins | ⏳ Pending |
+| Phase 5:  Set Up Credentials | ⏳ Pending |
 
 ---
 
-## Phase 0 — VM Specifications
+## Phase 0: VM Specifications
 
 | Spec | Value |
 |------|-------|
@@ -41,7 +40,7 @@
 
 ---
 
-## Phase 1 — Install Prerequisites
+## Phase 1: Install Prerequisites
 
 
 ### Checklist
@@ -72,7 +71,7 @@
 
 ---
 
-## Phase 2 — Install Jenkins
+## Phase 2: Install Jenkins
 
 >[!NOTE]
 > Jenkins installed via official RPM repository for RHEL/Fedora-based systems.
@@ -132,7 +131,7 @@ curl http://localhost:8080
 
 ---
 
-## Phase 3 — Configure Jenkins Agent
+## Phase 3: Configure Jenkins Agent
 
 - [ ] Go to Manage Jenkins → Nodes
 - [ ] Create a node labeled exactly `jenkins-agent-01`
@@ -141,7 +140,7 @@ curl http://localhost:8080
 
 ---
 
-## Phase 4 — Install Required Jenkins Plugins
+## Phase 4: Install Required Jenkins Plugins
 
 - [ ] Go to Manage Jenkins → Plugins
 - [ ] Install: Pipeline
@@ -152,7 +151,7 @@ curl http://localhost:8080
 
 ---
 
-## Phase 5 — Set Up Credentials
+## Phase 5: Set Up Credentials
 
 ### Credential 1 — GitHub Token (`gh_token`)
 
@@ -163,7 +162,7 @@ curl http://localhost:8080
 - [ ] Username = GitHub username, Password = token
 - [ ] Save and verify
 
-### Credential 2 — SSH Private Key (`ssh-pubkey-kenny-192.168.8.53`)
+### Credential 2: SSH Private Key (`ssh-pubkey-kenny-192.168.8.53`)
 
 - [ ] Generate SSH key pair: `ssh-keygen -t rsa -b 4096`
 - [ ] Add public key to target server `~/.ssh/authorized_keys`
@@ -175,7 +174,7 @@ curl http://localhost:8080
 
 ---
 
-## Phase 6 — Create Pipeline Job
+## Phase 6: Create Pipeline Job
 
 - [ ] Click New Item → name it `Deploy_KPIMON_xApp` → choose Pipeline
 - [ ] Paste Groovy script from Section 3.2 of Jenkins doc

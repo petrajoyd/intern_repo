@@ -174,20 +174,67 @@ curl http://localhost:8080
 
 ## Phase 3: Create Repository for OAI gNB
 
-- [ ] Go to `http://192.168.8.57:8080`
-- [ ] Click **+ Create New Repository**
-- [ ] Name it `ric-app-kpimon-go`
-- [ ] Set visibility to **Public**
-- [ ] Save
+- [x] Go to `http://192.168.8.57:8080`
+- [x] Click **+ Create New Repository**
+- [x] Name: `ric-app-kpimon-go`
+- [x] Visibility: Public
+- [x] Created successfully ✅
 
 ---
 
 ## Phase 4: Connect Jenkins → Quay
 
-- [ ] On Jenkins VM, configure Docker to push to `192.168.8.57:8080`
-- [ ] Add Quay credentials to Jenkins
-- [ ] Update pipeline script to push image to Quay after build
-- [ ] Test: run pipeline and verify image appears in Quay
+### Configure Docker Insecure Registry on Jenkins VM
+ 
+```bash
+cat > /etc/docker/daemon.json << EOF
+{
+  "insecure-registries": ["192.168.8.57:8080"]
+}
+EOF
+ 
+systemctl restart docker
+```
+ 
+### Login to Quay from Jenkins VM
+ 
+```bash
+docker login 192.168.8.57:8080 -u petrajoyd
+# Login Succeeded ✅
+```
+ 
+### Test Push from Jenkins VM to Quay
+ 
+```bash
+docker pull hello-world
+docker tag hello-world 192.168.8.57:8080/petrajoyd/ric-app-kpimon-go:test
+docker push 192.168.8.57:8080/petrajoyd/ric-app-kpimon-go:test
+# Push succeeded ✅
+```
+ 
+### Checklist
+ 
+- [x] Configure insecure registry on Jenkins VM
+- [x] `docker login 192.168.8.57:8080 -u petrajoyd` ✅
+- [x] Test push image to Quay ✅
+- [x] Verify image appears in Quay UI ✅
+
+---
+
+## ✅ Summary — Jenkins → Quay Pipeline Working!
+ 
+| Component | Status | URL |
+|-----------|--------|-----|
+| Jenkins | ✅ Running | http://192.168.8.54:8080 |
+| Quay | ✅ Running | http://192.168.8.57:8080 |
+| Jenkins → Quay push | ✅ Working | - |
+ 
+>[!NOTE] 
+>  Quay containers (quay, redis, postgres) do NOT auto-start on VM reboot.
+> Run these manually after reboot:
+> ```bash
+> docker start redis postgres quay
+> ```
 
 ---
 
