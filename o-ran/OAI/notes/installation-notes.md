@@ -1595,7 +1595,7 @@ Run this Code
 C:\Windows\System32>ssh joy@192.168.8.38
 joy@192.168.8.38's password: [Put your VM pass here]
 
-Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-139-generic x86_64)
+Welcome to Ubuntu 20.04.6 LTS (GNU/Linux 5.15.0-139-generic x86_64) 
 ```
 
 ### 3.1.2 Clone Repository 
@@ -2699,13 +2699,7 @@ joy@joy-virtual-machine:~$ kubectl logs -n ricplt -l app=ricplt-e2mgr --kubeconf
 # {"ts":1770812400093,....},"msg":...ran_name:\"gnb_734_373_16b8cef1\" connection_status:CONNECTED global_nb_id:{plmn_id:\"373437\" nb_id:
 ```
 
-
-
-
-
-
-
-# OSC Near-RT RIC, xApp (KPIMON-GO), E2 Simulator (By Docker) Deployment Guide
+# OSC Platform Deployment Guide
 
 ## 1. Near-RT RIC Deployment
 
