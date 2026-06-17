@@ -1,4 +1,4 @@
-<img width="1248" height="583" alt="image" src="https://github.com/user-attachments/assets/ce2b596f-8bca-4794-be9f-a02358d4d9e8" /># Study Notes: Protocol Stack for DVB-S2X and DVB-RCS2
+# Study Notes: Protocol Stack for DVB-S2X and DVB-RCS2
 
 * **Author:** Petrajoy Davidson
 * **Date:** 2025-08-05 – 2025-08-06
