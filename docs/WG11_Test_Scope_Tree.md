@@ -32,18 +32,18 @@ O-RAN WG11 Security Test Specification (STS, ETSI TS 104 105)
 ├─ System and software security evaluations ......... [not in scope]
 │       X.509 / certificate lifecycle (CMPv2), hardening   (clause confirm)
 │
-├─ 11  Interface security tests
-│   ├─ 11.1 Open Fronthaul ................... [NOW: Sani]
-│   │   ├─ CUS-plane  (O-RU to O-DU)
-│   │   │   ├─ C-plane   eCPRI  ....... conformance now, fuzz later
-│   │   │   ├─ U-plane   eCPRI  ....... conformance now, fuzz later
-│   │   │   └─ S-plane   PTP    ....... conformance now, fuzz later
-│   │   └─ M-plane     NETCONF / YANG ... [later: if O-RU reachable]
-│   ├─ E2   (Near-RT RIC) ................... [later: follow-on]  (clause 11.x, confirm)
-│   ├─ A1   (Non-RT RIC) .................... [later]             (clause 11.x, confirm)
-│   ├─ O1 ................................... [not in scope]      (clause 11.x, confirm)
-│   ├─ O2 ................................... [not in scope]      (clause 11.x, confirm)
-│   └─ 11.7 R1 ............................. [not in scope]
+├─ 11  Security tests of O-RAN interfaces
+│   ├─ 11.1 Open FH ......................... [NOW: Sani]
+│   │   ├─ 11.1.2 Point-to-Point LAN Segment . [NOW] (carries C-plane: 802.1X, MACsec)
+│   │   ├─ 11.1.3 M-Plane ................... [later: if O-RU reachable]
+│   │   ├─ 11.1.4 U-Plane ................... [NOW]
+│   │   └─ 11.1.5 S-Plane ................... [NOW]
+│   ├─ 11.2 Y1 .............................. [not in scope]
+│   ├─ 11.3 O1 .............................. [not in scope]
+│   ├─ 11.4 O2 .............................. [not in scope]
+│   ├─ 11.5 E2  (Near-RT RIC) ............... [later: follow-on]
+│   ├─ 11.6 A1  (Non-RT RIC) ................ [later]
+│   └─ 11.7 R1 ............................. [not in scope] (past the page shown)
 │
 ├─ xApp security .................................... [not in scope]
 │
@@ -68,8 +68,8 @@ the per-plane mapping: [`OFH_Conformance_WG11_Checklist.md`](OFH_Conformance_WG1
 
 ## What is verified vs pending
 
-- Verified from the STS table of contents: the clause-6 protocol list (6.2 SSH, 6.3 TLS, 6.4 DTLS, 6.5 IPsec, 6.6 OAuth 2.0), clause 7 Common Network Security Tests, clause 11 interface tests with 11.1 Open Fronthaul and 11.7 R1, clause 18 O-Cloud tests, and the test-area set (protocol and API validation, common network security, system and software evaluations, Open Fronthaul, xApp security, O-Cloud, end-to-end).
-- Pending the PDF: the exact sub-clause numbers for E2, A1, O1, O2, the end-to-end A1 robustness case, and every individual `TC_*`.
+- Verified from the STS contents: the clause-6 protocol list (6.2 SSH, 6.3 TLS, 6.4 DTLS, 6.5 IPsec, 6.6 OAuth 2.0), clause 7 Common Network Security Tests, clause 18 O-Cloud tests, and clause 11 interface tests in full (11.1 Open FH with LAN Segment, M, U, S plane; 11.2 Y1; 11.3 O1; 11.4 O2; 11.5 E2; 11.6 A1; 11.7 R1). Clause 11 breakdown: [`STS_Clause11_Interface_Tests.md`](STS_Clause11_Interface_Tests.md).
+- Pending the PDF: the end-to-end (clause 24) A1 robustness case, and every individual `TC_*`.
 
 ## Normative basis
 
