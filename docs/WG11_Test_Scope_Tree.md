@@ -4,6 +4,12 @@ What O-RAN WG11 security testing covers, across every interface and test type, a
 which part Sani is working on now. Source: O-RAN Security Test Specifications
 (STS, ETSI TS 104 105). Clause numbers marked `confirm` still need the spec PDF.
 
+> This is a draft map, not the full STS contents. The real STS has about 178
+> test cases; this tree shows the structure and the current slice, not every
+> case. Clause numbers are unverified until the PDF is read. For the interface
+> fuzz capability that answers RTEC questionnaire C7.3, see
+> [`RTEC_C7_3_Fuzz_Capability.md`](RTEC_C7_3_Fuzz_Capability.md).
+
 Legend:
 - `[NOW]` current work
 - `[later]` planned if time permits
