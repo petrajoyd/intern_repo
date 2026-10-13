@@ -1,9 +1,10 @@
 <h1 align="center">Example: Implementation Guide in SOP Format</h1>
 
-> This is a format example for Sani, adapted from Joy's Kubernetes deployment
-> guide and rewritten to the bmw SOP `implementation.md` structure. The subject
-> (a single-node Kubernetes cluster) is just the vehicle. Copy the shape, not the
-> content. Real lab IPs and hostnames are replaced with placeholders.
+> A reference for current and future interns: what an implementation guide should
+> look like in the bmw SOP format. Adapted from a real Kubernetes deployment guide
+> and rewritten to the SOP `implementation.md` structure. The subject (a single-node
+> Kubernetes cluster) is just the vehicle. Copy the shape, not the content. Real lab
+> IPs and hostnames are replaced with placeholders.
 >
 > SOP rules this example shows: one command one block with its output commented in
 > the same block (rule 1), a `# run from:` line on every block (rule 2), a
