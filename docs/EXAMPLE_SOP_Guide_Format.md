@@ -59,18 +59,28 @@ Everything that must exist before setup. Secret values stay out of Git, list poi
 
 ## System Architecture
 
-```
- laptop ──── lab LAN <lab-subnet> ────┐
-                                      │ <nic> <vm-ip>
- ┌──────────────── VM <node> ─────────┴──────────────────────┐
- │ kubeadm cluster (API :6443)                               │
- │   control plane + worker on one node                      │
- │   pods: Calico 10.244.0.0/16                              │
- │   nginx NodePort :30080                                   │
- └───────────────────────────────────────────────────────────┘
-```
+A real diagram names IP addresses per component, protocols and ports, and the
+data-flow direction. GitHub renders Mermaid, so draw it inline:
 
-Include in a real diagram: IP addresses per component, protocols and ports, data-flow direction.
+```mermaid
+flowchart LR
+  laptop["Laptop"]
+
+  subgraph vm["VM: node (vm-ip)"]
+    direction TB
+    nic["NIC on lab LAN"]
+    api["kube-apiserver :6443"]
+    cp["control plane + worker<br/>(single node)"]
+    pods["pods<br/>Calico 10.244.0.0/16"]
+    nginx["nginx Service<br/>NodePort :30080"]
+    nic --> api --> cp
+    cp --> pods
+    cp --> nginx
+  end
+
+  laptop -->|"lab LAN (lab-subnet)"| nic
+  laptop -->|"HTTP GET :30080"| nginx
+```
 
 ## Access Method
 
